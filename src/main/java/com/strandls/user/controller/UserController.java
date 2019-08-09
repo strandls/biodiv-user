@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.pojo.User;
+import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -64,6 +65,26 @@ public class UserController {
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
 			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.IBP + "/{userId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	
+
+	@ApiOperation(value = "Find User by User ID for ibp", notes = "Returns User details", response = UserIbp.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = UserIbp.class),
+			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+
+	public Response getUserIbp(@PathParam("userId") String userId) {
+		try {
+			Long id = Long.parseLong(userId);
+			UserIbp ibp = userSerivce.fetchUserIbp(id);
+			return Response.status(Status.OK).entity(ibp).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 	}
 }
