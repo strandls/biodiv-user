@@ -50,8 +50,7 @@ public class UserController {
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ApiOperation(value = "Find User by User ID", notes = "Returns User details", response = User.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = User.class),
-			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
 	public Response getUser(@PathParam("userId") String userId) {
 
@@ -70,8 +69,7 @@ public class UserController {
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ApiOperation(value = "Find User by User ID for ibp", notes = "Returns User details", response = UserIbp.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = UserIbp.class),
-			@ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
 	public Response getUserIbp(@PathParam("userId") String userId) {
 		try {
