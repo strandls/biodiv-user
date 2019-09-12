@@ -25,9 +25,9 @@
 		<openapi-generator-cli.version>4.0.3</openapi-generator-cli.version>
 
 		<!-- Project property -->
-		<war-name>user</war-name>
+		<war-name>user-api</war-name>
 		<srcDir>src/main/webapp</srcDir>
-		<base-path>/user/api</base-path>
+		<base-path>/user-api/api</base-path>
 		<location>com.strandls.user</location>
 	</properties>
 
