@@ -1,1 +1,0 @@
-curl -L http://bit.ly/maven-toolbox | bash
