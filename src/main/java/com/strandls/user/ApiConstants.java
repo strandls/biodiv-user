@@ -17,5 +17,11 @@ public class ApiConstants {
 	public static final String USER = "/user";
 	public static final String PING = "/ping";
 	public static final String IBP = "/ibp";
+	public static final String AUTHENTICATE = "/authenticate";
+	public static final String USERS = "/users";
+	public static final String ME = "/me";
+	public static final String LOGIN = "/login";
+	public static final String REFRESH_TOKENS = "/refresh-tokens";
+	public static final String VALIDATE_TOKEN = "/validate-token";
 
 }

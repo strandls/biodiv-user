@@ -4,11 +4,16 @@
 package com.strandls.user.pojo;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,7 +27,7 @@ import io.swagger.annotations.ApiModel;
 @ApiModel
 @Entity
 @Table(name = "suser")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "password" })
 public class User implements Serializable {
 
 	/**
@@ -41,6 +46,8 @@ public class User implements Serializable {
 	private String name;
 	private String profilePic;
 	private String icon;
+	private String password;
+	private Set<Role> roles;
 
 	@Id
 	@GeneratedValue
@@ -51,6 +58,15 @@ public class User implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	@Column(name = "password")
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Column(name = "account_expired")
@@ -141,6 +157,18 @@ public class User implements Serializable {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "suser_role", joinColumns = { @JoinColumn(name = "s_user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "role_id") })
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 }

@@ -31,4 +31,9 @@ public class UserServiceImpl implements UserService{
 		return ibp;
 	}
 
+	@Override
+	public User getUserByEmail(String userEmail) {
+		return this.userDao.findByUserEmail(userEmail);
+	}
+
 }
