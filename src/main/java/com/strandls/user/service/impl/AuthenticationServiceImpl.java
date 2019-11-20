@@ -64,7 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return response;
 	}
 	
-	public static String generateAccessToken(CommonProfile profile, User user) {
+	private String generateAccessToken(CommonProfile profile, User user) {
 		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
 				new SecretSignatureConfiguration(ApplicationConfig.JWT_SALT));
 		
@@ -84,7 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return jwtToken;
 	}
 	
-	public static String generateRefreshToken(CommonProfile profile, User user) {
+	private String generateRefreshToken(CommonProfile profile, User user) {
 		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
 				new SecretSignatureConfiguration(ApplicationConfig.JWT_SALT));
 		

@@ -23,8 +23,12 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.jwt.ClaimsSet;
 import org.apache.oltu.oauth2.jwt.JWT;
 import org.apache.oltu.oauth2.jwt.io.JWTReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.strandls.user.ApiConstants;
+import com.strandls.user.controller.AuthenticationController;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;
@@ -34,8 +38,10 @@ import com.strandls.user.util.PropertyFileUtil;
 import io.swagger.annotations.Api;
 
 @Api("Google Service")
-@Path("/oauth2callback")
+@Path(ApiConstants.GOOGLE_CALLBACK)
 public class GoogleAuthorizationResource {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GoogleAuthorizationResource.class);
 
 	@Context
 	private UriInfo uriInfo;
@@ -67,15 +73,17 @@ public class GoogleAuthorizationResource {
 			ClaimsSet claims = jwt.getClaimsSet();
 			String email = claims.getCustomField("email", String.class);
 			User user = this.userService.getUserByEmail(email);
+			
+			// Implement this later
 			if (user == null) {
-				// Write logic later (Register)
-				System.out.println("User Null");
+				
 			}
 			
 			Map<String, Object> tokens = this.authenticationService.buildTokens(AuthUtility.createUserProfile(user), user, true);						 
 			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
 					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
 		} catch (Exception ex) {
+			logger.error(ex.getMessage());
 			return Response.status(Status.FORBIDDEN).entity(ex.getMessage()).build();			
 		}
 	}

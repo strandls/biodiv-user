@@ -66,7 +66,6 @@ public class AuthenticationController {
 			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
 					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.FORBIDDEN).entity(ex.getMessage()).build();
 		}
@@ -92,7 +91,6 @@ public class AuthenticationController {
 			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
 					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.FORBIDDEN).entity(ex.getMessage()).build();
 		}
@@ -115,6 +113,7 @@ public class AuthenticationController {
 			return Response.status(validToken ? Status.OK : Status.UNAUTHORIZED).entity(String.valueOf(validToken))
 					.build();
 		} catch (Exception ex) {
+			logger.error(ex.getMessage());
 			return Response.status(Status.FORBIDDEN).entity("Invalid Access Token").build();
 		}
 	}

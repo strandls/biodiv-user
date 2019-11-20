@@ -13,20 +13,24 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.common.OAuthProviderType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.strandls.user.ApiConstants;
 import com.strandls.user.util.PropertyFileUtil;
 
 import io.swagger.annotations.Api;
 
 @Api("Google Callback Service")
-@Path("/google")
+@Path(ApiConstants.GOOGLE)
 public class GoogleResource {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GoogleResource.class);
 	
 	@Context
 	private UriInfo uriInfo;
 	
 	@GET
-	@Path("/auth")
 	@Produces("text/html")
 	public Response authenticate() {
 		try {
@@ -40,6 +44,7 @@ public class GoogleResource {
 			URI redirect = new URI(request.getLocationUri());
 			return Response.seeOther(redirect).build();
  		} catch (Exception ex) {
+ 			logger.error(ex.getMessage());
  			return Response.status(Status.FORBIDDEN).entity(ex.getMessage()).build();
  		}
 	}
