@@ -5,6 +5,7 @@ package com.strandls.user.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,24 @@ public class UserDao extends AbstractDAO<User, Long> {
 			session.close();
 		}
 
+		return entity;
+	}
+
+	@SuppressWarnings("unchecked")
+	public User findByUserEmail(String email) {
+		Session session = sessionFactory.openSession();
+		String hql = "from User u where u.email = :email";
+		User entity = null;
+		try {
+			Query<User> query = session.createQuery(hql); 
+			query.setParameter("email", email);
+			
+			entity = query.getSingleResult();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
 		return entity;
 	}
 

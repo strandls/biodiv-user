@@ -15,5 +15,6 @@ public interface UserService {
 	public User fetchUser(Long userId);
 	
 	public UserIbp fetchUserIbp(Long userId);
+	public User getUserByEmail(String userEmail);
 
 }

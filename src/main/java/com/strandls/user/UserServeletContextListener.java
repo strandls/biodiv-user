@@ -26,6 +26,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
+import com.strandls.user.filter.UserFilterModule;
 import com.strandls.user.service.impl.UserServiceModule;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
@@ -67,7 +68,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				serve("/api/*").with(GuiceContainer.class,props);
 			}
-		}, new UserControllerModule(), new UserServiceModule(),new UserDaoModule());
+		}, new UserControllerModule(), new UserServiceModule(), new UserFilterModule(), new UserDaoModule());
 
 		return injector;
 

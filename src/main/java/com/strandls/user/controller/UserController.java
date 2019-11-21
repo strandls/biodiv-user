@@ -3,16 +3,19 @@
  */
 package com.strandls.user.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
+import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
@@ -37,10 +40,9 @@ public class UserController {
 
 	@GET
 	@Path(ApiConstants.PING)
-	@Produces(MediaType.TEXT_PLAIN)
-
+	@Produces(MediaType.TEXT_PLAIN)	
 	@ApiOperation(value = "Dummy API Ping", notes = "Checks validity of war file at deployment", response = String.class)
-	public Response ping() {
+	public Response ping() throws Exception {
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 
@@ -48,11 +50,11 @@ public class UserController {
 	@Path("/{userId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-
+	@ValidateUser
 	@ApiOperation(value = "Find User by User ID", notes = "Returns User details", response = User.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
-	public Response getUser(@PathParam("userId") String userId) {
+	public Response getUser(@Context HttpServletRequest request, @PathParam("userId") String userId) {
 
 		try {
 			Long uId = Long.parseLong(userId);
@@ -67,11 +69,11 @@ public class UserController {
 	@Path(ApiConstants.IBP + "/{userId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-
+	@ValidateUser
 	@ApiOperation(value = "Find User by User ID for ibp", notes = "Returns User details", response = UserIbp.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
-	public Response getUserIbp(@PathParam("userId") String userId) {
+	public Response getUserIbp(@Context HttpServletRequest request, @PathParam("userId") String userId) {
 		try {
 			Long id = Long.parseLong(userId);
 			UserIbp ibp = userSerivce.fetchUserIbp(id);
