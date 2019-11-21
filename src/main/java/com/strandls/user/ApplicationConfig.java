@@ -52,7 +52,7 @@ public class ApplicationConfig extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		JWT_SALT = properties.getProperty("jwtSalt", "12345678901234567890123456789012");
+		JWT_SALT = properties.getProperty("jwtSalt");
 
 		jwtAuthenticator = new JwtAuthenticator();
 		jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));

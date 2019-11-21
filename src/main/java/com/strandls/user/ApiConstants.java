@@ -24,6 +24,7 @@ public class ApiConstants {
 	public static final String REFRESH_TOKENS = "/refresh-tokens";
 	public static final String VALIDATE_TOKEN = "/validate-token";
 	public static final String GOOGLE = "/google";
-	public static final String GOOGLE_CALLBACK = "/google";
+	public static final String GOOGLE_CALLBACK = "/oauth2callback"; // Change redirection URL in Google Console 
+	 // for Biodiv Password
 
 }
