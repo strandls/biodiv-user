@@ -13,27 +13,15 @@ import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.core.profile.jwt.JwtClaims;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.profile.JwtGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.ApplicationConfig;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
-import com.strandls.user.service.UserService;
 import com.strandls.user.util.JWTUtil;
-import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-	
-	@Inject
-	private UserService userService;
-	
-	@Inject
-	private MessageDigestPasswordEncoder passwordEncoder;
 	
 	@Inject
 	private SimpleUsernamePasswordAuthenticator usernamePasswordAuthenticator;

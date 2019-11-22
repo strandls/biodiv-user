@@ -14,7 +14,7 @@ public class PropertyFileUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            return result;
         }
+		return result;
     }
 }
