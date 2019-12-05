@@ -13,7 +13,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.google.inject.Inject;
-import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
@@ -48,6 +47,7 @@ public class UserController {
 	@Path("/{userId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
+	
 	@ApiOperation(value = "Find User by User ID", notes = "Returns User details", response = User.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
 
@@ -67,9 +67,9 @@ public class UserController {
 	@Path(ApiConstants.IBP + "/{userId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ValidateUser
+
 	@ApiOperation(value = "Find User by User ID for ibp", notes = "Returns User details", response = UserIbp.class)
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "Traits not found", response = String.class) })
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 
 	public Response getUserIbp(@PathParam("userId") String userId) {
 		try {
