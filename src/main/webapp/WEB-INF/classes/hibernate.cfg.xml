@@ -15,7 +15,10 @@
 		<property name="hbm2ddl.auto">update</property>
 
 		<property name="show_sql">true</property>
-		
-		<mapping class="com.strandls.user.pojo.User"/>
+
+		<mapping class="com.strandls.user.pojo.User" />
+		<mapping class="com.strandls.user.pojo.SpeciesPermission" />
+		<mapping class="com.strandls.user.pojo.UserGroupMemberRole" />
+
 	</session-factory>
 </hibernate-configuration>

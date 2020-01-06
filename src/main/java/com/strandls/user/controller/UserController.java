@@ -22,6 +22,7 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
+import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -102,6 +103,29 @@ public class UserController {
 			Long uId = Long.parseLong(profile.getId());
 			User user = userSerivce.fetchUser(uId);
 			return Response.status(Status.OK).entity(user).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.PERMISSIONS)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Finds all the allowed Permissions", notes = "Returns All permission of the User", response = UserPermissions.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to fetch the User Permission", response = String.class) })
+
+	public Response getAllUserPermission(@Context HttpServletRequest request) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			UserPermissions permission = userSerivce.getUserPermissions(userId);
+
+			return Response.status(Status.OK).entity(permission).build();
+
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

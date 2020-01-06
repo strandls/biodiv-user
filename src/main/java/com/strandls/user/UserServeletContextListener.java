@@ -68,7 +68,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				serve("/api/*").with(GuiceContainer.class, props);
 			}
-		}, new UserControllerModule(),new FilterModule(), new UserServiceModule(), new UserDaoModule());
+		}, new UserControllerModule(), new FilterModule(), new UserServiceModule(), new UserDaoModule());
 
 		return injector;
 
