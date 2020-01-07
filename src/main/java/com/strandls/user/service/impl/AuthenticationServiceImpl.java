@@ -96,7 +96,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
 		jwtClaims.put(CommonProfileDefinition.EMAIL, profile.getEmail());
-		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getAccessTokenExpiryDate());
+		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getRefreshTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
 		jwtClaims.put("roles", roles);
 
