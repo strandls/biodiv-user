@@ -72,7 +72,7 @@ public class AuthenticationController {
 	@POST
 	@Path(ApiConstants.REFRESH_TOKENS)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@ApiOperation(value = "Generates new set of tokens based on the refresh token", notes = "Returns New Set of Tokens", response = Map.class)
 	@ApiResponses(value = { @ApiResponse(code = 403, message = "Invalid refresh token", response = String.class) })
 	public Response generateNewTokens(@QueryParam("refreshToken") String refreshToken) {
