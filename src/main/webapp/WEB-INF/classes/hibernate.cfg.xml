@@ -18,5 +18,7 @@
 		
 		<mapping class="com.strandls.user.pojo.User"/>
 		<mapping class="com.strandls.user.pojo.Verification"/>
+		<mapping class="com.strandls.user.pojo.SpeciesPermission" />
+		<mapping class="com.strandls.user.pojo.UserGroupMemberRole" />
 	</session-factory>
 </hibernate-configuration>

@@ -17,5 +17,7 @@ public class UserDaoModule extends AbstractModule {
 		bind(UserDao.class).in(Scopes.SINGLETON);
 		bind(RoleDao.class).in(Scopes.SINGLETON);
 		bind(LanguageDao.class).in(Scopes.SINGLETON);
+		bind(SpeciesPermissionDao.class).in(Scopes.SINGLETON);
+		bind(UserGroupMemberRoleDao.class).in(Scopes.SINGLETON);
 	}
 }

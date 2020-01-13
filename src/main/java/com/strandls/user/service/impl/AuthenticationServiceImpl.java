@@ -35,7 +35,6 @@ import com.strandls.user.util.JWTUtil;
 import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
-import com.strandls.user.util.TemplateUtil;
 
 import freemarker.template.Configuration;
 
@@ -51,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	@Inject
 	private MessageDigestPasswordEncoder passwordEncoder;
-	
+
 	@Inject
 	private SimpleUsernamePasswordAuthenticator usernamePasswordAuthenticator;
 	

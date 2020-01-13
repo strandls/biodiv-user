@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
-import com.strandls.user.filter.UserFilterModule;
 import com.strandls.user.service.impl.UserServiceModule;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
@@ -59,16 +59,16 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				configuration = configuration.configure();
 				SessionFactory sessionFactory = configuration.buildSessionFactory();
-				
+
 				Map<String, String> props = new HashMap<String, String>();
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
 
-				serve("/api/*").with(GuiceContainer.class,props);
+				serve("/api/*").with(GuiceContainer.class, props);
 			}
-		}, new UserControllerModule(), new UserServiceModule(), new UserFilterModule(), new UserDaoModule());
+		}, new UserControllerModule(), new FilterModule(), new UserServiceModule(), new UserDaoModule());
 
 		return injector;
 

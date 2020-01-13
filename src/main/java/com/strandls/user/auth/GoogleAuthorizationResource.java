@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.controller.AuthenticationController;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;

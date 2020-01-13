@@ -1,12 +1,6 @@
 package com.strandls.user.controller;
 
-import java.io.StringWriter;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -14,7 +8,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -28,25 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.strandls.user.util.MailThread;
-import com.strandls.user.util.MailUtil;
-import com.strandls.user.util.MessageDigestPasswordEncoder;
-import com.strandls.user.util.PropertyFileUtil;
-import com.strandls.user.util.TemplateUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.ApplicationConfig;
 import com.strandls.user.dto.UserDTO;
-import com.strandls.user.pojo.Language;
-import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
-import com.strandls.user.service.LanguageService;
-import com.strandls.user.service.RoleService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.ValidationUtil;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -63,15 +45,6 @@ public class AuthenticationController {
 
 	@Inject
 	private UserService userService;
-	
-	@Inject
-	private RoleService roleService;
-	
-	@Inject 
-	private LanguageService languageService;
-	
-	@Inject
-	private Configuration configuration;
 
 	@GET
 	@Path(ApiConstants.PING)
