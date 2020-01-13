@@ -7,7 +7,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.ApplicationConfig;
-import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;
 
