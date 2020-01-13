@@ -21,6 +21,7 @@ public class ApiConstants {
 	public static final String USERS = "/users";
 	public static final String ME = "/me";
 	public static final String LOGIN = "/login";
+	public static final String SIGNUP = "/signup";
 	public static final String REFRESH_TOKENS = "/refresh-tokens";
 	public static final String VALIDATE_TOKEN = "/validate-token";
 	public static final String GOOGLE = "/google";

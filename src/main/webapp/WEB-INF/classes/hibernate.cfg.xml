@@ -17,5 +17,6 @@
 		<property name="show_sql">true</property>
 		
 		<mapping class="com.strandls.user.pojo.User"/>
+		<mapping class="com.strandls.user.pojo.Verification"/>
 	</session-factory>
 </hibernate-configuration>

@@ -15,5 +15,7 @@ public class UserDaoModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(UserDao.class).in(Scopes.SINGLETON);
+		bind(RoleDao.class).in(Scopes.SINGLETON);
+		bind(LanguageDao.class).in(Scopes.SINGLETON);
 	}
 }

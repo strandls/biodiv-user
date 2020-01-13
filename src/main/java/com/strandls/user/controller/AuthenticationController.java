@@ -1,7 +1,14 @@
 package com.strandls.user.controller;
 
+import java.io.StringWriter;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -10,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -20,12 +28,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.strandls.user.util.MailThread;
+import com.strandls.user.util.MailUtil;
+import com.strandls.user.util.MessageDigestPasswordEncoder;
+import com.strandls.user.util.PropertyFileUtil;
+import com.strandls.user.util.TemplateUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.ApplicationConfig;
+import com.strandls.user.dto.UserDTO;
+import com.strandls.user.pojo.Language;
+import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
+import com.strandls.user.service.LanguageService;
+import com.strandls.user.service.RoleService;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.ValidationUtil;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -42,6 +63,15 @@ public class AuthenticationController {
 
 	@Inject
 	private UserService userService;
+	
+	@Inject
+	private RoleService roleService;
+	
+	@Inject 
+	private LanguageService languageService;
+	
+	@Inject
+	private Configuration configuration;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -116,6 +146,51 @@ public class AuthenticationController {
 			logger.error(ex.getMessage());
 			return Response.status(Status.FORBIDDEN).entity("Invalid Access Token").build();
 		}
+	}
+	
+	@POST
+	@Path(ApiConstants.SIGNUP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response signUp(@Context HttpServletRequest request, UserDTO userDTO) {
+		try {
+			String username = userDTO.getUsername();
+			String email = userDTO.getEmail().toLowerCase().trim();
+			String password = userDTO.getPassword();
+			String confirmPassword = userDTO.getConfirmPassword();
+			String location = userDTO.getLocation();
+			Double latitude = userDTO.getLatitude();
+			Double longitude = userDTO.getLongitude();
+			if (username == null || username.isEmpty()) {
+				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();	
+			}
+			if (email == null || !ValidationUtil.validateEmail(email)) {
+				return Response.status(Status.BAD_REQUEST).entity("Email empty or not valid").build();
+			}
+			if (!password.equals(confirmPassword) || password.length() < 8) {
+				return Response.status(Status.BAD_REQUEST).entity("Password must be longer than 8 characters").build();
+			}
+			if (location == null) {
+				return Response.status(Status.BAD_REQUEST).entity("Location cannot be null").build();
+			}
+			if (latitude == null) {
+				return Response.status(Status.BAD_REQUEST).entity("Latitude cannot be null").build();
+			}
+			if (longitude == null) {
+				return Response.status(Status.BAD_REQUEST).entity("Longitude cannot be null").build();
+			}
+			User user = authenticationService.addUser(request, userDTO);
+			
+			return Response.status(Status.OK).entity("1").build();
+		} catch (Exception ex) {
+			return Response.status(Status.BAD_REQUEST).entity("Could not create user").build();		
+		}
+	}
+	
+	@GET
+	@Path("/validate")
+	public Response validateAccount(@QueryParam("token") String token) {
+		return Response.status(Status.OK).build();
 	}
 
 }
