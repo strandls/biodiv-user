@@ -27,5 +27,9 @@ public class ApiConstants {
 	public static final String PERMISSIONS = "/permissions";
 	public static final String GOOGLE_CALLBACK = "/oauth2callback"; // Change redirection URL in Google Console
 	// for Biodiv Password
+	public static final String FOLLOW = "/follow";
+	public static final String OBJECTFOLLOW = "/objectfollow";
+	public static final String USERFOLLOW = "/userfollow";
+	public static final String UNFOLLOW = "/unfollow";
 
 }
