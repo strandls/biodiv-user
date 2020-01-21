@@ -230,7 +230,7 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.FOLLOW + "/{object}/{objectId}")
-	@Consumes(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 
