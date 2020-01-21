@@ -130,6 +130,8 @@ public class UserController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			Long objId = Long.parseLong(objectId);
+			if (objectType.equalsIgnoreCase("observation"))
+				objectType = "species.participation.Observation";
 			UserPermissions permission = userSerivce.getUserPermissions(userId, objectType, objId);
 
 			return Response.status(Status.OK).entity(permission).build();
