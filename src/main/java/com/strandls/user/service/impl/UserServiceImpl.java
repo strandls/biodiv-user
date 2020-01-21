@@ -5,6 +5,7 @@ package com.strandls.user.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.google.inject.Inject;
 import com.strandls.user.dao.FollowDao;
@@ -12,6 +13,7 @@ import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dao.UserGroupMemberRoleDao;
 import com.strandls.user.pojo.Follow;
+import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.SpeciesPermission;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserGroupMemberRole;
@@ -46,7 +48,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserIbp fetchUserIbp(Long userId) {
 		User user = userDao.findById(userId);
-		UserIbp ibp = new UserIbp(user.getId(), user.getName(), user.getProfilePic());
+		Set<Role> roles = user.getRoles();
+		Boolean isAdmin = false;
+		for (Role role : roles) {
+			if (role.getAuthority().equalsIgnoreCase("ROLE_ADMIN")) {
+				isAdmin = true;
+				break;
+			}
+		}
+		UserIbp ibp = new UserIbp(user.getId(), user.getName(), user.getProfilePic(), isAdmin);
 		return ibp;
 	}
 
