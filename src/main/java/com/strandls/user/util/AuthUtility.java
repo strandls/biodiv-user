@@ -1,10 +1,7 @@
 package com.strandls.user.util;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.pac4j.core.context.Pac4jConstants;
@@ -23,7 +20,6 @@ public class AuthUtility {
 		try {
 			Set<Role> roles = user.getRoles();
 			Set<String> strRoles = new LinkedHashSet<>();
-			List<String> authorities = new ArrayList<>();
 			
 			for (Role r: roles) {
 				strRoles.add(r.getAuthority());
