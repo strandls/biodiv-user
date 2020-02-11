@@ -2,9 +2,14 @@ package com.strandls.user.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
-public class UserDTO {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@XmlRootElement
+@JsonInclude(value = Include.NON_NULL)
+public class UserDTO {
+	
+	private Long id;
 	private String email;
 	private String password;
 	private String confirmPassword;
@@ -17,6 +22,15 @@ public class UserDTO {
 	private String profession;
 	private String institution;
 	private String mapLocation;
+	private String verificationType;
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
 	
 	public String getUsername() {
 		return username;
@@ -89,6 +103,12 @@ public class UserDTO {
 	}
 	public void setMapLocation(String mapLocation) {
 		this.mapLocation = mapLocation;
+	}
+	public String getVerificationType() {
+		return verificationType;
+	}
+	public void setVerificationType(String verificationType) {
+		this.verificationType = verificationType;
 	}
 
 }

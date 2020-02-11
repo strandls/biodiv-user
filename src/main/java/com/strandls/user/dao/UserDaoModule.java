@@ -5,6 +5,7 @@ package com.strandls.user.dao;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import com.strandls.user.pojo.UserVerification;
 
 /**
  * @author Abhishek Rudra
@@ -19,5 +20,6 @@ public class UserDaoModule extends AbstractModule {
 		bind(LanguageDao.class).in(Scopes.SINGLETON);
 		bind(SpeciesPermissionDao.class).in(Scopes.SINGLETON);
 		bind(UserGroupMemberRoleDao.class).in(Scopes.SINGLETON);
+		bind(UserVerification.class).in(Scopes.SINGLETON);
 	}
 }

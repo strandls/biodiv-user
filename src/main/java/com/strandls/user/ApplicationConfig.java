@@ -37,9 +37,6 @@ public class ApplicationConfig extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
 
-	public static JwtAuthenticator jwtAuthenticator;
-	public static String JWT_SALT;
-
 	/**
 	 * 
 	 */
@@ -52,10 +49,6 @@ public class ApplicationConfig extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		JWT_SALT = properties.getProperty("jwtSalt");
-
-		jwtAuthenticator = new JwtAuthenticator();
-		jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));
 
 		BeanConfig beanConfig = new BeanConfig();
 		beanConfig.setVersion(properties.getProperty("version"));

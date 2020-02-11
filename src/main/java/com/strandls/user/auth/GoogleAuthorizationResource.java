@@ -58,8 +58,8 @@ public class GoogleAuthorizationResource {
 			OAuthClientRequest request = OAuthClientRequest
 					.tokenProvider(OAuthProviderType.GOOGLE)
 					.setCode(code)
-					.setClientId(PropertyFileUtil.fetchProperty("biodiv-api.properties", "googleId"))
-					.setClientSecret(PropertyFileUtil.fetchProperty("biodiv-api.properties", "googleSecret"))
+					.setClientId(PropertyFileUtil.fetchProperty("config.properties", "googleId"))
+					.setClientSecret(PropertyFileUtil.fetchProperty("config.properties", "googleSecret"))
 					.setRedirectURI(UriBuilder.fromUri(uriInfo.getBaseUri()).path("oauth2callback").build().toString())
 					.setGrantType(GrantType.AUTHORIZATION_CODE)
 					.buildBodyMessage();

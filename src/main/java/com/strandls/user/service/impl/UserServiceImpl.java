@@ -48,6 +48,11 @@ public class UserServiceImpl implements UserService {
 	public User getUserByEmail(String userEmail) {
 		return userDao.findByUserEmail(userEmail);
 	}
+	
+	@Override
+	public User getUserByMobile(String mobileNumber) {
+		return userDao.findByUserMobile(mobileNumber);
+	}
 
 	@Override
 	public UserPermissions getUserPermissions(Long userId) {
@@ -56,6 +61,17 @@ public class UserServiceImpl implements UserService {
 		List<UserGroupMemberRole> userFeatureRole = userGroupMemberDao.findUserGroupbyUserIdRole(userId);
 		UserPermissions permissions = new UserPermissions(allowedTaxonList, userMemberRole, userFeatureRole);
 		return permissions;
+	}
+	
+	@Override
+	public User updateUser(User user) {
+		return userDao.update(user);
+	}
+
+	@Override
+	public User getUserByEmailOrMobile(String data) {
+		// TODO Auto-generated method stub
+		return userDao.findByUserEmailOrMobile(data);
 	}
 
 }

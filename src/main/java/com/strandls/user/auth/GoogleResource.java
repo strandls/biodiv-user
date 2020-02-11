@@ -36,7 +36,7 @@ public class GoogleResource {
 		try {
 			OAuthClientRequest request = OAuthClientRequest
 					.authorizationProvider(OAuthProviderType.GOOGLE)
-					.setClientId(PropertyFileUtil.fetchProperty("biodiv-api.properties", "googleId"))
+					.setClientId(PropertyFileUtil.fetchProperty("config.properties", "googleId"))
 					.setResponseType("code")
 					.setScope("profile email")
 					.setRedirectURI(UriBuilder.fromUri(uriInfo.getBaseUri()).path("oauth2callback").build().toString())

@@ -27,7 +27,7 @@ public class MailUtil {
 	private final static String password;
 	
 	static {
-		Properties prop = PropertyFileUtil.fetchProperty("biodiv-api.properties");
+		Properties prop = PropertyFileUtil.fetchProperty("config.properties");
 		username = prop.getProperty("username");
 		password = prop.getProperty("password");
 	}

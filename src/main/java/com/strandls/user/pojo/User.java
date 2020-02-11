@@ -64,7 +64,16 @@ public class User implements Serializable {
 	private Boolean sendNotification;
 	private Boolean emailValidation;
 	private Boolean mobileValidation;
+	private Date lastLoginDate;
 	private Set<Role> roles;
+	private Float timezone;
+	private Boolean identificationMail;
+
+	public User() {}
+	
+	public User(Long id) {
+		this.id = id;
+	}
 
 	@Id
 	@GeneratedValue
@@ -138,6 +147,15 @@ public class User implements Serializable {
 
 	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	@Column(name = "last_login_date")
+	public Date getLastLoginDate() {
+		return lastLoginDate;
+	}
+	
+	public void setLastLoginDate(Date lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
 	}
 
 	@Column(name = "username")
@@ -312,6 +330,24 @@ public class User implements Serializable {
 	
 	public void setMobileValidation(Boolean mobileValidation) {
 		this.mobileValidation = mobileValidation;
+	}
+
+	@Column(name = "timezone")
+	public Float getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(Float timezone) {
+		this.timezone = timezone;
+	}
+
+	@Column(name = "allow_identifaction_mail")
+	public Boolean getIdentificationMail() {
+		return identificationMail;
+	}
+
+	public void setIdentificationMail(Boolean identificationMail) {
+		this.identificationMail = identificationMail;
 	}	
 
 }

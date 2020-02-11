@@ -11,8 +11,12 @@ import com.strandls.user.pojo.User;
 
 public interface AuthenticationService {
 	
-	public CommonProfile authenticateUser(String email, String password) throws Exception;
+	public Map<String, Object> authenticateUser(String email, String password) throws Exception;
 	public Map<String, Object> buildTokens(CommonProfile profile, User user, boolean getRefreshToken);
-	public User addUser(HttpServletRequest request, UserDTO user);
+	public Map<String, Object> addUser(HttpServletRequest request, UserDTO user) throws Exception;
+	public Map<String, Object> validateUser(HttpServletRequest request, Long id, String otp);
+	public Map<String, Object> regenerateOTP(HttpServletRequest request, Long id, int action);
+	public Map<String, Object> forgotPassword(HttpServletRequest request, String verificationId);
+	public Map<String, Object> resetPassword(HttpServletRequest request, Long id, String otp, String password);
 	
 }

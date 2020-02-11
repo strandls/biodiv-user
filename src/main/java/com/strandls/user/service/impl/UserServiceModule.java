@@ -9,7 +9,9 @@ import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.LanguageService;
 import com.strandls.user.service.MailService;
 import com.strandls.user.service.RoleService;
+import com.strandls.user.service.SMSService;
 import com.strandls.user.service.UserService;
+import com.strandls.user.service.UserVerificationService;
 
 /**
  * @author Abhishek Rudra
@@ -24,5 +26,7 @@ public class UserServiceModule extends AbstractModule {
 		bind(RoleService.class).to(RoleServiceImpl.class).in(Scopes.SINGLETON);
 		bind(LanguageService.class).to(LanguageServiceImpl.class).in(Scopes.SINGLETON);
 		bind(MailService.class).to(MailServiceImpl.class).in(Scopes.SINGLETON);
+		bind(UserVerificationService.class).to(UserVerificationServiceImpl.class).in(Scopes.SINGLETON);
+		bind(SMSService.class).to(SMSServiceImpl.class).in(Scopes.SINGLETON);
 	}
 }
