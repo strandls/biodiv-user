@@ -26,8 +26,8 @@ public class SNSUtil {
 	
 	static {
 		Properties prop = PropertyFileUtil.fetchProperty("config.properties");
-		ACCESS_ID = prop.getProperty("sns.access_id");
-		SECRET_ACCESS_KEY = prop.getProperty("sns.secret_access_key");
+		ACCESS_ID = prop.getProperty("sns_access_id");
+		SECRET_ACCESS_KEY = prop.getProperty("sns_secret_access_key");
 	}
 	
 	public SNSUtil() {}

@@ -33,7 +33,7 @@ public class MailServiceImpl implements MailService {
 		model.put("otp", otp);
 		String content = templates.getTemplateAsString("activation.ftl", model);
 		
-		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail.bcc").split(",");
+		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc").split(",");
 		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Activate your account with India Biodiversity Portal", content, true);
 		Thread thread = new Thread(mail);
 		thread.start();
@@ -60,7 +60,7 @@ public class MailServiceImpl implements MailService {
 		model.put("facebookUrl", config.getProperty("facebookUrl"));
 		model.put("twitterUrl", config.getProperty("twitterUrl"));
 		model.put("feedbackFormUrl", config.getProperty("feedbackFormUrl"));
-		model.put("mailDefaultFrom", config.getProperty("mail.senderEmail"));
+		model.put("mailDefaultFrom", config.getProperty("mail_sender_email"));
 		model.put("welcomeEmailIntro", messages.getMessage("activationEmail.intro"));
 		model.put("welcomeEmailObservation", messages.getMessage("activationEmail.observation"));
 		model.put("welcomeEmailMap", messages.getMessage("activationEmail.map"));
@@ -70,7 +70,7 @@ public class MailServiceImpl implements MailService {
 		model.put("welcomeEmailDocuments", messages.getMessage("activationEmail.documents"));
 		String content = templates.getTemplateAsString("welcome.ftl", model);
 		
-		String[] bccUsers = config.getProperty("mail.bcc").split(",");		
+		String[] bccUsers = config.getProperty("mail_bcc").split(",");		
 		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Welcome to India Biodiversity Portal", content, true);
 		Thread thread = new Thread(mail);
 		thread.start();
@@ -91,7 +91,7 @@ public class MailServiceImpl implements MailService {
 		model.put("otp", otp);
 		String content = templates.getTemplateAsString("reset-password.ftl", model);
 		
-		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail.bcc").split(",");
+		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc").split(",");
 		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Reset password with India Biodiversity Portal", content, true);
 		Thread thread = new Thread(mail);
 		thread.start();

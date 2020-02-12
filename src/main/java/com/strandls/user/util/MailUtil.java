@@ -27,8 +27,8 @@ public class MailUtil {
 	
 	static {
 		Properties prop = PropertyFileUtil.fetchProperty("config.properties");
-		username = prop.getProperty("username");
-		password = prop.getProperty("password");
+		username = prop.getProperty("mail_smtp_username");
+		password = prop.getProperty("mail_smtp_password");
 	}
 	
 	public MailUtil() {}
