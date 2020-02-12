@@ -25,12 +25,10 @@ import com.google.inject.Inject;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
-import com.strandls.user.pojo.Language;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.AuthenticationService;
-import com.strandls.user.service.LanguageService;
 import com.strandls.user.service.MailService;
 import com.strandls.user.service.RoleService;
 import com.strandls.user.service.SMSService;
@@ -45,39 +43,41 @@ import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
 import com.strandls.user.util.ValidationUtil;
+import com.strandls.utility.controller.UtilityServiceApi;
+import com.strandls.utility.pojo.Language;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-	
+
 	@Inject
 	private UserService userService;
-	
+
 	@Inject
 	private UserDao userDao;
 
 	@Inject
 	private SimpleUsernamePasswordAuthenticator usernamePasswordAuthenticator;
-	
+
 	@Inject
-	private LanguageService languageService;
-	
+	private UtilityServiceApi utilityService;
+
 	@Inject
 	private RoleService roleService;
-	
+
 	@Inject
 	private MailService mailService;
-	
+
 	@Inject
 	private SMSService smsService;
-	
+
 	@Inject
 	private UserVerificationService verificationService;
-	
+
 	@Override
 	public Map<String, Object> authenticateUser(String userEmail, String password) throws Exception {
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userEmail, password);
-		usernamePasswordAuthenticator.validate(credentials, null);	
+		usernamePasswordAuthenticator.validate(credentials, null);
 		CommonProfile profile = credentials.getUserProfile();
 		User user = this.userService.fetchUser(Long.parseLong(profile.getId()));
 		Map<String, Object> tokens = new HashMap<String, Object>();
@@ -101,12 +101,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			response.put("access_token", accessToken);
 			response.put("token_type", "bearer");
 			response.put("timeout", JWTUtil.getAccessTokenExpiryDate());
-			
+
 			if (getRefreshToken) {
 				String refreshToken = generateRefreshToken(profile, user);
 				response.put("refresh_token", refreshToken);
 			}
-			
+
 			user.setLastLoginDate(new Date());
 			userService.updateUser(user);
 		} catch (Exception ex) {
@@ -114,11 +114,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return response;
 	}
-	
+
 	private String generateAccessToken(CommonProfile profile, User user) {
 		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
-		
+
 		Set<String> roles = new HashSet<String>();
 		user.getRoles().forEach(role -> roles.add(role.getAuthority()));
 
@@ -132,11 +132,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put("roles", roles);
 		return generator.generate(jwtClaims);
 	}
-	
+
 	private String generateRefreshToken(CommonProfile profile, User user) {
 		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
-		
+
 		Set<String> roles = new HashSet<String>();
 		user.getRoles().forEach(role -> roles.add(role.getAuthority()));
 
@@ -147,18 +147,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put(CommonProfileDefinition.EMAIL, profile.getEmail());
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getRefreshTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
-		jwtClaims.put("roles", roles);		
+		jwtClaims.put("roles", roles);
 		return generator.generate(jwtClaims);
 	}
-	
+
 	@Override
 	public Map<String, Object> addUser(HttpServletRequest request, UserDTO userDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		User user = new User();
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
-		user.setEmail(userDTO.getEmail().isEmpty() ? null: userDTO.getEmail());
-		user.setMobileNumber(userDTO.getMobileNumber().isEmpty() ? null: userDTO.getMobileNumber());
+		user.setEmail(userDTO.getEmail().isEmpty() ? null : userDTO.getEmail());
+		user.setMobileNumber(userDTO.getMobileNumber().isEmpty() ? null : userDTO.getMobileNumber());
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 		user.setPassword(passwordEncoder.encodePassword(userDTO.getPassword(), null));
 		user.setLocation(userDTO.getLocation());
@@ -176,24 +176,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setTimezone(0F);
 		user.setSendNotification(true);
 		user.setIdentificationMail(true);
-		try {			
+		try {
 			Locale locale = request.getLocale();
-			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
+			Language language = utilityService.getLanguageByTwoLetterCode(locale.getLanguage());
 			user.setLanguageId(language.getId());
-			
+
 			user.setVersion(0L);
 			User existingUser = null;
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
 			switch (verificationType) {
-				case "EMAIL": 
-					existingUser = userService.getUserByEmail(userDTO.getEmail());
-					break;
-				case "MOBILE": 
-					existingUser = userService.getUserByMobile(userDTO.getMobileNumber());
-					break;
-				default:
-					logger.debug("Invalid Verification Type");
-					throw new Exception("Invalid Verification Type");
+			case "EMAIL":
+				existingUser = userService.getUserByEmail(userDTO.getEmail());
+				break;
+			case "MOBILE":
+				existingUser = userService.getUserByMobile(userDTO.getMobileNumber());
+				break;
+			default:
+				logger.debug("Invalid Verification Type");
+				throw new Exception("Invalid Verification Type");
 			}
 			if (existingUser != null) {
 				response.put("status", false);
@@ -204,12 +204,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			response.put("status", true);
 			response.put("message", "User created successfully");
 			response.put("user", UserConverter.convertToDTO(user));
-			String otp = AppUtil.generateOTP();		
+			String otp = AppUtil.generateOTP();
 			if (verificationType.equalsIgnoreCase("EMAIL")) {
-				verificationService.saveOtp(user.getId(), otp, VERIFICATION_TYPE.EMAIL.toString(), user.getEmail(), VERIFICATION_ACTIONS.USER_REGISTRATION.toString());	
+				verificationService.saveOtp(user.getId(), otp, VERIFICATION_TYPE.EMAIL.toString(), user.getEmail(),
+						VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
 				mailService.sendActivationMail(request, user, otp);
 			} else if (verificationType.equalsIgnoreCase("MOBILE")) {
-				verificationService.saveOtp(user.getId(), otp, VERIFICATION_TYPE.MOBILE.toString(), user.getMobileNumber(), VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
+				verificationService.saveOtp(user.getId(), otp, VERIFICATION_TYPE.MOBILE.toString(),
+						user.getMobileNumber(), VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
 				smsService.sendSMS(user.getMobileNumber(), otp);
 			}
 		} catch (Exception ex) {
@@ -220,12 +222,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return response;
 	}
-	
+
 	@Override
 	public Map<String, Object> validateUser(HttpServletRequest request, Long id, String otp) {
 		Map<String, Object> result = new HashMap<>();
 		User user = null;
-		UserVerification verification = verificationService.getUserVerificationDetails(id, VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
+		UserVerification verification = verificationService.getUserVerificationDetails(id,
+				VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
 		if (verification == null) {
 			logger.debug("Account already verified or otp deleted");
 			result.put("status", false);
@@ -233,40 +236,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			return result;
 		}
 		try {
-			long time = verification.getDate().getTime() + verification.getTimeout().longValue(); 
+			long time = verification.getDate().getTime() + verification.getTimeout().longValue();
 			boolean validOTP = new Date(time).compareTo(new Date()) > 0;
 			if (validOTP && verification.getOtp().equals(otp)) {
 				user = userService.fetchUser(id);
-				String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames").split(",");
+				String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames")
+						.split(",");
 				Set<Role> roles = new HashSet<>();
-				for (String roleName: roleNames) {
+				for (String roleName : roleNames) {
 					roles.add(roleService.getRoleByName(roleName));
 				}
 				user.setAccountLocked(false);
 				user.setRoles(roles);
 				user = userDao.update(user);
-				
+
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				result = this.buildTokens(profile, user, true);
 				result.put("status", true);
 				result.put("message", "User validated successfully");
 				if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
-					mailService.sendWelcomeMail(request, user);				
+					mailService.sendWelcomeMail(request, user);
 				} else {
 					smsService.sendSMS(verification.getVerificationId(), "Welcome to IBP");
-				}				
+				}
 				verificationService.deleteOtp(verification.getId());
 			} else {
-				// Invalid OTP				
+				// Invalid OTP
 				result.put("status", false);
 				result.put("message", "Invalid OTP");
 			}
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());			
+			logger.error(ex.getMessage());
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Map<String, Object> regenerateOTP(HttpServletRequest request, Long id, int action) {
 		Map<String, Object> data = new HashMap<>();
@@ -279,7 +283,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 			UserVerification verification = verificationService.getUserVerificationDetails(id, act);
 			Integer attempts = verification.getNoOfAttempts();
-			if (++attempts > 2 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date())).isLessThan(Hours.hours(24))) {
+			if (++attempts > 2 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
+					.isLessThan(Hours.hours(24))) {
 				data.put("status", false);
 				data.put("message", "Attempts exceeded");
 				return data;
@@ -295,10 +300,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			User user = userService.fetchUser(id);
 			data.put("status", true);
 			data.put("message", "OTP Regenerated");
-						
+
 			if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verificationType)) {
 				if (VERIFICATION_ACTIONS.USER_REGISTRATION.toString().equals(act)) {
-					mailService.sendActivationMail(request, user, otp);					
+					mailService.sendActivationMail(request, user, otp);
 				} else {
 					mailService.sendForgotPasswordMail(request, user, otp);
 				}
@@ -308,23 +313,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		} catch (Exception ex) {
 			data.put("status", false);
 			data.put("message", "Could not genrate OTP");
-			logger.error(ex.getMessage());				
+			logger.error(ex.getMessage());
 		}
 		return data;
 	}
-	
+
 	@Override
 	public Map<String, Object> forgotPassword(HttpServletRequest request, String verificationId) {
 		Map<String, Object> data = new HashMap<>();
 		try {
 			boolean isEmail = ValidationUtil.validateEmail(verificationId);
 			boolean isPhone = ValidationUtil.validatePhone(verificationId);
-			UserVerification verification = verificationService.getDetailsByVerificationId(verificationId, VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
+			UserVerification verification = verificationService.getDetailsByVerificationId(verificationId,
+					VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			if (verification == null) {
 				verification = new UserVerification();
 			}
 			Integer attempts = verification.getNoOfAttempts() != null ? verification.getNoOfAttempts() : 0;
-			if (++attempts > 3 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date())).isLessThan(Hours.hours(24))) {
+			if (++attempts > 3 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
+					.isLessThan(Hours.hours(24))) {
 				data.put("status", false);
 				data.put("message", "Attempts exceeded");
 				return data;
@@ -344,28 +351,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			verification.setUserId(user.getId());
 			verification.setVerificationId(verificationId);
 			if (isEmail) {
-				verification.setVerificationType(VERIFICATION_TYPE.EMAIL.toString());				
+				verification.setVerificationType(VERIFICATION_TYPE.EMAIL.toString());
 			} else if (isPhone) {
-				verification.setVerificationType(VERIFICATION_TYPE.MOBILE.toString());				
+				verification.setVerificationType(VERIFICATION_TYPE.MOBILE.toString());
 			}
 			if (verification.getId() == null) {
-				verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(), verificationId, VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
+				verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(), verificationId,
+						VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			} else {
 				verification.setNoOfAttempts(attempts > 3 ? 0 : attempts);
 				verificationService.updateOtp(verification);
 			}
-			if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {	
+			if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 				mailService.sendForgotPasswordMail(request, user, otp);
 			} else {
 				smsService.sendSMS(verification.getVerificationId(), otp);
-			}				
+			}
 			data.put("status", true);
 			data.put("message", "Email/SMS sent to the requested resource");
 			data.put("user", UserConverter.convertToDTO(user));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			data.put("status", false);
-			data.put("message", "Could not send Email/SMS");		
+			data.put("message", "Could not send Email/SMS");
 		}
 		return data;
 	}
@@ -374,13 +382,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public Map<String, Object> resetPassword(HttpServletRequest request, Long id, String otp, String password) {
 		Map<String, Object> data = new HashMap<>();
 		try {
-			UserVerification verification = verificationService.getUserVerificationDetails(id, VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
+			UserVerification verification = verificationService.getUserVerificationDetails(id,
+					VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			if (verification == null) {
 				logger.error("OTP deleted");
 				data.put("status", false);
 				data.put("message", "OTP deleted");
 			}
-			long time = verification.getDate().getTime() + verification.getTimeout().longValue(); 
+			long time = verification.getDate().getTime() + verification.getTimeout().longValue();
 			boolean validOTP = new Date(time).compareTo(new Date()) > 0;
 			if (validOTP && verification.getOtp().equals(otp)) {
 				User user = userService.fetchUser(id);
@@ -388,20 +397,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					logger.debug("User not found");
 					data.put("status", false);
 					data.put("message", "User not found");
-					return data;				
+					return data;
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 				user.setPassword(passwordEncoder.encodePassword(password, null));
 				userService.updateUser(user);
 				verificationService.deleteOtp(verification.getId());
 				data.put("status", true);
-				data.put("message", "Password updated successfully");				
+				data.put("message", "Password updated successfully");
 			} else {
 				data.put("status", false);
-				data.put("message", "Invalid OTP or OTP Expired");					
+				data.put("message", "Invalid OTP or OTP Expired");
 			}
 		} catch (Exception ex) {
-			logger.error(ex.getMessage());			
+			logger.error(ex.getMessage());
 		}
 		return data;
 	}

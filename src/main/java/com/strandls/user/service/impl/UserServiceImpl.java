@@ -3,12 +3,17 @@
  */
 package com.strandls.user.service.impl;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.google.inject.Inject;
+import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dao.UserGroupMemberRoleDao;
+import com.strandls.user.pojo.Follow;
+import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.SpeciesPermission;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserGroupMemberRole;
@@ -31,6 +36,9 @@ public class UserServiceImpl implements UserService {
 	@Inject
 	private UserGroupMemberRoleDao userGroupMemberDao;
 
+	@Inject
+	private FollowDao followDao;
+
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
@@ -40,7 +48,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserIbp fetchUserIbp(Long userId) {
 		User user = userDao.findById(userId);
-		UserIbp ibp = new UserIbp(user.getId(), user.getName(), user.getProfilePic());
+		Set<Role> roles = user.getRoles();
+		Boolean isAdmin = false;
+		for (Role role : roles) {
+			if (role.getAuthority().equalsIgnoreCase("ROLE_ADMIN")) {
+				isAdmin = true;
+				break;
+			}
+		}
+		UserIbp ibp = new UserIbp(user.getId(), user.getName(), user.getProfilePic(), isAdmin);
 		return ibp;
 	}
 
@@ -55,11 +71,18 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserPermissions getUserPermissions(Long userId) {
+	public UserPermissions getUserPermissions(Long userId, String type, Long objectId) {
 		List<SpeciesPermission> allowedTaxonList = speciesPermissionDao.findByUserId(userId);
 		List<UserGroupMemberRole> userMemberRole = userGroupMemberDao.getUserGroup(userId);
 		List<UserGroupMemberRole> userFeatureRole = userGroupMemberDao.findUserGroupbyUserIdRole(userId);
-		UserPermissions permissions = new UserPermissions(allowedTaxonList, userMemberRole, userFeatureRole);
+		Boolean following = null;
+		if (type != null || objectId != null) {
+			Follow follow = fetchByFollowObject(type, objectId, userId);
+			following = false;
+			if (follow != null)
+				following = true;
+		}
+		UserPermissions permissions = new UserPermissions(allowedTaxonList, userMemberRole, userFeatureRole, following);
 		return permissions;
 	}
 	
@@ -72,6 +95,44 @@ public class UserServiceImpl implements UserService {
 	public User getUserByEmailOrMobile(String data) {
 		// TODO Auto-generated method stub
 		return userDao.findByUserEmailOrMobile(data);
+	}
+
+	@Override
+	public Follow fetchByFollowId(Long id) {
+		Follow follow = followDao.findById(id);
+		return follow;
+	}
+
+	@Override
+	public Follow fetchByFollowObject(String objectType, Long objectId, Long authorId) {
+		Follow follow = followDao.findByObject(objectType, objectId, authorId);
+		return follow;
+	}
+
+	@Override
+	public List<Follow> fetchFollowByUser(Long authorId) {
+		List<Follow> follows = followDao.findByUser(authorId);
+		return follows;
+	}
+
+	@Override
+	public Follow updateFollow(String objectType, Long objectId, Long userId) {
+		Follow follow = followDao.findByObject(objectType, objectId, userId);
+		if (follow == null) {
+			follow = new Follow(null, 0L, objectId, objectType, userId, new Date());
+			follow = followDao.save(follow);
+
+		}
+		return follow;
+	}
+
+	@Override
+	public Follow unFollow(String type, Long objectId, Long userId) {
+		Follow follow = followDao.findByObject(type, objectId, userId);
+		if (follow != null) {
+			follow = followDao.delete(follow);
+		}
+		return follow;
 	}
 
 }

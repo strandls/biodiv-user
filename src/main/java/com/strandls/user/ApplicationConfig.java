@@ -20,8 +20,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
-import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

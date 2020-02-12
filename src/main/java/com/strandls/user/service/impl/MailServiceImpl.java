@@ -11,7 +11,6 @@ import com.strandls.user.pojo.User;
 import com.strandls.user.service.MailService;
 import com.strandls.user.util.AppUtil;
 import com.strandls.user.util.MailThread;
-import com.strandls.user.util.MailUtil;
 import com.strandls.user.util.MessageUtil;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.TemplateUtil;

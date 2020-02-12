@@ -1,8 +1,7 @@
 package com.strandls.user.util;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.pac4j.core.context.Pac4jConstants;
@@ -20,27 +19,27 @@ public class AuthUtility {
 			return null;
 		try {
 			Set<Role> roles = user.getRoles();
-			List<String> authorities = new ArrayList<String>();
-
-			for (Role role : roles) {
-				authorities.add(role.getAuthority());
+			Set<String> strRoles = new LinkedHashSet<>();
+			
+			for (Role r: roles) {
+				strRoles.add(r.getAuthority());
 			}
 
-			return createUserProfile(user.getId(), user.getUserName(), user.getEmail(), authorities);
+			return createUserProfile(user.getId(), user.getUserName(), user.getEmail(), strRoles);
 		} catch (Exception e) {
 			throw e;
 		}
 	}
 
 	public static CommonProfile createUserProfile(Long userId, String username, String email,
-			List<String> authorities) {
+			Set<String> authorities) {
 		CommonProfile profile = new CommonProfile();
 		updateUserProfile(profile, userId, username, email, authorities);
 		return profile;
 	}
 
 	public static void updateUserProfile(CommonProfile profile, Long userId, String username, String email,
-			List<String> authorities) {
+			Set<String> authorities) {
 		if (profile == null)
 			return;
 		profile.setId(userId.toString());
@@ -49,6 +48,7 @@ public class AuthUtility {
 		profile.addAttribute(CommonProfileDefinition.EMAIL, email);
 		profile.addAttribute(JwtClaims.EXPIRATION_TIME, JWTUtil.getAccessTokenExpiryDate());
 		profile.addAttribute(JwtClaims.ISSUED_AT, new Date());
+		profile.setRoles(authorities);
 		for (Object authority : authorities) {
 			profile.addRole((String) authority);
 		}

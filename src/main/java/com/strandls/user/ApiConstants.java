@@ -33,5 +33,9 @@ public class ApiConstants {
 	public static final String REGENERATE_OTP = "/regenerate-otp";
 	public static final String FORGOT_PASSWORD = "/forgot-password";
 	public static final String RESET_PASSWORD = "/reset-password";
+	public static final String FOLLOW = "/follow";
+	public static final String OBJECTFOLLOW = "/objectfollow";
+	public static final String USERFOLLOW = "/userfollow";
+	public static final String UNFOLLOW = "/unfollow";
 
 }

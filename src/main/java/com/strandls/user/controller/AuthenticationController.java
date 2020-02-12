@@ -27,7 +27,6 @@ import com.strandls.user.dto.UserDTO;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
-import com.strandls.user.util.AppUtil.VERIFICATION_ACTIONS;
 import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
@@ -68,13 +67,12 @@ public class AuthenticationController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 403, message = "Could not authenticate user", response = String.class) })
 	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password) {
-		try {			
+		try {
 			Map<String, Object> tokens = this.authenticationService.authenticateUser(userEmail, password);
 			if (!Boolean.parseBoolean(tokens.get("status").toString())) {
 				return Response.status(Status.OK).entity(tokens).build();
 			}
-			return Response.status(Status.OK)
-					.cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
+			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
 					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -162,10 +160,12 @@ public class AuthenticationController {
 			if (verificationType == null) {
 				return Response.status(Status.BAD_REQUEST).entity("Invalid verification type").build();
 			}
-			if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verificationType) && !ValidationUtil.validateEmail(email)) {
+			if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verificationType)
+					&& !ValidationUtil.validateEmail(email)) {
 				return Response.status(Status.BAD_REQUEST).entity("Invalid email").build();
-			} else if (VERIFICATION_TYPE.MOBILE.toString().equalsIgnoreCase(verificationType) && !ValidationUtil.validatePhone(mobileNumber)) {
-				return Response.status(Status.BAD_REQUEST).entity("Invalid mobile number").build();				
+			} else if (VERIFICATION_TYPE.MOBILE.toString().equalsIgnoreCase(verificationType)
+					&& !ValidationUtil.validatePhone(mobileNumber)) {
+				return Response.status(Status.BAD_REQUEST).entity("Invalid mobile number").build();
 			}
 			Map<String, Object> data = authenticationService.addUser(request, userDTO);
 			return Response.status(Status.OK).entity(data).build();
@@ -179,7 +179,8 @@ public class AuthenticationController {
 	@Path(ApiConstants.VALIDATE)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response validateAccount(@Context HttpServletRequest request, @FormParam("id") Long id, @FormParam("otp") String otp) {
+	public Response validateAccount(@Context HttpServletRequest request, @FormParam("id") Long id,
+			@FormParam("otp") String otp) {
 		if (id == null) {
 			return Response.status(Status.BAD_REQUEST).entity("ID Cannot be empty").build();
 		}
@@ -188,8 +189,7 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get("status").toString())) {
-			return Response.status(Status.OK)
-					.cookie(new NewCookie("BAToken", result.get("access_token").toString()))
+			return Response.status(Status.OK).cookie(new NewCookie("BAToken", result.get("access_token").toString()))
 					.cookie(new NewCookie("BRToken", result.get("refresh_token").toString())).entity(result).build();
 		}
 		return Response.status(Status.OK).entity(result).build();
@@ -203,40 +203,39 @@ public class AuthenticationController {
 		return Response.status(Status.OK)
 				.entity(PropertyFileUtil.fetchProperty("config.properties", "verification_config").split(",")).build();
 	}
-	
+
 	@POST
 	@Path(ApiConstants.REGENERATE_OTP)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response regenerateOTP(@Context HttpServletRequest request, @FormParam("id") Long id, @FormParam("action") Integer action) {
+	public Response regenerateOTP(@Context HttpServletRequest request, @FormParam("id") Long id,
+			@FormParam("action") Integer action) {
 		Map<String, Object> data = authenticationService.regenerateOTP(request, id, action);
 		return Response.status(Status.OK).entity(data).build();
 	}
-	
+
 	@POST
 	@Path(ApiConstants.FORGOT_PASSWORD)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response forgotPassword(@Context HttpServletRequest request, @FormParam("verificationId") String verificationId) {
+	public Response forgotPassword(@Context HttpServletRequest request,
+			@FormParam("verificationId") String verificationId) {
 		Map<String, Object> data = authenticationService.forgotPassword(request, verificationId);
 		return Response.status(Status.OK).entity(data).build();
 	}
-	
+
 	@POST
 	@Path(ApiConstants.RESET_PASSWORD)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resetPassword(
-			@Context HttpServletRequest request, 
-			@FormParam("id") Long id,
-			@FormParam("otp") String otp,
-			@FormParam("password") String password, 
+	public Response resetPassword(@Context HttpServletRequest request, @FormParam("id") Long id,
+			@FormParam("otp") String otp, @FormParam("password") String password,
 			@FormParam("confirmPassword") String confirmPassword) {
 		if (password == null || password.isEmpty()) {
-			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();			
+			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();
 		}
 		if (!password.equals(confirmPassword)) {
-			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();			
+			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
 		}
 		Map<String, Object> data = authenticationService.resetPassword(request, id, otp, password);
 		return Response.status(Status.OK).entity(data).build();

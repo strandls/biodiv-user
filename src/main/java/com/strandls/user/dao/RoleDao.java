@@ -1,5 +1,6 @@
 package com.strandls.user.dao;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,16 @@ public class RoleDao extends AbstractDAO<Role, Long> {
 
 	@Override
 	public Role findById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		Session session = sessionFactory.openSession();
+		Role result = null;
+		try {
+			result = session.get(Role.class, id);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
 	}
-	
+
 }

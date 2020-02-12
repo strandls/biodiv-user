@@ -14,6 +14,7 @@ public class UserPermissions {
 	private List<SpeciesPermission> allowedTaxonList;
 	private List<UserGroupMemberRole> userMemberRole;
 	private List<UserGroupMemberRole> userFeatureRole;
+	private Boolean following;
 
 	/**
 	 * 
@@ -26,13 +27,15 @@ public class UserPermissions {
 	 * @param allowedTaxonList
 	 * @param userMemberRole
 	 * @param userFeatureRole
+	 * @param following
 	 */
 	public UserPermissions(List<SpeciesPermission> allowedTaxonList, List<UserGroupMemberRole> userMemberRole,
-			List<UserGroupMemberRole> userFeatureRole) {
+			List<UserGroupMemberRole> userFeatureRole, Boolean following) {
 		super();
 		this.allowedTaxonList = allowedTaxonList;
 		this.userMemberRole = userMemberRole;
 		this.userFeatureRole = userFeatureRole;
+		this.following = following;
 	}
 
 	public List<SpeciesPermission> getAllowedTaxonList() {
@@ -57,6 +60,14 @@ public class UserPermissions {
 
 	public void setUserFeatureRole(List<UserGroupMemberRole> userFeatureRole) {
 		this.userFeatureRole = userFeatureRole;
+	}
+
+	public Boolean getFollowing() {
+		return following;
+	}
+
+	public void setFollowing(Boolean following) {
+		this.following = following;
 	}
 
 }
