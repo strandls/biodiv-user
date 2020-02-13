@@ -131,6 +131,7 @@ public class AuthenticationController {
 	@Path(ApiConstants.SIGNUP)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Create new user", notes = "Returns the created user", response = Map.class)
 	public Response signUp(@Context HttpServletRequest request, UserDTO userDTO) {
 		try {
 			String username = userDTO.getUsername();
@@ -179,6 +180,7 @@ public class AuthenticationController {
 	@Path(ApiConstants.VALIDATE)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Validates the OTP for user", notes = "Returns tokens if the OTP is valid", response = Map.class)
 	public Response validateAccount(@Context HttpServletRequest request, @FormParam("id") Long id,
 			@FormParam("otp") String otp) {
 		if (id == null) {
@@ -208,6 +210,7 @@ public class AuthenticationController {
 	@Path(ApiConstants.REGENERATE_OTP)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Regenerates OTP", notes = "Returns the status of the request", response = Map.class)
 	public Response regenerateOTP(@Context HttpServletRequest request, @FormParam("id") Long id,
 			@FormParam("action") Integer action) {
 		Map<String, Object> data = authenticationService.regenerateOTP(request, id, action);
@@ -218,6 +221,7 @@ public class AuthenticationController {
 	@Path(ApiConstants.FORGOT_PASSWORD)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Forgot Password - Send Mail/SMS", notes = "Returns the status", response = Map.class)
 	public Response forgotPassword(@Context HttpServletRequest request,
 			@FormParam("verificationId") String verificationId) {
 		Map<String, Object> data = authenticationService.forgotPassword(request, verificationId);
@@ -228,6 +232,7 @@ public class AuthenticationController {
 	@Path(ApiConstants.RESET_PASSWORD)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Password Reset", notes = "Returns the status", response = Map.class)
 	public Response resetPassword(@Context HttpServletRequest request, @FormParam("id") Long id,
 			@FormParam("otp") String otp, @FormParam("password") String password,
 			@FormParam("confirmPassword") String confirmPassword) {

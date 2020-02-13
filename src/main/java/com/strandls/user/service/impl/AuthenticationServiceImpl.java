@@ -157,8 +157,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		User user = new User();
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
-		user.setEmail(userDTO.getEmail().isEmpty() ? null : userDTO.getEmail());
-		user.setMobileNumber(userDTO.getMobileNumber().isEmpty() ? null : userDTO.getMobileNumber());
+		user.setEmail(userDTO.getEmail() == null ? null : userDTO.getEmail());
+		user.setMobileNumber(userDTO.getMobileNumber() == null ? null : userDTO.getMobileNumber());
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 		user.setPassword(passwordEncoder.encodePassword(userDTO.getPassword(), null));
 		user.setLocation(userDTO.getLocation());
@@ -362,14 +362,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verification.setNoOfAttempts(attempts > 3 ? 0 : attempts);
 				verificationService.updateOtp(verification);
 			}
+			data.put("status", true);
+			data.put("message", "Email/SMS sent to the requested resource");
+			data.put("user", UserConverter.convertToDTO(user));
 			if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 				mailService.sendForgotPasswordMail(request, user, otp);
 			} else {
 				smsService.sendSMS(verification.getVerificationId(), otp);
 			}
-			data.put("status", true);
-			data.put("message", "Email/SMS sent to the requested resource");
-			data.put("user", UserConverter.convertToDTO(user));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			data.put("status", false);
