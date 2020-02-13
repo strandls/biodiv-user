@@ -24,11 +24,15 @@ public class MailUtil {
 	
 	private final static String username;
 	private final static String password;
-	
+	private final static String smtpHost;
+	private final static String smtpPort;
+
 	static {
 		Properties prop = PropertyFileUtil.fetchProperty("config.properties");
 		username = prop.getProperty("mail_smtp_username");
 		password = prop.getProperty("mail_smtp_password");
+		smtpHost = prop.getProperty("mail_smtp_host");
+		smtpPort = prop.getProperty("mail_smtp_port");
 	}
 	
 	public MailUtil() {}
@@ -43,11 +47,11 @@ public class MailUtil {
 
 	public void sendMail() throws MessagingException, AddressException {
 		Properties props = new Properties();
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.socketFactory.port", "465");
+		props.put("mail.smtp.host", smtpHost);
+		props.put("mail.smtp.socketFactory.port", smtpPort);
 		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", "465");
+		props.put("mail.smtp.port", smtpPort);
 		
 		Session session = Session.getDefaultInstance(props, new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
