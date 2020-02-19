@@ -37,5 +37,6 @@ public class ApiConstants {
 	public static final String OBJECTFOLLOW = "/objectfollow";
 	public static final String USERFOLLOW = "/userfollow";
 	public static final String UNFOLLOW = "/unfollow";
+	public static final String GROUPMEMBER = "/groupMember";
 
 }

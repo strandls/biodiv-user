@@ -39,4 +39,6 @@ public interface UserService {
 	public Follow updateFollow(String objectType, Long objectId, Long userId);
 
 	public Follow unFollow(String type, Long objectId, Long userId);
+
+	public Boolean checkUserGroupMember(Long userId, Long userGroupId);
 }

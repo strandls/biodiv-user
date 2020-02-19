@@ -279,4 +279,27 @@ public class UserController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + "/{usergroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+
+	@ValidateUser
+	@ApiOperation(value = "check if user is a member of the userGroup", notes = "Return Boolean if user is a member", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+
+	public Response checkMemberRoleUG(@Context HttpServletRequest request,
+			@PathParam("usergroupId") String usergroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long ugId = Long.parseLong(usergroupId);
+			Boolean result = userSerivce.checkUserGroupMember(userId, ugId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
 }
