@@ -72,8 +72,13 @@ public class AuthenticationController {
 			if (!Boolean.parseBoolean(tokens.get("status").toString())) {
 				return Response.status(Status.OK).entity(tokens).build();
 			}
-			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
-					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
+			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
+			return Response.ok()
+					.entity(tokens)
+					.cookie(accessToken)
+					.cookie(refreshToken)
+					.build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -191,8 +196,13 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get("status").toString())) {
-			return Response.status(Status.OK).cookie(new NewCookie("BAToken", result.get("access_token").toString()))
-					.cookie(new NewCookie("BRToken", result.get("refresh_token").toString())).entity(result).build();
+			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
+			return Response.ok()
+					.entity(result)
+					.cookie(accessToken)
+					.cookie(refreshToken)
+					.build();
 		}
 		return Response.status(Status.OK).entity(result).build();
 	}

@@ -197,7 +197,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 			if (existingUser != null) {
 				response.put("status", false);
-				response.put("message", "Email already exists");
+				response.put("message", "Email/Mobile already exists");
 				return response;
 			}
 			user = userDao.save(user);
