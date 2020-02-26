@@ -27,6 +27,7 @@ import com.strandls.user.dto.UserDTO;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
+import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
@@ -72,13 +73,11 @@ public class AuthenticationController {
 			if (!Boolean.parseBoolean(tokens.get("status").toString())) {
 				return Response.status(Status.OK).entity(tokens).build();
 			}
-			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
-			return Response.ok()
-					.entity(tokens)
-					.cookie(accessToken)
-					.cookie(refreshToken)
-					.build();
+			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "",
+					10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", "", "",
+					10 * 24 * 60 * 60, false);
+			return Response.ok().entity(tokens).cookie(accessToken).cookie(refreshToken).build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -148,11 +147,20 @@ public class AuthenticationController {
 			String email = userDTO.getEmail();
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
+			String authCode = userDTO.getAuthCode();
+			String authType = userDTO.getAuthType();
 			if (username == null || username.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();
 			}
-			if (!password.equals(confirmPassword) || password.length() < 8) {
-				return Response.status(Status.BAD_REQUEST).entity("Password must be longer than 8 characters").build();
+			if (authType != null && authType.equalsIgnoreCase("manual")) {
+				if (!password.equals(confirmPassword) || password.length() < 8) {
+					return Response.status(Status.BAD_REQUEST).entity("Password must be longer than 8 characters")
+							.build();
+				}
+			} else if (authType != null && !email.equalsIgnoreCase(AuthUtility.verifyTokenWithProp(authCode))) {
+				return Response.status(Status.BAD_REQUEST).entity("OAuth email validation failed").build();
+			} else {
+				return Response.status(Status.BAD_REQUEST).entity("Invalid auth code").build();
 			}
 			if (location == null) {
 				return Response.status(Status.BAD_REQUEST).entity("Location cannot be null").build();
@@ -196,13 +204,11 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get("status").toString())) {
-			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", "", "", 10 * 24 * 60 * 60, false);
-			return Response.ok()
-					.entity(result)
-					.cookie(accessToken)
-					.cookie(refreshToken)
-					.build();
+			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", "", "",
+					10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", "", "",
+					10 * 24 * 60 * 60, false);
+			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}
 		return Response.status(Status.OK).entity(result).build();
 	}

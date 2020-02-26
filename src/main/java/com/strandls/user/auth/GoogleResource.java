@@ -38,7 +38,7 @@ public class GoogleResource {
 					.authorizationProvider(OAuthProviderType.GOOGLE)
 					.setClientId(PropertyFileUtil.fetchProperty("config.properties", "googleId"))
 					.setResponseType("code")
-					.setScope("profile email")
+					.setScope("openid profile email")
 					.setRedirectURI(UriBuilder.fromUri(uriInfo.getBaseUri()).path("oauth2callback").build().toString())
 					.buildQueryMessage();
 			URI redirect = new URI(request.getLocationUri());

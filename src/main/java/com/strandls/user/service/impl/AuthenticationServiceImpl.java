@@ -171,7 +171,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setHideEmial(true);
 		user.setEnabled(true);
 		user.setAccountExpired(false);
-		user.setAccountLocked(true);
+		boolean isManual = userDTO.getAuthType().equalsIgnoreCase("manual");
+		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);
 		user.setTimezone(0F);
 		user.setSendNotification(true);
@@ -201,6 +202,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				return response;
 			}
 			user = userDao.save(user);
+			if (!isManual) {
+				CommonProfile profile = AuthUtility.createUserProfile(user);
+				response = this.buildTokens(profile, user, true);
+				response.put("status", true);
+				response.put("message", "User validated successfully");
+				mailService.sendWelcomeMail(request, user);
+				return response;
+			}
 			response.put("status", true);
 			response.put("message", "User created successfully");
 			response.put("user", UserConverter.convertToDTO(user));
