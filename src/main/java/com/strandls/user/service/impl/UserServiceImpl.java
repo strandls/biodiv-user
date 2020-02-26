@@ -66,6 +66,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public User getUserByMobile(String mobileNumber) {
+		return userDao.findByUserMobile(mobileNumber);
+	}
+
+	@Override
 	public UserPermissions getUserPermissions(Long userId, String type, Long objectId) {
 		List<SpeciesPermission> allowedTaxonList = speciesPermissionDao.findByUserId(userId);
 		List<UserGroupMemberRole> userMemberRole = userGroupMemberDao.getUserGroup(userId);
@@ -79,6 +84,16 @@ public class UserServiceImpl implements UserService {
 		}
 		UserPermissions permissions = new UserPermissions(allowedTaxonList, userMemberRole, userFeatureRole, following);
 		return permissions;
+	}
+
+	@Override
+	public User updateUser(User user) {
+		return userDao.update(user);
+	}
+
+	@Override
+	public User getUserByEmailOrMobile(String data) {
+		return userDao.findByUserEmailOrMobile(data);
 	}
 
 	@Override
@@ -117,6 +132,14 @@ public class UserServiceImpl implements UserService {
 			follow = followDao.delete(follow);
 		}
 		return follow;
+	}
+
+	@Override
+	public Boolean checkUserGroupMember(Long userId, Long userGroupId) {
+		UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
+		if (result != null)
+			return true;
+		return false;
 	}
 
 }

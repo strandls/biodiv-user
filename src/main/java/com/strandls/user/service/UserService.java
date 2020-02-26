@@ -20,7 +20,13 @@ public interface UserService {
 
 	public UserIbp fetchUserIbp(Long userId);
 
+	public User getUserByEmailOrMobile(String data);
+
 	public User getUserByEmail(String userEmail);
+
+	public User getUserByMobile(String mobileNumber);
+
+	public User updateUser(User user);
 
 	public UserPermissions getUserPermissions(Long userId, String type, Long objectId);
 
@@ -33,4 +39,6 @@ public interface UserService {
 	public Follow updateFollow(String objectType, Long objectId, Long userId);
 
 	public Follow unFollow(String type, Long objectId, Long userId);
+
+	public Boolean checkUserGroupMember(Long userId, Long userGroupId);
 }

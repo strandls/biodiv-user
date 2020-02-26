@@ -24,16 +24,21 @@ import javax.servlet.ServletContextEvent;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
+import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.strandls.authentication_utility.filter.FilterModule;
+import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
 import com.strandls.user.service.impl.UserServiceModule;
+import com.strandls.utility.controller.UtilityServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -70,7 +75,14 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
+				String JWT_SALT = PropertyFileUtil.fetchProperty("config.properties", "jwtSalt");
+				JwtAuthenticator jwtAuthenticator = new JwtAuthenticator();
+				jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));
+
+				bind(JwtAuthenticator.class).toInstance(jwtAuthenticator);
+
 				bind(SessionFactory.class).toInstance(sessionFactory);
+				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 
 				serve("/api/*").with(GuiceContainer.class, props);
 			}
@@ -121,7 +133,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 		return names;
 	}
-	
+
 	@Override
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
 
