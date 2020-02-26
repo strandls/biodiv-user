@@ -20,8 +20,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
-import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +35,6 @@ public class ApplicationConfig extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
 
-	public static JwtAuthenticator jwtAuthenticator;
-	public static String JWT_SALT;
-
 	/**
 	 * 
 	 */
@@ -52,10 +47,6 @@ public class ApplicationConfig extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		JWT_SALT = properties.getProperty("jwtSalt");
-
-		jwtAuthenticator = new JwtAuthenticator();
-		jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));
 
 		BeanConfig beanConfig = new BeanConfig();
 		beanConfig.setVersion(properties.getProperty("version"));

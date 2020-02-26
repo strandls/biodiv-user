@@ -3,9 +3,12 @@
  */
 package com.strandls.user.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -20,6 +23,7 @@ import com.google.inject.Inject;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
+import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
@@ -109,7 +113,8 @@ public class UserController {
 	}
 
 	@GET
-	@Path(ApiConstants.PERMISSIONS)
+	@Path(ApiConstants.PERMISSIONS + "/{objectType}/{objectId}")
+	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
 	@ValidateUser
@@ -118,11 +123,15 @@ public class UserController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Unable to fetch the User Permission", response = String.class) })
 
-	public Response getAllUserPermission(@Context HttpServletRequest request) {
+	public Response getAllUserPermission(@Context HttpServletRequest request,
+			@PathParam("objectType") String objectType, @PathParam("objectId") String objectId) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			UserPermissions permission = userSerivce.getUserPermissions(userId);
+			Long objId = Long.parseLong(objectId);
+			if (objectType.equalsIgnoreCase("observation"))
+				objectType = "species.participation.Observation";
+			UserPermissions permission = userSerivce.getUserPermissions(userId, objectType, objId);
 
 			return Response.status(Status.OK).entity(permission).build();
 
@@ -130,4 +139,167 @@ public class UserController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
+
+	@GET
+	@Path(ApiConstants.PERMISSIONS)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+
+	@ApiOperation(value = "Finds all the allowed userGroup Permissions", notes = "Returns All permission of the User", response = UserPermissions.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to fetch the User Permission", response = String.class) })
+
+	public Response getUserGroupPermissions(@Context HttpServletRequest request) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			UserPermissions permission = userSerivce.getUserPermissions(userId, null, null);
+
+			return Response.status(Status.OK).entity(permission).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+
+	}
+
+	@GET
+	@Path(ApiConstants.FOLLOW + "/{followId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find follow by followid", notes = "Return follows", response = Follow.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Follow not Found", response = String.class) })
+
+	public Response getByFollowID(@PathParam("followId") String followId) {
+
+		try {
+			Long id = Long.parseLong(followId);
+			Follow follow = userSerivce.fetchByFollowId(id);
+			return Response.status(Status.OK).entity(follow).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.OBJECTFOLLOW + "/{objectType}/{objectId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "Find follow by objectId", notes = "Return follows", response = Follow.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Follow not Found", response = String.class) })
+
+	public Response getFollowByObject(@Context HttpServletRequest request, @PathParam("objectType") String objectType,
+			@PathParam("objectId") String objectId) {
+		try {
+
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long objId = Long.parseLong(objectId);
+			Long authId = Long.parseLong(profile.getId());
+			if (objectType.equalsIgnoreCase("observation"))
+				objectType = "species.participation.Observation";
+			Follow follow = userSerivce.fetchByFollowObject(objectType, objId, authId);
+			return Response.status(Status.OK).entity(follow).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.USERFOLLOW + "/{userId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "Find follow by userID", notes = "Return list follows", response = Follow.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Follow not Found", response = String.class) })
+
+	public Response getFollowbyUser(@Context HttpServletRequest request) {
+
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long id = Long.parseLong(profile.getId());
+			List<Follow> follows = userSerivce.fetchFollowByUser(id);
+			return Response.status(Status.OK).entity(follows).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+
+	}
+
+	@POST
+	@Path(ApiConstants.FOLLOW + "/{object}/{objectId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+
+	@ApiOperation(value = "Marks follow for a User", notes = "Returnt the follow details", response = Follow.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to mark follow", response = String.class) })
+
+	public Response updateFollow(@Context HttpServletRequest request, @PathParam("object") String object,
+			@PathParam("objectId") String objectId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			if (object.equalsIgnoreCase("observation"))
+				object = "species.participation.Observation";
+			Long objId = Long.parseLong(objectId);
+			Follow result = userSerivce.updateFollow(object, objId, userId);
+
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.UNFOLLOW + "/{type}/{objectId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ValidateUser
+
+	@ApiOperation(value = "Marks unfollow for a User", notes = "Returnt the follow details", response = Follow.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to mark unfollow", response = String.class) })
+
+	public Response unfollow(@Context HttpServletRequest request, @PathParam("type") String type,
+			@PathParam("objectId") String objectId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long objId = Long.parseLong(objectId);
+			if (type.equalsIgnoreCase("observation"))
+				type = "species.participation.Observation";
+			Follow result = userSerivce.unFollow(type, objId, userId);
+
+			return Response.status(Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + "/{usergroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+
+	@ValidateUser
+	@ApiOperation(value = "check if user is a member of the userGroup", notes = "Return Boolean if user is a member", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+
+	public Response checkMemberRoleUG(@Context HttpServletRequest request,
+			@PathParam("usergroupId") String usergroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long ugId = Long.parseLong(usergroupId);
+			Boolean result = userSerivce.checkUserGroupMember(userId, ugId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
 }

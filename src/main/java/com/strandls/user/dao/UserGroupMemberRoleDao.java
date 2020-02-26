@@ -51,6 +51,28 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 	}
 
 	@SuppressWarnings("unchecked")
+	public UserGroupMemberRole findByUserGroupIdUserId(Long userGroupId, Long userId) {
+		Session session = sessionFactory.openSession();
+		UserGroupMemberRole result = null;
+
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and sUserId = userId";
+		try {
+
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("ugId", userGroupId);
+			query.setParameter("userId", userId);
+			result = query.getSingleResult();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<UserGroupMemberRole> getUserGroup(Long sUserId) {
 
 		String qry = "from UserGroupMemberRole where sUserId = :sUserId";

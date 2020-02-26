@@ -12,17 +12,27 @@ public class UserIbp {
 	private Long id;
 	private String name;
 	private String profilePic;
+	private Boolean isAdmin;
+
+	/**
+	 * 
+	 */
+	public UserIbp() {
+		super();
+	}
 
 	/**
 	 * @param id
 	 * @param name
 	 * @param profilePic
+	 * @param isAdmin
 	 */
-	public UserIbp(Long id, String name, String profilePic) {
+	public UserIbp(Long id, String name, String profilePic, Boolean isAdmin) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.profilePic = profilePic;
+		this.isAdmin = isAdmin;
 	}
 
 	public Long getId() {
@@ -47,6 +57,14 @@ public class UserIbp {
 
 	public void setProfilePic(String profilePic) {
 		this.profilePic = profilePic;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 }

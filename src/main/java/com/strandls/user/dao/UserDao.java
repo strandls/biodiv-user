@@ -61,5 +61,55 @@ public class UserDao extends AbstractDAO<User, Long> {
 		}
 		return entity;
 	}
+	
+	public User findById(Long id, boolean activity) {
+		Session session = sessionFactory.openSession();
+		User entity = null;
+		try {
+			entity = session.get(User.class, id);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+
+		return entity;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public User findByUserMobile(String mobileNumber) {
+		Session session = sessionFactory.openSession();
+		String hql = "from User u where u.mobileNumber = :mobileNumber";
+		User entity = null;
+		try {
+			Query<User> query = session.createQuery(hql); 
+			query.setParameter("mobileNumber", mobileNumber);
+			
+			entity = query.getSingleResult();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return entity;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public User findByUserEmailOrMobile(String data) {
+		Session session = sessionFactory.openSession();
+		String hql = "from User u where u.email = :data or u.mobileNumber = :data";
+		User entity = null;
+		try {
+			Query<User> query = session.createQuery(hql); 
+			query.setParameter("data", data);
+			
+			entity = query.getSingleResult();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return entity;
+	}
 
 }

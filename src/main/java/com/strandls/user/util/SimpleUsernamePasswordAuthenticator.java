@@ -47,7 +47,7 @@ public class SimpleUsernamePasswordAuthenticator implements Authenticator<Userna
 
 		User user = null;
 		try {
-			user = (User) userService.getUserByEmail(username);
+			user = (User) userService.getUserByEmailOrMobile(username);
 		} catch(NotFoundException e ) {
 			log.error("No user with email {}", username);
 		}
