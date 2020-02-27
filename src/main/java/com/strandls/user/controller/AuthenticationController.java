@@ -169,7 +169,7 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Password must be longer than 8 characters")
 							.build();
 				}
-			} else if (mode != null && mode.equalsIgnoreCase("google-oauth")) {
+			} else if (mode != null && mode.equalsIgnoreCase(AppUtil.AUTH_MODE.OAUTH_GOOGLE.getAction())) {
 				JSONObject obj = AuthUtility.verifyGoogleToken(password);
 				if (obj == null) {
 					return Response.status(Status.BAD_REQUEST).entity("Google token expired").build();
