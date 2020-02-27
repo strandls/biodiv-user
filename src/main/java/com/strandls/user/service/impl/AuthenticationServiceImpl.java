@@ -83,12 +83,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Map<String, Object> tokens = new HashMap<String, Object>();
 		if (!user.getAccountLocked()) {
 			tokens = this.buildTokens(profile, user, true);
-			tokens.put("verificationRequired", false);
 			tokens.put("status", true);
 			tokens.put("message", "Authentication Successful");
 		} else {
 			tokens.put("status", false);
-			tokens.put("verificationRequired", true);
 			tokens.put("message", "Account Locked");
 			tokens.put("user", UserConverter.convertToDTO(user));
 		}
