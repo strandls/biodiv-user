@@ -74,7 +74,6 @@ public class AuthenticationController {
 			Map<String, Object> tokens = null;
 			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
 				tokens = this.authenticationService.authenticateUser(userEmail, password);
-				tokens.put("verificationRequired", true);				
 			} else if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.OAUTH_GOOGLE.getAction())) {
 				JSONObject obj = AuthUtility.verifyGoogleToken(password);
 				if (obj != null) {

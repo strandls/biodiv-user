@@ -83,12 +83,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Map<String, Object> tokens = new HashMap<String, Object>();
 		if (!user.getAccountLocked()) {
 			tokens = this.buildTokens(profile, user, true);
-			tokens.put("status", true);
 			tokens.put("message", "Authentication Successful");
+			tokens.put("verificationRequired", false);
 		} else {
-			tokens.put("status", false);
 			tokens.put("message", "Account Locked");
 			tokens.put("user", UserConverter.convertToDTO(user));
+			tokens.put("verificationRequired", true);
 		}
 		return tokens;
 	}
@@ -171,7 +171,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setHideEmial(true);
 		user.setEnabled(true);
 		user.setAccountExpired(false);
-		boolean isManual = userDTO.getMode().equalsIgnoreCase("manual");
+		boolean isManual = userDTO.getMode().equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction());
 		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);
 		user.setTimezone(0F);
@@ -229,7 +229,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			logger.error(ex.getMessage());
 			user = null;
 			response.put("status", false);
-			response.put("message", "Could not create user");
+			response.put("message", ex.getMessage());
 		}
 		return response;
 	}
