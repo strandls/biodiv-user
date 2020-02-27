@@ -70,7 +70,8 @@ public class AuthenticationController {
 	@ApiOperation(value = "Authenticates User by Credentials", notes = "Returns Tokens", response = Map.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 403, message = "Could not authenticate user", response = String.class) })
-	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password, @FormParam("mode") String mode) {
+	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password,
+			@FormParam("mode") String mode) {
 		try {
 			Map<String, Object> tokens = null;
 			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
@@ -79,12 +80,16 @@ public class AuthenticationController {
 				JSONObject obj = AuthUtility.verifyGoogleToken(password);
 				if (obj != null) {
 					User user = userService.getUserByEmail(obj.getString("email"));
+					if (user == null) {
+						return Response.status(Status.BAD_REQUEST)
+								.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.USER_NOT_FOUND)).build();
+					}
 					CommonProfile profile = AuthUtility.createUserProfile(user);
 					tokens = authenticationService.buildTokens(profile, user, true);
 					tokens.put("status", true);
-					tokens.put("verificationRequired", false);				
+					tokens.put("verificationRequired", false);
 				} else {
-					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();					
+					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
 			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "",
@@ -176,8 +181,9 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Google token expired").build();
 				}
 				if (!obj.getString("email").equalsIgnoreCase(email)) {
-					return Response.status(Status.BAD_REQUEST).entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.EMAIL_VERIFICATION_FAILED)).build();
-				}				
+					return Response.status(Status.BAD_REQUEST)
+							.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.EMAIL_VERIFICATION_FAILED)).build();
+				}
 			} else {
 				return Response.status(Status.BAD_REQUEST).entity("Invalid auth code").build();
 			}
