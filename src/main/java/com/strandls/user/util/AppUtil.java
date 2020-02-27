@@ -2,6 +2,7 @@ package com.strandls.user.util;
 
 import java.net.URISyntaxException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -62,6 +63,13 @@ public class AppUtil {
 	        }
 	    }
 	    return null;		
+	}
+	
+	public static Map<String, Object> generateResponse(boolean status, Object message) {
+		Map<String, Object> response = new HashMap<String, Object>();
+		response.put("status", status);
+		response.put("message", message);
+		return response;
 	}
 	
 	public static String encodeString(String data) {

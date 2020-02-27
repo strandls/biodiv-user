@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
@@ -76,11 +77,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public Map<String, Object> authenticateUser(String userEmail, String password) throws Exception {
+		Map<String, Object> tokens = new HashMap<String, Object>();
+		User user = userService.getUserByEmailOrMobile(userEmail);
+		if (user == null) {
+			return AppUtil.generateResponse(false, ERROR_CONSTANTS.USER_NOT_FOUND);
+		}
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userEmail, password);
 		usernamePasswordAuthenticator.validate(credentials, null);
 		CommonProfile profile = credentials.getUserProfile();
-		User user = this.userService.fetchUser(Long.parseLong(profile.getId()));
-		Map<String, Object> tokens = new HashMap<String, Object>();
+		user = this.userService.fetchUser(Long.parseLong(profile.getId()));
 		if (!user.getAccountLocked()) {
 			tokens = this.buildTokens(profile, user, true);
 			tokens.put("status", true);
