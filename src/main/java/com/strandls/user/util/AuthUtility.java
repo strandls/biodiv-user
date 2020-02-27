@@ -1,11 +1,16 @@
 package com.strandls.user.util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONObject;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
@@ -73,5 +78,25 @@ public class AuthUtility {
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
 		CommonProfile profile = authenticator.validateToken(token);
 		return profile.getAttribute(JwtClaims.SUBJECT).toString();
+	}
+	
+	public static JSONObject verifyGoogleToken(String token) {
+		JSONObject obj = null;
+		try {
+			StringBuilder response = new StringBuilder();
+			URL oracle = new URL("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token);
+	        URLConnection yc = oracle.openConnection();
+	        BufferedReader in = new BufferedReader(new InputStreamReader(
+	                                    yc.getInputStream()));
+	        String inputLine;
+	        while ((inputLine = in.readLine()) != null) {
+	        	response.append(inputLine);
+	        }
+	        in.close();
+	        obj = new JSONObject(response.toString());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return obj;
 	}
 }

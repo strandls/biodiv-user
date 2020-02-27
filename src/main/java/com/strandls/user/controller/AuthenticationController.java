@@ -16,6 +16,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.json.JSONObject;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
@@ -147,18 +148,23 @@ public class AuthenticationController {
 			String email = userDTO.getEmail();
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
-			String authCode = userDTO.getAuthCode();
-			String authType = userDTO.getAuthType();
+			String mode = userDTO.getMode();
 			if (username == null || username.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();
 			}
-			if (authType != null && authType.equalsIgnoreCase("manual")) {
+			if (mode != null && mode.equalsIgnoreCase("manual")) {
 				if (!password.equals(confirmPassword) || password.length() < 8) {
 					return Response.status(Status.BAD_REQUEST).entity("Password must be longer than 8 characters")
 							.build();
 				}
-			} else if (authType != null && !email.equalsIgnoreCase(AuthUtility.verifyTokenWithProp(authCode))) {
-				return Response.status(Status.BAD_REQUEST).entity("OAuth email validation failed").build();
+			} else if (mode != null && mode.equalsIgnoreCase("google-oauth")) {
+				JSONObject obj = AuthUtility.verifyGoogleToken(password);
+				if (obj == null) {
+					return Response.status(Status.BAD_REQUEST).entity("Google token expired").build();
+				}
+				if (!obj.getString("email").equalsIgnoreCase(email)) {
+					return Response.status(Status.BAD_REQUEST).entity("OAuth email validation failed").build();
+				}				
 			} else {
 				return Response.status(Status.BAD_REQUEST).entity("Invalid auth code").build();
 			}

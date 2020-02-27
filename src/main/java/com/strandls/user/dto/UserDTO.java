@@ -23,8 +23,7 @@ public class UserDTO {
 	private String institution;
 	private String mapLocation;
 	private String verificationType;
-	private String authCode;
-	private String authType = "manual";
+	private String mode = "manual";
 	
 	public Long getId() {
 		return id;
@@ -113,20 +112,12 @@ public class UserDTO {
 		this.verificationType = verificationType;
 	}
 
-	public String getAuthType() {
-		return authType;
+	public String getMode() {
+		return mode;
 	}
 
-	public void setAuthType(String authType) {
-		this.authType = authType;
-	}
-
-	public String getAuthCode() {
-		return authCode;
-	}
-
-	public void setAuthCode(String authCode) {
-		this.authCode = authCode;
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 
 }
