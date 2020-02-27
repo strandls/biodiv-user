@@ -206,11 +206,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				response = this.buildTokens(profile, user, true);
 				response.put("status", true);
+				response.put("verificationRequired", false);
 				response.put("message", "User validated successfully");
 				mailService.sendWelcomeMail(request, user);
 				return response;
 			}
 			response.put("status", true);
+			response.put("verificationRequired", true);
 			response.put("message", "User created successfully");
 			response.put("user", UserConverter.convertToDTO(user));
 			String otp = AppUtil.generateOTP();

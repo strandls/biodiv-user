@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.dto.UserDTO;
+import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
@@ -68,11 +69,20 @@ public class AuthenticationController {
 	@ApiOperation(value = "Authenticates User by Credentials", notes = "Returns Tokens", response = Map.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 403, message = "Could not authenticate user", response = String.class) })
-	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password) {
+	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password, @FormParam("mode") String mode) {
 		try {
-			Map<String, Object> tokens = this.authenticationService.authenticateUser(userEmail, password);
-			if (!Boolean.parseBoolean(tokens.get("status").toString())) {
-				return Response.status(Status.OK).entity(tokens).build();
+			Map<String, Object> tokens = null;
+			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
+				tokens = this.authenticationService.authenticateUser(userEmail, password);				
+			} else if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.OAUTH_GOOGLE.getAction())) {
+				JSONObject obj = AuthUtility.verifyGoogleToken(password);
+				if (obj != null) {
+					User user = userService.getUserByEmail(obj.getString("email"));
+					CommonProfile profile = AuthUtility.createUserProfile(user);
+					tokens = authenticationService.buildTokens(profile, user, true);
+				} else {
+					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();					
+				}
 			}
 			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "",
 					10 * 24 * 60 * 60, false);

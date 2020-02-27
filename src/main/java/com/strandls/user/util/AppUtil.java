@@ -31,6 +31,21 @@ public class AppUtil {
 		}
 	};
 	
+	public static enum AUTH_MODE {
+		MANUAL("manual"), 
+		OAUTH_GOOGLE("oauth-google");
+		
+		private String action = null;
+		
+		private AUTH_MODE(String action) {
+			this.action = action;
+		}
+		
+		public String getAction() {
+			return action;
+		}
+	};
+	
 	public static String getVerificationType(String selectedType) {
 	    for (VERIFICATION_TYPE type: VERIFICATION_TYPE.values()) {
 	        if (type.name().equalsIgnoreCase(selectedType)) {
