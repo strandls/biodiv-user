@@ -80,6 +80,7 @@ public class AuthenticationController {
 					User user = userService.getUserByEmail(obj.getString("email"));
 					CommonProfile profile = AuthUtility.createUserProfile(user);
 					tokens = authenticationService.buildTokens(profile, user, true);
+					tokens.put("status", true);
 					tokens.put("verificationRequired", false);				
 				} else {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();					

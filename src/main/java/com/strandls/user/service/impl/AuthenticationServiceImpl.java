@@ -83,9 +83,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Map<String, Object> tokens = new HashMap<String, Object>();
 		if (!user.getAccountLocked()) {
 			tokens = this.buildTokens(profile, user, true);
+			tokens.put("status", true);
 			tokens.put("message", "Authentication Successful");
 			tokens.put("verificationRequired", false);
 		} else {
+			tokens.put("status", false);
 			tokens.put("message", "Account Locked");
 			tokens.put("user", UserConverter.convertToDTO(user));
 			tokens.put("verificationRequired", true);
@@ -120,7 +122,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
 
 		Set<String> roles = new HashSet<String>();
-		user.getRoles().forEach(role -> roles.add(role.getAuthority()));
+		if (user.getRoles() != null) {
+			user.getRoles().forEach(role -> roles.add(role.getAuthority()));
+		}
 
 		Map<String, Object> jwtClaims = new HashMap<String, Object>();
 		jwtClaims.put("id", profile.getId());
@@ -138,7 +142,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
 
 		Set<String> roles = new HashSet<String>();
-		user.getRoles().forEach(role -> roles.add(role.getAuthority()));
+		if (user.getRoles() != null) {
+			user.getRoles().forEach(role -> roles.add(role.getAuthority()));
+		}
 
 		Map<String, Object> jwtClaims = new HashMap<String, Object>();
 		jwtClaims.put("id", profile.getId());
@@ -229,7 +235,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			logger.error(ex.getMessage());
 			user = null;
 			response.put("status", false);
-			response.put("message", ex.getMessage());
+			response.put("message", "Could not create user");
 		}
 		return response;
 	}

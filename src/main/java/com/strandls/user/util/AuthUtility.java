@@ -31,9 +31,10 @@ public class AuthUtility {
 		try {
 			Set<Role> roles = user.getRoles();
 			Set<String> strRoles = new LinkedHashSet<>();
-
-			for (Role r : roles) {
-				strRoles.add(r.getAuthority());
+			if (roles != null) {
+				for (Role r : roles) {
+					strRoles.add(r.getAuthority());
+				}
 			}
 
 			return createUserProfile(user.getId(), user.getUserName(), user.getEmail(), strRoles);
@@ -79,28 +80,29 @@ public class AuthUtility {
 		CommonProfile profile = authenticator.validateToken(token);
 		return profile.getAttribute(JwtClaims.SUBJECT).toString();
 	}
-	
+
 	public static JSONObject verifyGoogleToken(String token) {
 		JSONObject obj = null;
 		try {
 			StringBuilder response = new StringBuilder();
 			URL oracle = new URL("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + token);
-	        URLConnection yc = oracle.openConnection();
-	        BufferedReader in = new BufferedReader(new InputStreamReader(
-	                                    yc.getInputStream()));
-	        String inputLine;
-	        while ((inputLine = in.readLine()) != null) {
-	        	response.append(inputLine);
-	        }
-	        in.close();
-	        obj = new JSONObject(response.toString());
+			URLConnection yc = oracle.openConnection();
+			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+			String inputLine;
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			obj = new JSONObject(response.toString());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return obj;
 	}
-	
+
 	public static void main(String[] args) {
-		System.out.println(verifyGoogleToken("eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc5YzgwOWRkMTE4NmNjMjI4YzRiYWY5MzU4NTk5NTMwY2U5MmI0YzgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTExMjcxNjc1MTk0NzU4MTk4NDQwIiwiZW1haWwiOiJzZXRodTEwMTIxOTk0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiOXhRc0s3WWZYSjM1RFJQY1ZNVF9QZyIsImlhdCI6MTU4Mjc5NjE1NCwiZXhwIjoxNTgyNzk5NzU0fQ.eY29kpbDpxgpqKQWx8QCehLipFdM-mJlIItxaaiB9GfVmKqBSddbCz2ZsXxgs6zDJoVkmkEaWF0foU5XBkTDb9k_NovSzwlgCEAvgkPpB-4t0PsmK8uzMchPPnemcPbmD4iGp_3gR0W4kzisI2SsEHgR43415bkwL6FB7uGNR7Qe4HIQdic8DiPxqIEoeMb-UJRKGPKMmez3pB0PQ8GejSWTXswZktCjni1zQ_KNNw4qkaJPkezyegVhoUIquVZuXn-wzpGXV8hXi_3EudupXwTr637zOfWHjQW8P_EKnszfuZmwzHQdgc2VIW-4uiGB6ukcmAh8WukOQtxcd0ebOg"));
+		System.out.println(verifyGoogleToken(
+				"eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc5YzgwOWRkMTE4NmNjMjI4YzRiYWY5MzU4NTk5NTMwY2U5MmI0YzgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTE3NTYwNjI2ODk0MjY3OTExODgwIiwiZW1haWwiOiJoYXJzaEBnZXRuYWRhLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiUXV2ZjVoTU1teXVIZldFa3YwWUxFZyIsIm5hbWUiOiJoYXJzaCB6YWxhdmFkaXlhIiwicGljdHVyZSI6Imh0dHBzOi8vbGg1Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tWWo3VGlOS0x6TjQvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUNIaTNyZEEzeEFQdGkwR291V3p6NE1KT3VEdXlmT3Qtdy9zOTYtYy9waG90by5qcGciLCJnaXZlbl9uYW1lIjoiaGFyc2giLCJmYW1pbHlfbmFtZSI6InphbGF2YWRpeWEiLCJsb2NhbGUiOiJlbi1HQiIsImlhdCI6MTU4MjgwNTQwMiwiZXhwIjoxNTgyODA5MDAyLCJqdGkiOiJmYmQ0NGIwMWE0ODllODkwMmMxZDNjYjk3NzcxM2RiNmEyMDY2Y2FiIn0.qYgkHQUct9jA09ouQ49ip7vtHW3l9vMDT7HFHG7KwNDiFwhTv5v4EL64mREz1kPB2uTeNK0_LVv7sFAm_eLUy4Yf0wnXlrspO8yXowH4vzFvwqGdaXB-OBe0KjHiZmCXmfxOL3-TUZvTwe4_2O8_ZoSXUCLjL8lG_73tPhRWYujzJc_tyNgr5M9AbWdjIyC7yGIQvD944fJjN6STGVHCDqmmu5IkfRZvP1dfwNlmvZ2yUcoY-Yf6QuG8xL6hgLSpiKtsbD9hO_pwn9ANFbOmW7vFLidSAeiXmVuvzVt5Bl7dOTRvsZ0vlzLYSuDM-lSsFxR_QVcZ6OqCMuaLkLpRlg\n"
+						+ ""));
 	}
 }
