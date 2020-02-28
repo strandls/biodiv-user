@@ -262,14 +262,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			boolean validOTP = new Date(time).compareTo(new Date()) > 0;
 			if (validOTP && verification.getOtp().equals(otp)) {
 				user = userService.fetchUser(id);
-				String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames")
-						.split(",");
-				Set<Role> roles = new HashSet<>();
-				for (String roleName : roleNames) {
-					roles.add(roleService.getRoleByName(roleName));
-				}
 				user.setAccountLocked(false);
-				user.setRoles(roles);
+				user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
 				user = userDao.update(user);
 
 				CommonProfile profile = AuthUtility.createUserProfile(user);

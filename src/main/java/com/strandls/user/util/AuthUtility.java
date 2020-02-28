@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -100,9 +101,9 @@ public class AuthUtility {
 		return obj;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(verifyGoogleToken(
-				"eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc5YzgwOWRkMTE4NmNjMjI4YzRiYWY5MzU4NTk5NTMwY2U5MmI0YzgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwiYXpwIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXVkIjoiODAwMTU3NTUxNTQxLTR0c25jcTNqc2w4cXVwbm9hZHRxMjZyaDd0YWduODN2LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTE3NTYwNjI2ODk0MjY3OTExODgwIiwiZW1haWwiOiJoYXJzaEBnZXRuYWRhLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiUXV2ZjVoTU1teXVIZldFa3YwWUxFZyIsIm5hbWUiOiJoYXJzaCB6YWxhdmFkaXlhIiwicGljdHVyZSI6Imh0dHBzOi8vbGg1Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tWWo3VGlOS0x6TjQvQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUNIaTNyZEEzeEFQdGkwR291V3p6NE1KT3VEdXlmT3Qtdy9zOTYtYy9waG90by5qcGciLCJnaXZlbl9uYW1lIjoiaGFyc2giLCJmYW1pbHlfbmFtZSI6InphbGF2YWRpeWEiLCJsb2NhbGUiOiJlbi1HQiIsImlhdCI6MTU4MjgwNTQwMiwiZXhwIjoxNTgyODA5MDAyLCJqdGkiOiJmYmQ0NGIwMWE0ODllODkwMmMxZDNjYjk3NzcxM2RiNmEyMDY2Y2FiIn0.qYgkHQUct9jA09ouQ49ip7vtHW3l9vMDT7HFHG7KwNDiFwhTv5v4EL64mREz1kPB2uTeNK0_LVv7sFAm_eLUy4Yf0wnXlrspO8yXowH4vzFvwqGdaXB-OBe0KjHiZmCXmfxOL3-TUZvTwe4_2O8_ZoSXUCLjL8lG_73tPhRWYujzJc_tyNgr5M9AbWdjIyC7yGIQvD944fJjN6STGVHCDqmmu5IkfRZvP1dfwNlmvZ2yUcoY-Yf6QuG8xL6hgLSpiKtsbD9hO_pwn9ANFbOmW7vFLidSAeiXmVuvzVt5Bl7dOTRvsZ0vlzLYSuDM-lSsFxR_QVcZ6OqCMuaLkLpRlg\n"
-						+ ""));
+	public static String[] getDefaultRoles() {
+		String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames")
+				.split(",");
+		return roleNames;
 	}
 }
