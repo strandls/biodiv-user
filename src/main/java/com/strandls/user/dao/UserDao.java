@@ -3,8 +3,14 @@
  */
 package com.strandls.user.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +114,22 @@ public class UserDao extends AbstractDAO<User, Long> {
 			logger.error(e.getMessage());
 		} finally {
 			session.close();
+		}
+		return entity;
+	}
+	
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public List<User> findNames(String phrase) {
+		Session session = sessionFactory.openSession();
+		List<User> entity = new ArrayList<User>();
+		try {
+			Criteria criteria = session.createCriteria(User.class);
+			criteria.add(Restrictions.eq("accountLocked", false));
+			criteria.add(Restrictions.like("name", phrase, MatchMode.ANYWHERE));
+			criteria.setMaxResults(10);
+			entity.addAll(criteria.list());
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
 		}
 		return entity;
 	}

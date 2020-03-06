@@ -6,46 +6,63 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Inject;
+import com.rabbitmq.client.Channel;
+import com.strandls.mail_utility.model.EnumModel.FIELDS;
+import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
+import com.strandls.mail_utility.model.EnumModel.RESET_PASSWORD;
+import com.strandls.mail_utility.model.EnumModel.USER_REGISTRATION;
+import com.strandls.mail_utility.model.EnumModel.WELCOME_MAIL;
+import com.strandls.mail_utility.producer.RabbitMQProducer;
+import com.strandls.mail_utility.util.JsonUtil;
+import com.strandls.user.RabbitMqConnection;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.MailService;
 import com.strandls.user.util.AppUtil;
-import com.strandls.user.util.MailThread;
 import com.strandls.user.util.MessageUtil;
 import com.strandls.user.util.PropertyFileUtil;
-import com.strandls.user.util.TemplateUtil;
-
-import freemarker.template.Configuration;
 
 public class MailServiceImpl implements MailService {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
+
 	@Inject
-	private Configuration configuration;
+	private Channel channel;
 
 	@Override
 	public void sendActivationMail(HttpServletRequest request, User user, String otp) {
-		TemplateUtil templates = new TemplateUtil(configuration);
-		String verificationUrl = PropertyFileUtil.fetchProperty("config.properties", "verficationUrl");
-		
-		Map<String, String> model = new HashMap<>();
-		model.put("username", user.getUserName());
-		model.put("url", verificationUrl);
-		model.put("otp", otp);
-		String content = templates.getTemplateAsString("activation.ftl", model);
-		
-		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc").split(",");
-		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Activate your account with India Biodiversity Portal", content, true);
-		Thread thread = new Thread(mail);
-		thread.start();
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
+		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put(USER_REGISTRATION.OTP.getAction(), otp);
+		model.put(USER_REGISTRATION.USERNAME.getAction(), user.getUserName());
+		model.put(USER_REGISTRATION.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
+
+		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		RabbitMQProducer producer = new RabbitMQProducer(channel);
+		try {
+			producer.produceMail(
+					RabbitMqConnection.EXCHANGE,
+					RabbitMqConnection.ROUTING_KEY,
+					null, JsonUtil.mapToJSON(data));
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	@Override
 	public void sendWelcomeMail(HttpServletRequest request, User user) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
+		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		Map<String, Object> model = new HashMap<>();		
 		MessageUtil messages = new MessageUtil();
 		Properties config = PropertyFileUtil.fetchProperty("config.properties");
-		TemplateUtil templates = new TemplateUtil(configuration);
-		Map<String, String> model = new HashMap<>();
-		model.put("username", AppUtil.capitalize(user.getUserName()));
+		model.put(WELCOME_MAIL.USERNAME.getAction(), AppUtil.capitalize(user.getUserName()));
 		String profileUrl = null;
 		try {
 			Map<String, String> linkParams = new HashMap<String, String>();
@@ -54,47 +71,53 @@ public class MailServiceImpl implements MailService {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		model.put("userProfileUrl", profileUrl);
-		model.put("serverUrl", config.getProperty("serverUrl"));
-		model.put("siteName", config.getProperty("siteName"));
-		model.put("facebookUrl", config.getProperty("facebookUrl"));
-		model.put("twitterUrl", config.getProperty("twitterUrl"));
-		model.put("feedbackFormUrl", config.getProperty("feedbackFormUrl"));
-		model.put("mailDefaultFrom", config.getProperty("mail_sender_email"));
-		model.put("welcomeEmailIntro", messages.getMessage("activationEmail.intro"));
-		model.put("welcomeEmailObservation", messages.getMessage("activationEmail.observation"));
-		model.put("welcomeEmailMap", messages.getMessage("activationEmail.map"));
-		model.put("welcomeEmailChecklist", messages.getMessage("activationEmail.checklist"));
-		model.put("welcomeEmailSpecies", messages.getMessage("activationEmail.species"));
-		model.put("welcomeEmailGroups", messages.getMessage("activationEmail.groups"));
-		model.put("welcomeEmailDocuments", messages.getMessage("activationEmail.documents"));
-		String content = templates.getTemplateAsString("welcome.ftl", model);
-		
-		String[] bccUsers = config.getProperty("mail_bcc").split(",");		
-		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Welcome to India Biodiversity Portal", content, true);
-		Thread thread = new Thread(mail);
-		thread.start();
-	}
+		model.put(WELCOME_MAIL.USER_PROFILE_URL.getAction(), profileUrl);
+		model.put(WELCOME_MAIL.SERVER_URL.getAction(), config.getProperty("serverUrl"));
+		model.put(WELCOME_MAIL.SITENAME.getAction(), config.getProperty("siteName"));
+		model.put(WELCOME_MAIL.FACEBOOK_URL.getAction(), config.getProperty("facebookUrl"));
+		model.put(WELCOME_MAIL.TWITTER_URL.getAction(), config.getProperty("twitterUrl"));
+		model.put(WELCOME_MAIL.FEEDBACKFORM_URL.getAction(), config.getProperty("feedbackFormUrl"));
+		model.put(WELCOME_MAIL.MAIL_DEFAULT_FROM.getAction(), config.getProperty("mail_sender_email"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_INTRO.getAction(), messages.getMessage("activationEmail.intro"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_OBSERVATION.getAction(), messages.getMessage("activationEmail.observation"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_MAP.getAction(), messages.getMessage("activationEmail.map"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_CHECKLIST.getAction(), messages.getMessage("activationEmail.checklist"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_SPECIES.getAction(), messages.getMessage("activationEmail.species"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_GROUPS.getAction(), messages.getMessage("activationEmail.groups"));
+		model.put(WELCOME_MAIL.WELCOME_EMAIL_DOCUMENTS.getAction(), messages.getMessage("activationEmail.documents"));
 
-	@Override
-	public void sendResetPasswordMail(User user) {
-		// TODO Auto-generated method stub
-		
+		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		RabbitMQProducer producer = new RabbitMQProducer(channel);
+		try {
+			producer.produceMail(
+					RabbitMqConnection.EXCHANGE,
+					RabbitMqConnection.ROUTING_KEY,
+					null, JsonUtil.mapToJSON(data));
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}		
 	}
 
 	@Override
 	public void sendForgotPasswordMail(HttpServletRequest request, User user, String otp) {
-		TemplateUtil templates = new TemplateUtil(configuration);
-		
-		Map<String, String> model = new HashMap<>();
-		model.put("username", user.getUserName());
-		model.put("otp", otp);
-		String content = templates.getTemplateAsString("reset-password.ftl", model);
-		
-		String[] bccUsers = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc").split(",");
-		MailThread mail = new MailThread(new String[] {user.getEmail()}, bccUsers, "Reset password with India Biodiversity Portal", content, true);
-		Thread thread = new Thread(mail);
-		thread.start();
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
+		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		Map<String, Object> model = new HashMap<>();
+		model.put(RESET_PASSWORD.USERNAME.getAction(), user.getUserName());
+		model.put(RESET_PASSWORD.OTP.getAction(), otp);
+		model.put(RESET_PASSWORD.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
+
+		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		RabbitMQProducer producer = new RabbitMQProducer(channel);
+		try {
+			producer.produceMail(
+					RabbitMqConnection.EXCHANGE,
+					RabbitMqConnection.ROUTING_KEY,
+					null, JsonUtil.mapToJSON(data));
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
 	}
 
 }

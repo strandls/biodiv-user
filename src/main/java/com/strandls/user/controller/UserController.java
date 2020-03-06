@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -23,6 +24,7 @@ import com.google.inject.Inject;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
+import com.strandls.user.converter.UserConverter;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
@@ -299,6 +301,21 @@ public class UserController {
 			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+	
+	@GET
+	@Path(ApiConstants.AUTOCOMPLETE)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Names autocomplete", notes = "Returns list of names", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+	public Response something(@QueryParam("name") String name) {
+		try {
+			List<UserIbp> users = UserConverter.convertToIbpList(userSerivce.getNames(name));
+			return Response.ok().entity(users).build();
+		} catch (Exception ex) {
+			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();			
 		}
 	}
 

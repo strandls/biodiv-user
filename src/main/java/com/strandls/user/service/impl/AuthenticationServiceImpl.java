@@ -22,11 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.rabbitmq.client.Channel;
 import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
-import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.AuthenticationService;
@@ -71,6 +71,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Inject
 	private SMSService smsService;
+	
+	@Inject
+	private Channel channel;
 
 	@Inject
 	private UserVerificationService verificationService;

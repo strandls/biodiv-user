@@ -41,4 +41,6 @@ public interface UserService {
 	public Follow unFollow(String type, Long objectId, Long userId);
 
 	public Boolean checkUserGroupMember(Long userId, Long userGroupId);
+	
+	public List<User> getNames(String name);
 }
