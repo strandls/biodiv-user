@@ -1,5 +1,7 @@
 package com.strandls.user.controller;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +30,11 @@ import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
+import com.strandls.user.service.RoleService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
 import com.strandls.user.util.AuthUtility;
+import com.strandls.user.util.GoogleRecaptchaCheck;
 import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
@@ -54,6 +58,9 @@ public class AuthenticationController {
 
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private RoleService roleService;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -83,6 +90,12 @@ public class AuthenticationController {
 					if (user == null) {
 						return Response.status(Status.BAD_REQUEST)
 								.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.USER_NOT_FOUND)).build();
+					}
+					if (user.getAccountLocked()) {
+						user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
+						user.setAccountLocked(false);
+						user.setLastLoginDate(new Date());
+						user = userService.updateUser(user);
 					}
 					CommonProfile profile = AuthUtility.createUserProfile(user);
 					tokens = authenticationService.buildTokens(profile, user, true);
@@ -167,6 +180,12 @@ public class AuthenticationController {
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
 			String mode = userDTO.getMode();
+			String recaptcha = userDTO.getRecaptcha();
+			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
+			if (check.isRobot(recaptcha)) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_CAPTCHA)).build();
+			}
 			if (username == null || username.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();
 			}

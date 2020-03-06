@@ -24,6 +24,7 @@ public class UserDTO {
 	private String mapLocation;
 	private String verificationType;
 	private String mode = "manual";
+	private String recaptcha;
 	
 	public Long getId() {
 		return id;
@@ -118,6 +119,14 @@ public class UserDTO {
 
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+
+	public String getRecaptcha() {
+		return recaptcha;
+	}
+
+	public void setRecaptcha(String googleCaptcha) {
+		this.recaptcha = googleCaptcha;
 	}
 
 }
