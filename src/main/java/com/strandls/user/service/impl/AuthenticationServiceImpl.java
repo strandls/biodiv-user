@@ -185,6 +185,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setHideEmial(true);
 		user.setEnabled(true);
 		user.setAccountExpired(false);
+		user.setSendDigest(true);
 		boolean isManual = userDTO.getMode().equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction());
 		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);

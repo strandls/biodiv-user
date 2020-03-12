@@ -66,6 +66,7 @@ public class User implements Serializable {
 	private Set<Role> roles;
 	private Float timezone;
 	private Boolean identificationMail;
+	private Boolean sendDigest;
 
 	public User() {
 	}
@@ -346,6 +347,14 @@ public class User implements Serializable {
 
 	public void setIdentificationMail(Boolean identificationMail) {
 		this.identificationMail = identificationMail;
+	}
+
+	public Boolean getSendDigest() {
+		return sendDigest;
+	}
+
+	public void setSendDigest(Boolean sendDigest) {
+		this.sendDigest = sendDigest;
 	}
 
 }
