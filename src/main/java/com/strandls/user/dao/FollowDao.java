@@ -68,6 +68,27 @@ public class FollowDao extends AbstractDAO<Follow, Long> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public List<Follow> findByObject(String objectType,Long objectId) {
+		String qry = "from Follow f where f.objectType = :objType "
+				+ "and f.objectId = :objId ";
+		Session session = sessionFactory.openSession();
+		List<Follow> result = null;
+		try {
+			Query<Follow> query = session.createQuery(qry);
+			query.setParameter("objType", objectType);
+			query.setParameter("objId", objectId);			
+			result = query.getResultList();
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<Follow> findByUser(Long authorId){
 		String qry = "from Follow f where f.authorId = :authorId";
 		Session session = sessionFactory.openSession();

@@ -4,9 +4,11 @@
 package com.strandls.user.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -25,7 +27,9 @@ import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.converter.UserConverter;
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
+import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
@@ -46,7 +50,7 @@ import io.swagger.annotations.ApiResponses;
 public class UserController {
 
 	@Inject
-	private UserService userSerivce;
+	private UserService userService;
 
 	@GET
 	@Path(ApiConstants.PING)
@@ -69,7 +73,7 @@ public class UserController {
 		try {
 
 			Long uId = Long.parseLong(userId);
-			User user = userSerivce.fetchUser(uId);
+			User user = userService.fetchUser(uId);
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
 			return Response.status(Status.NOT_FOUND).build();
@@ -87,7 +91,7 @@ public class UserController {
 	public Response getUserIbp(@PathParam("userId") String userId) {
 		try {
 			Long id = Long.parseLong(userId);
-			UserIbp ibp = userSerivce.fetchUserIbp(id);
+			UserIbp ibp = userService.fetchUserIbp(id);
 			return Response.status(Status.OK).entity(ibp).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -107,7 +111,7 @@ public class UserController {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long uId = Long.parseLong(profile.getId());
-			User user = userSerivce.fetchUser(uId);
+			User user = userService.fetchUser(uId);
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -133,7 +137,7 @@ public class UserController {
 			Long objId = Long.parseLong(objectId);
 			if (objectType.equalsIgnoreCase("observation"))
 				objectType = "species.participation.Observation";
-			UserPermissions permission = userSerivce.getUserPermissions(userId, objectType, objId);
+			UserPermissions permission = userService.getUserPermissions(userId, objectType, objId);
 
 			return Response.status(Status.OK).entity(permission).build();
 
@@ -155,7 +159,7 @@ public class UserController {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			UserPermissions permission = userSerivce.getUserPermissions(userId, null, null);
+			UserPermissions permission = userService.getUserPermissions(userId, null, null);
 
 			return Response.status(Status.OK).entity(permission).build();
 
@@ -177,7 +181,7 @@ public class UserController {
 
 		try {
 			Long id = Long.parseLong(followId);
-			Follow follow = userSerivce.fetchByFollowId(id);
+			Follow follow = userService.fetchByFollowId(id);
 			return Response.status(Status.OK).entity(follow).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -202,7 +206,7 @@ public class UserController {
 			Long authId = Long.parseLong(profile.getId());
 			if (objectType.equalsIgnoreCase("observation"))
 				objectType = "species.participation.Observation";
-			Follow follow = userSerivce.fetchByFollowObject(objectType, objId, authId);
+			Follow follow = userService.fetchByFollowObject(objectType, objId, authId);
 			return Response.status(Status.OK).entity(follow).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -223,7 +227,7 @@ public class UserController {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long id = Long.parseLong(profile.getId());
-			List<Follow> follows = userSerivce.fetchFollowByUser(id);
+			List<Follow> follows = userService.fetchFollowByUser(id);
 			return Response.status(Status.OK).entity(follows).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -248,7 +252,7 @@ public class UserController {
 			if (object.equalsIgnoreCase("observation"))
 				object = "species.participation.Observation";
 			Long objId = Long.parseLong(objectId);
-			Follow result = userSerivce.updateFollow(object, objId, userId);
+			Follow result = userService.updateFollow(object, objId, userId);
 
 			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
@@ -273,7 +277,7 @@ public class UserController {
 			Long objId = Long.parseLong(objectId);
 			if (type.equalsIgnoreCase("observation"))
 				type = "species.participation.Observation";
-			Follow result = userSerivce.unFollow(type, objId, userId);
+			Follow result = userService.unFollow(type, objId, userId);
 
 			return Response.status(Status.OK).entity(result).build();
 
@@ -297,25 +301,56 @@ public class UserController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			Long ugId = Long.parseLong(usergroupId);
-			Boolean result = userSerivce.checkUserGroupMember(userId, ugId);
+			Boolean result = userService.checkUserGroupMember(userId, ugId);
 			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
-	
+
 	@GET
 	@Path(ApiConstants.AUTOCOMPLETE)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Names autocomplete", notes = "Returns list of names", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
-	public Response something(@QueryParam("name") String name) {
+	public Response autocomplete(@QueryParam("name") String name) {
 		try {
-			List<UserIbp> users = UserConverter.convertToIbpList(userSerivce.getNames(name));
+			List<UserIbp> users = UserConverter.convertToIbpList(userService.getNames(name));
 			return Response.ok().entity(users).build();
 		} catch (Exception ex) {
-			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();			
+			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.RECIPIENTS)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Fetches recipients", notes = "Returns list of recipients", response = Recipients.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+	public Response getRecipients(@FormParam("objectType") String objectType, @FormParam("objectId") Long objectId) {
+		try {
+			List<Recipients> users = UserConverter
+					.convertToRecipientList(userService.fetchRecipients(objectType, objectId));
+			return Response.ok().entity(users).build();
+		} catch (Exception ex) {
+			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
+		}
+	}
+	
+	@POST
+	@Path(ApiConstants.SAVE_TOKEN)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Fetches recipients", notes = "Returns list of recipients", response = Recipients.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+	public Response saveToken(@FormParam("userId") Long userId, @FormParam("token") String token) {
+		try {
+			FirebaseTokens fcmToken = userService.saveToken(userId, token);
+			return Response.ok().entity(fcmToken).build();
+		} catch (Exception ex) {
+			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
 	}
 

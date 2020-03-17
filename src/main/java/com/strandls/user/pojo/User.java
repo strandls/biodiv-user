@@ -349,6 +349,7 @@ public class User implements Serializable {
 		this.identificationMail = identificationMail;
 	}
 
+	@Column(name = "send_digest")
 	public Boolean getSendDigest() {
 		return sendDigest;
 	}

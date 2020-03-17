@@ -5,6 +5,7 @@ package com.strandls.user.service;
 
 import java.util.List;
 
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
@@ -31,6 +32,8 @@ public interface UserService {
 	public UserPermissions getUserPermissions(Long userId, String type, Long objectId);
 
 	public Follow fetchByFollowId(Long id);
+	
+	public List<User> fetchRecipients(String objectType, Long objectId);
 
 	public Follow fetchByFollowObject(String objectType, Long objectId, Long authorId);
 
@@ -43,4 +46,6 @@ public interface UserService {
 	public Boolean checkUserGroupMember(Long userId, Long userGroupId);
 	
 	public List<User> getNames(String name);
+	
+	public FirebaseTokens saveToken(Long userId, String token);
 }
