@@ -1,24 +1,26 @@
 package com.strandls.user.pojo;
 
+import java.util.List;
+
 public class Recipients {
 	
 	private Long id;
 	private String name;
 	private String email;
 	private Boolean isSubscribed;
-	private String firebaseSubscriptionKey;
+	private List<String> tokens;
 	
 	public Recipients() {
 		super();
 	}
 	
-	public Recipients(Long id, String name, String email, Boolean isSubscribed, String gcmKey) {
+	public Recipients(Long id, String name, String email, Boolean isSubscribed, List<String> tokens) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.isSubscribed = isSubscribed;
-		this.firebaseSubscriptionKey = gcmKey;
+		this.tokens = tokens;
 	}
 
 	public Long getId() {
@@ -48,12 +50,12 @@ public class Recipients {
 		this.isSubscribed = isSubscribed;
 	}
 
-	public String getFirebaseSubscriptionKey() {
-		return firebaseSubscriptionKey;
+	public List<String> getTokens() {
+		return tokens;
 	}
 
-	public void setFirebaseSubscriptionKey(String gcmKey) {
-		this.firebaseSubscriptionKey = gcmKey;
+	public void setTokens(List<String> tokens) {
+		this.tokens = tokens;
 	}	
 
 }

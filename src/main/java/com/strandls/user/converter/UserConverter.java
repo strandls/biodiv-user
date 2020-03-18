@@ -2,8 +2,10 @@ package com.strandls.user.converter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.strandls.user.dto.UserDTO;
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
@@ -40,7 +42,12 @@ public class UserConverter {
 		recipients.setName(user.getName());
 		recipients.setEmail(user.getEmail());
 		recipients.setIsSubscribed(user.getSendNotification());
-		recipients.setFirebaseSubscriptionKey("");
+		List<String> tokens = new ArrayList<String>();
+		if (user.getSendPushNotification()) {
+			tokens.addAll(user.getTokens().stream().map(FirebaseTokens::getToken)
+					.collect(Collectors.toCollection(ArrayList::new)));
+		}
+		recipients.setTokens(tokens);
 		return recipients;
 	}
 	

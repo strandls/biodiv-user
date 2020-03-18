@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
+import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;

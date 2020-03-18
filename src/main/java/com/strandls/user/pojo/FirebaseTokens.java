@@ -4,12 +4,18 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "firebase_tokens")
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "user" })
 public class FirebaseTokens implements Serializable {
 	
 	/**
@@ -22,8 +28,9 @@ public class FirebaseTokens implements Serializable {
 	@Column(name = "id")
 	private Long id;
 	
-	@Column(name = "user_id")
-	private Long userId;
+	@JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+	private User user;
 	
 	@Column(name = "token")
 	private String token;
@@ -32,9 +39,9 @@ public class FirebaseTokens implements Serializable {
 		super();
 	}
 
-	public FirebaseTokens(Long userId, String token) {
+	public FirebaseTokens(User user, String token) {
 		super();
-		this.userId = userId;
+		this.user = user;
 		this.token = token;
 	}
 
@@ -46,12 +53,12 @@ public class FirebaseTokens implements Serializable {
 		this.id = id;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setUser(User userId) {
+		this.user = userId;
 	}
 
 	public String getToken() {
@@ -64,7 +71,7 @@ public class FirebaseTokens implements Serializable {
 
 	@Override
 	public String toString() {
-		return "FirebaseTokens [id=" + id + ", userId=" + userId + ", token=" + token + "]";
+		return "FirebaseTokens [id=" + id + ", userId=" + user + ", token=" + token + "]";
 	}
 
 }

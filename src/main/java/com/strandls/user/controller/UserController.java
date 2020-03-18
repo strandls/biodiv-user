@@ -4,7 +4,6 @@
 package com.strandls.user.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -26,6 +25,8 @@ import com.google.inject.Inject;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
+import com.strandls.user.Constants.ERROR_CONSTANTS;
+import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
@@ -34,6 +35,7 @@ import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.AppUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -338,17 +340,24 @@ public class UserController {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
 	}
-	
+
 	@POST
 	@Path(ApiConstants.SAVE_TOKEN)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Fetches recipients", notes = "Returns list of recipients", response = Recipients.class, responseContainer = "List")
+	@ValidateUser
+	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
-	public Response saveToken(@FormParam("userId") Long userId, @FormParam("token") String token) {
+	public Response saveToken(@Context HttpServletRequest request, @FormParam("userId") Long userId,
+			@FormParam("token") String token) {
 		try {
-			FirebaseTokens fcmToken = userService.saveToken(userId, token);
-			return Response.ok().entity(fcmToken).build();
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			if (Long.parseLong(profile.getId()) != userId) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_ACTION)).build();
+			}
+			userService.saveToken(userId, token);
+			return Response.ok().entity(AppUtil.generateResponse(true, SUCCESS_CONSTANTS.TOKEN_SAVED)).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}

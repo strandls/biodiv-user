@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.rabbitmq.client.Channel;
-import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
+import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
