@@ -224,7 +224,7 @@ public class AuthenticationController {
 					&& !ValidationUtil.validatePhone(mobileNumber)) {
 				return Response.status(Status.BAD_REQUEST).entity("Invalid mobile number").build();
 			}
-			Map<String, Object> data = authenticationService.addUser(request, userDTO), verificationType);
+			Map<String, Object> data = authenticationService.addUser(request, userDTO, verificationType);
 			return Response.status(Status.OK).entity(data).build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
