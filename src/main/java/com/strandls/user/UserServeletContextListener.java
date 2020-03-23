@@ -39,7 +39,6 @@ import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
 import com.strandls.user.service.impl.UserServiceModule;
-import com.strandls.utility.controller.UtilityServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -93,7 +92,6 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				bind(JwtAuthenticator.class).toInstance(jwtAuthenticator);
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 
 				serve("/api/*").with(GuiceContainer.class, props);
 			}

@@ -27,9 +27,11 @@ import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
+import com.strandls.user.pojo.Language;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.AuthenticationService;
+import com.strandls.user.service.LanguageService;
 import com.strandls.user.service.MailService;
 import com.strandls.user.service.RoleService;
 import com.strandls.user.service.SMSService;
@@ -44,8 +46,6 @@ import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
 import com.strandls.user.util.ValidationUtil;
-import com.strandls.utility.controller.UtilityServiceApi;
-import com.strandls.utility.pojo.Language;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -61,9 +61,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private SimpleUsernamePasswordAuthenticator usernamePasswordAuthenticator;
 
 	@Inject
-	private UtilityServiceApi utilityService;
-
-	@Inject
 	private RoleService roleService;
 
 	@Inject
@@ -71,6 +68,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Inject
 	private SMSService smsService;
+	
+	@Inject
+	private LanguageService languageService;
 	
 	@Inject
 	private Channel channel;
@@ -194,7 +194,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setIdentificationMail(true);
 		try {
 			Locale locale = request.getLocale();
-			Language language = utilityService.getLanguageByTwoLetterCode(locale.getLanguage());
+			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
 			user.setLanguageId(language.getId());
 
 			user.setVersion(0L);
