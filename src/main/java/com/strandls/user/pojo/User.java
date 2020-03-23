@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -66,6 +67,9 @@ public class User implements Serializable {
 	private Set<Role> roles;
 	private Float timezone;
 	private Boolean identificationMail;
+	private Boolean sendDigest;
+	private Boolean sendPushNotification;
+	private Set<FirebaseTokens> tokens;
 
 	public User() {
 	}
@@ -346,6 +350,33 @@ public class User implements Serializable {
 
 	public void setIdentificationMail(Boolean identificationMail) {
 		this.identificationMail = identificationMail;
+	}
+
+	@Column(name = "send_digest")
+	public Boolean getSendDigest() {
+		return sendDigest;
+	}
+
+	public void setSendDigest(Boolean sendDigest) {
+		this.sendDigest = sendDigest;
+	}
+	
+	@Column(name = "send_push_notification", columnDefinition = "boolean default false")
+	public Boolean getSendPushNotification() {
+		return sendPushNotification;
+	}
+	
+	public void setSendPushNotification(Boolean sendPushNotification) {
+		this.sendPushNotification = sendPushNotification;
+	}
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+	public Set<FirebaseTokens> getTokens() {
+		return tokens;
+	}
+	
+	public void setTokens(Set<FirebaseTokens> tokens) {
+		this.tokens = tokens;
 	}
 
 }

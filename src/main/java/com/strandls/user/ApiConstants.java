@@ -38,5 +38,8 @@ public class ApiConstants {
 	public static final String USERFOLLOW = "/userfollow";
 	public static final String UNFOLLOW = "/unfollow";
 	public static final String GROUPMEMBER = "/groupMember";
+	public static final String AUTOCOMPLETE = "/autocomplete";
+	public static final String RECIPIENTS = "/recipients";
+	public static final String SAVE_TOKEN = "/save-token";
 
 }

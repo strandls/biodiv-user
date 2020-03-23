@@ -3,15 +3,21 @@
  */
 package com.strandls.user.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.hibernate.Session;
 
 import com.google.inject.Inject;
+import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dao.UserGroupMemberRoleDao;
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.SpeciesPermission;
@@ -35,6 +41,9 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private UserGroupMemberRoleDao userGroupMemberDao;
+	
+	@Inject
+	private FirebaseDao firebaseDao;
 
 	@Inject
 	private FollowDao followDao;
@@ -140,6 +149,31 @@ public class UserServiceImpl implements UserService {
 		if (result != null)
 			return true;
 		return false;
+	}
+	
+	@Override
+	public List<User> getNames(String name) {
+		return userDao.findNames(name);
+	}
+
+	@Override
+	public List<User> fetchRecipients(String objectType, Long objectId) {
+		List<Follow> followers = followDao.findByObject(objectType, objectId);
+		List<User> recipients = new ArrayList<>();
+		for (Follow follower: followers) {
+			User user = userDao.findById(follower.getAuthorId());
+			recipients.add(user);
+		}
+		return recipients;
+	}
+	
+	@Override
+	public FirebaseTokens saveToken(Long userId, String fcmToken) {
+		User user = fetchUser(userId);
+		user.setSendPushNotification(true);
+		updateUser(user);
+		FirebaseTokens token = new FirebaseTokens(user, fcmToken);
+		return firebaseDao.save(token);
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.strandls.user.controller;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
@@ -26,16 +25,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
+import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.RoleService;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
+import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.GoogleRecaptchaCheck;
-import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
 

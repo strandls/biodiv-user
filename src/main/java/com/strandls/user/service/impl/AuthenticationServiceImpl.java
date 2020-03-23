@@ -22,14 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.strandls.user.ErrorConstants.ERROR_CONSTANTS;
+import com.rabbitmq.client.Channel;
+import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
-import com.strandls.user.pojo.Role;
+import com.strandls.user.pojo.Language;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.AuthenticationService;
+import com.strandls.user.service.LanguageService;
 import com.strandls.user.service.MailService;
 import com.strandls.user.service.RoleService;
 import com.strandls.user.service.SMSService;
@@ -44,8 +46,6 @@ import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
 import com.strandls.user.util.ValidationUtil;
-import com.strandls.utility.controller.UtilityServiceApi;
-import com.strandls.utility.pojo.Language;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -61,9 +61,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private SimpleUsernamePasswordAuthenticator usernamePasswordAuthenticator;
 
 	@Inject
-	private UtilityServiceApi utilityService;
-
-	@Inject
 	private RoleService roleService;
 
 	@Inject
@@ -71,6 +68,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Inject
 	private SMSService smsService;
+	
+	@Inject
+	private LanguageService languageService;
+	
+	@Inject
+	private Channel channel;
 
 	@Inject
 	private UserVerificationService verificationService;
@@ -182,6 +185,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setHideEmial(true);
 		user.setEnabled(true);
 		user.setAccountExpired(false);
+		user.setSendDigest(true);
 		boolean isManual = userDTO.getMode().equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction());
 		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);
@@ -190,7 +194,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setIdentificationMail(true);
 		try {
 			Locale locale = request.getLocale();
-			Language language = utilityService.getLanguageByTwoLetterCode(locale.getLanguage());
+			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
 			user.setLanguageId(language.getId());
 
 			user.setVersion(0L);

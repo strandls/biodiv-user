@@ -33,12 +33,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.rabbitmq.client.Channel;
 import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
 import com.strandls.user.service.impl.UserServiceModule;
-import com.strandls.utility.controller.UtilityServiceApi;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
@@ -75,6 +75,16 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
+				RabbitMqConnection connection = new RabbitMqConnection();
+				Channel channel = null;
+				try {
+					channel = connection.setRabbitMQConnetion();
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+
+				bind(Channel.class).toInstance(channel);
+
 				String JWT_SALT = PropertyFileUtil.fetchProperty("config.properties", "jwtSalt");
 				JwtAuthenticator jwtAuthenticator = new JwtAuthenticator();
 				jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));
@@ -82,7 +92,6 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				bind(JwtAuthenticator.class).toInstance(jwtAuthenticator);
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				bind(UtilityServiceApi.class).in(Scopes.SINGLETON);
 
 				serve("/api/*").with(GuiceContainer.class, props);
 			}
@@ -141,7 +150,12 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 		SessionFactory sessionFactory = injector.getInstance(SessionFactory.class);
 		sessionFactory.close();
-
+		Channel channel = injector.getInstance(Channel.class);
+		try {
+			channel.getConnection().close();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
 		super.contextDestroyed(servletContextEvent);
 		// ... First close any background tasks which may be using the DB ...
 		// ... Then close any DB connection pools ...
