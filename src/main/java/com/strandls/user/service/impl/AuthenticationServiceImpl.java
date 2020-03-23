@@ -166,13 +166,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public Map<String, Object> addUser(HttpServletRequest request, UserDTO userDTO) throws Exception {
+	public Map<String, Object> addUser(HttpServletRequest request, UserDTO userDTO, String type) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		User user = new User();
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
-		user.setEmail(userDTO.getEmail() == null ? null : userDTO.getEmail());
-		user.setMobileNumber(userDTO.getMobileNumber() == null ? null : userDTO.getMobileNumber());
+                if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(type)) {
+                    user.setEmail(userDTO.getEmail());
+                } else {
+                    user.setMobileNumber(userDTO.getMobileNumber());
+                }
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 		user.setPassword(passwordEncoder.encodePassword(userDTO.getPassword(), null));
 		user.setLocation(userDTO.getLocation());
