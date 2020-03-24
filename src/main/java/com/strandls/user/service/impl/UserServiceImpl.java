@@ -162,7 +162,9 @@ public class UserServiceImpl implements UserService {
 		List<User> recipients = new ArrayList<>();
 		for (Follow follower: followers) {
 			User user = userDao.findById(follower.getAuthorId());
-			recipients.add(user);
+			if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+				recipients.add(user);				
+			}
 		}
 		return recipients;
 	}
