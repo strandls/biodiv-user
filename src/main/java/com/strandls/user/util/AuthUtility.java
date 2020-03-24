@@ -38,8 +38,9 @@ public class AuthUtility {
 				}
 			}
 			String email = user.getEmail();
-			email = (email == null || email.isEmpty()) ? user.getMobileNumber() : "";
-			return createUserProfile(user.getId(), user.getUserName(), email , strRoles);
+			String mobile = user.getMobileNumber();
+			return createUserProfile(user.getId(), user.getUserName(),
+					(email == null || email.isEmpty()) ? mobile : email, strRoles);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -103,8 +104,7 @@ public class AuthUtility {
 	}
 
 	public static String[] getDefaultRoles() {
-		String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames")
-				.split(",");
+		String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames").split(",");
 		return roleNames;
 	}
 }
