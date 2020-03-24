@@ -68,10 +68,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Inject
 	private SMSService smsService;
-	
+
 	@Inject
 	private LanguageService languageService;
-	
+
 	@Inject
 	private Channel channel;
 
@@ -138,7 +138,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put("id", profile.getId());
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
-		jwtClaims.put(CommonProfileDefinition.EMAIL, profile.getEmail());
+		jwtClaims.put(CommonProfileDefinition.EMAIL,
+				(profile.getEmail() == null || profile.getEmail().isEmpty()) ? "" : profile.getEmail());
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getAccessTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
 		jwtClaims.put("roles", roles);
@@ -158,7 +159,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put("id", profile.getId());
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
-		jwtClaims.put(CommonProfileDefinition.EMAIL, profile.getEmail());
+		jwtClaims.put(CommonProfileDefinition.EMAIL, 
+				(profile.getEmail() == null || profile.getEmail().isEmpty()) ? "" : profile.getEmail());
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getRefreshTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
 		jwtClaims.put("roles", roles);
@@ -171,11 +173,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		User user = new User();
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
-                if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(type)) {
-                    user.setEmail(userDTO.getEmail());
-                } else {
-                    user.setMobileNumber(userDTO.getMobileNumber());
-                }
+		if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(type)) {
+			user.setEmail(userDTO.getEmail());
+		} else {
+			user.setMobileNumber(userDTO.getMobileNumber());
+		}
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 		user.setPassword(passwordEncoder.encodePassword(userDTO.getPassword(), null));
 		user.setLocation(userDTO.getLocation());

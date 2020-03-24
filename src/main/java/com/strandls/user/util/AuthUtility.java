@@ -37,8 +37,9 @@ public class AuthUtility {
 					strRoles.add(r.getAuthority());
 				}
 			}
-
-			return createUserProfile(user.getId(), user.getUserName(), user.getEmail(), strRoles);
+			String email = user.getEmail();
+			email = (email == null || email.isEmpty()) ? user.getMobileNumber() : "";
+			return createUserProfile(user.getId(), user.getUserName(), email , strRoles);
 		} catch (Exception e) {
 			throw e;
 		}
