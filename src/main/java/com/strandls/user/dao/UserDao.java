@@ -125,7 +125,7 @@ public class UserDao extends AbstractDAO<User, Long> {
 		try {
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("accountLocked", false));
-			criteria.add(Restrictions.like("name", phrase, MatchMode.ANYWHERE));
+			criteria.add(Restrictions.like("name", phrase.toLowerCase(), MatchMode.ANYWHERE));
 			criteria.setMaxResults(10);
 			entity.addAll(criteria.list());
 		} catch (Exception ex) {
