@@ -174,8 +174,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
 		if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(type)) {
+			user.setSendNotification(true);
 			user.setEmail(userDTO.getEmail());
 		} else {
+			user.setSendNotification(false);
+			user.setEmail(userDTO.getMobileNumber() + "@ibp.org");
 			user.setMobileNumber(userDTO.getMobileNumber());
 		}
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
@@ -195,7 +198,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);
 		user.setTimezone(0F);
-		user.setSendNotification(true);
 		user.setIdentificationMail(true);
 		try {
 			Locale locale = request.getLocale();
