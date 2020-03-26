@@ -335,6 +335,10 @@ public class UserController {
 		try {
 			List<Recipients> users = UserConverter
 					.convertToRecipientList(userService.fetchRecipients(objectType, objectId));
+			System.out.println("***** Total Recipients #: " + users.size() + " *****");
+			for (Recipients recipient: users) {
+				System.out.println("***** Recipient #: " + recipient.getId() + " *****");
+			}
 			return Response.ok().entity(users).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
