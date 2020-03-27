@@ -158,11 +158,13 @@ public class UserServiceImpl implements UserService {
 	public List<User> fetchRecipients(String objectType, Long objectId) {
 		List<Follow> followers = followDao.findByObject(objectType, objectId);
 		List<User> recipients = new ArrayList<>();
-		for (Follow follower: followers) {
-			User user = userDao.findById(follower.getAuthorId());
-			if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getEmail().contains("@ibp.org")) {
-				recipients.add(user);				
-			}
+		if (followers != null) {
+			for (Follow follower: followers) {
+				User user = userDao.findById(follower.getAuthorId());
+				if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getEmail().contains("@ibp.org")) {
+					recipients.add(user);				
+				}
+			}			
 		}
 		return recipients;
 	}

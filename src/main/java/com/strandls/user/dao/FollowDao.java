@@ -80,6 +80,7 @@ public class FollowDao extends AbstractDAO<Follow, Long> {
 			result = query.getResultList();
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e.getMessage());
 		} finally {
 			session.close();
