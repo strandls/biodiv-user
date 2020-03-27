@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
+import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
@@ -88,11 +89,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (!user.getAccountLocked()) {
 			tokens = this.buildTokens(profile, user, true);
 			tokens.put("status", true);
-			tokens.put("message", "Authentication Successful");
+			tokens.put("message", SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
 			tokens.put("verificationRequired", false);
 		} else {
 			tokens.put("status", false);
-			tokens.put("message", "Account Locked");
+			tokens.put("message", ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
 			tokens.put("user", UserConverter.convertToDTO(user));
 			tokens.put("verificationRequired", true);
 		}
@@ -194,6 +195,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setAccountLocked(isManual ? false : true);
 		user.setPasswordExpired(false);
 		user.setTimezone(0F);
+		user.setSendPushNotification(false);
 		user.setIdentificationMail(true);
 		try {
 			Locale locale = request.getLocale();
@@ -216,7 +218,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 			if (existingUser != null) {
 				response.put("status", false);
-				response.put("message", "Email/Mobile already exists");
+				response.put("message", ERROR_CONSTANTS.EMAIL_MOBILE_ALREADY_EXISTS.toString());
 				return response;
 			}
 			user = userDao.save(user);
@@ -225,7 +227,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				response = this.buildTokens(profile, user, true);
 				response.put("status", true);
 				response.put("verificationRequired", false);
-				response.put("message", "User validated successfully");
+				response.put("message", SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
 				mailService.sendWelcomeMail(request, user);
 				return response;
 			}
@@ -247,7 +249,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			logger.error(ex.getMessage());
 			user = null;
 			response.put("status", false);
-			response.put("message", "Could not create user");
+			response.put("message", ERROR_CONSTANTS.COULD_NOT_CREATE_USER);
 		}
 		return response;
 	}
@@ -261,7 +263,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (verification == null) {
 			logger.debug("Account already verified or otp deleted");
 			result.put("status", false);
-			result.put("message", "Account already verified or otp deleted");
+			result.put("message", ERROR_CONSTANTS.VERIFIED_OR_OTP_DELETED.toString());
 			return result;
 		}
 		try {
@@ -276,7 +278,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				result = this.buildTokens(profile, user, true);
 				result.put("status", true);
-				result.put("message", "User validated successfully");
+				result.put("message", SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
 				if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 					mailService.sendWelcomeMail(request, user);
 				} else {
@@ -286,7 +288,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			} else {
 				// Invalid OTP
 				result.put("status", false);
-				result.put("message", "Invalid OTP");
+				result.put("message", ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP.toString());
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -301,7 +303,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			String act = AppUtil.getVerificationAction(action);
 			if (act == null) {
 				data.put("status", false);
-				data.put("message", "Invalid action");
+				data.put("message", ERROR_CONSTANTS.INVALID_ACTION);
 				return data;
 			}
 			UserVerification verification = verificationService.getUserVerificationDetails(id, act);
@@ -309,7 +311,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			if (++attempts > 2 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
 					.isLessThan(Hours.hours(24))) {
 				data.put("status", false);
-				data.put("message", "Attempts exceeded");
+				data.put("message", ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
 				return data;
 			}
 			String otp = AppUtil.generateOTP();
@@ -322,7 +324,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			verificationService.updateOtp(verification);
 			User user = userService.fetchUser(id);
 			data.put("status", true);
-			data.put("message", "OTP Regenerated");
+			data.put("message", SUCCESS_CONSTANTS.OTP_REGENERATED.toString());
 
 			if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verificationType)) {
 				if (VERIFICATION_ACTIONS.USER_REGISTRATION.toString().equals(act)) {
@@ -335,7 +337,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 		} catch (Exception ex) {
 			data.put("status", false);
-			data.put("message", "Could not genrate OTP");
+			data.put("message", ERROR_CONSTANTS.COULD_NOT_GENERATE_OTP.toString());
 			logger.error(ex.getMessage());
 		}
 		return data;
@@ -356,14 +358,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			if (++attempts > 3 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
 					.isLessThan(Hours.hours(24))) {
 				data.put("status", false);
-				data.put("message", "Attempts exceeded");
+				data.put("message", ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
 				return data;
 			}
 			User user = userService.getUserByEmailOrMobile(verificationId);
 			if (user == null) {
 				logger.error("User does not exist");
 				data.put("status", false);
-				data.put("message", "Could not send Email/SMS");
+				data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 				return data;
 			}
 			String otp = AppUtil.generateOTP();
@@ -386,7 +388,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verificationService.updateOtp(verification);
 			}
 			data.put("status", true);
-			data.put("message", "Email/SMS sent to the requested resource");
+			data.put("message", SUCCESS_CONSTANTS.EMAIL_SMS_SENT.toString());
 			data.put("user", UserConverter.convertToDTO(user));
 			if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 				mailService.sendForgotPasswordMail(request, user, otp);
@@ -396,7 +398,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			data.put("status", false);
-			data.put("message", "Could not send Email/SMS");
+			data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 		}
 		return data;
 	}
@@ -410,7 +412,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			if (verification == null) {
 				logger.error("OTP deleted");
 				data.put("status", false);
-				data.put("message", "OTP deleted");
+				data.put("message", ERROR_CONSTANTS.OTP_DELETED.toString());
 			}
 			long time = verification.getDate().getTime() + verification.getTimeout().longValue();
 			boolean validOTP = new Date(time).compareTo(new Date()) > 0;
@@ -419,7 +421,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				if (user == null) {
 					logger.debug("User not found");
 					data.put("status", false);
-					data.put("message", "User not found");
+					data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 					return data;
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
@@ -427,10 +429,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				userService.updateUser(user);
 				verificationService.deleteOtp(verification.getId());
 				data.put("status", true);
-				data.put("message", "Password updated successfully");
+				data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
 			} else {
 				data.put("status", false);
-				data.put("message", "Invalid OTP or OTP Expired");
+				data.put("message", ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP);
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
