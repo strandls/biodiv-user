@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -28,7 +26,7 @@ public class GoogleRecaptchaCheck {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private static final String GOOGLE_SECRET_KEY = "googleRecaptchaSecret";
+//	private static final String GOOGLE_SECRET_KEY = "googleRecaptchaSecret";
 	private static final String GOOGLE_API_ENDPOINT = "https://www.google.com/recaptcha/api/siteverify";
 
 	public GoogleRecaptchaCheck() {

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.strandls.user.pojo.UserGroupMemberRole;
+import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.util.AbstractDAO;
 
 /**
@@ -122,6 +123,26 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMembersCount> fetchMemberCountUserGroup() {
+
+		List<UserGroupMembersCount> result = new ArrayList<UserGroupMembersCount>();
+		String qry = "select user_group_id, count(s_user_id) from user_group_member_role group by user_group_id order by count(s_user_id) desc";
+		Session session = sessionFactory.openSession();
+		try {
+			Query<Object[]> query = session.createNativeQuery(qry);
+			List<Object[]> resultObject = query.getResultList();
+			for (Object[] o : resultObject) {
+				result.add(new UserGroupMembersCount(Long.parseLong(o[0].toString()), Long.parseLong(o[1].toString())));
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
 		}
 		return result;
 	}

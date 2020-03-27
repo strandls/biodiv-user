@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.rabbitmq.client.Channel;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
@@ -71,9 +70,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Inject
 	private LanguageService languageService;
-
-	@Inject
-	private Channel channel;
 
 	@Inject
 	private UserVerificationService verificationService;
@@ -159,7 +155,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put("id", profile.getId());
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
-		jwtClaims.put(CommonProfileDefinition.EMAIL, 
+		jwtClaims.put(CommonProfileDefinition.EMAIL,
 				(profile.getEmail() == null || profile.getEmail().isEmpty()) ? "" : profile.getEmail());
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getRefreshTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());

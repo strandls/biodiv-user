@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.rabbitmq.client.Channel;
 import com.strandls.authentication_utility.filter.FilterModule;

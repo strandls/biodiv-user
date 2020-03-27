@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.hibernate.Session;
 
 import com.google.inject.Inject;
 import com.strandls.user.dao.FirebaseDao;
@@ -23,6 +20,7 @@ import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.SpeciesPermission;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserGroupMemberRole;
+import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
@@ -176,6 +174,12 @@ public class UserServiceImpl implements UserService {
 		updateUser(user);
 		FirebaseTokens token = new FirebaseTokens(user, fcmToken);
 		return firebaseDao.save(token);
+	}
+
+	@Override
+	public List<UserGroupMembersCount> getUserGroupMemberCount() {
+		List<UserGroupMembersCount> result = userGroupMemberDao.fetchMemberCountUserGroup();
+		return result;
 	}
 
 }

@@ -28,10 +28,10 @@ import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
-import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
+import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
@@ -336,7 +336,7 @@ public class UserController {
 			List<Recipients> users = UserConverter
 					.convertToRecipientList(userService.fetchRecipients(objectType, objectId));
 			System.out.println("***** Total Recipients #: " + users.size() + " *****");
-			for (Recipients recipient: users) {
+			for (Recipients recipient : users) {
 				System.out.println("***** Recipient #: " + recipient.getId() + " *****");
 			}
 			return Response.ok().entity(users).build();
@@ -364,6 +364,22 @@ public class UserController {
 			return Response.ok().entity(AppUtil.generateResponse(true, SUCCESS_CONSTANTS.TOKEN_SAVED)).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.COUNT)
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	@ApiOperation(value = "Calculate the userGroupId with member counts", notes = "Returns the userGroupId with member counts",response = UserGroupMembersCount.class,responseContainer = "List")
+	@ApiResponses(value = {@ApiResponse(code = 400,message = "Unable to fetch the information",response = String.class)})
+
+	public Response getMemberCounts() {
+		try {
+			List<UserGroupMembersCount> result = userService.getUserGroupMemberCount();
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
 
