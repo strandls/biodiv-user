@@ -43,7 +43,7 @@ public class UserConverter {
 		recipients.setEmail(user.getEmail());
 		recipients.setIsSubscribed(user.getSendNotification());
 		List<String> tokens = new ArrayList<String>();
-		if (user.getSendPushNotification()) {
+		if (user.getSendPushNotification() != null && user.getSendPushNotification()) {
 			tokens.addAll(user.getTokens().stream().map(FirebaseTokens::getToken)
 					.collect(Collectors.toCollection(ArrayList::new)));
 		}
