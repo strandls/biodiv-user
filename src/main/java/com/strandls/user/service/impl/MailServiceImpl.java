@@ -49,6 +49,10 @@ public class MailServiceImpl implements MailService {
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
 					null, JsonUtil.mapToJSON(data));
+			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
+			data.put(FIELDS.TO.getAction(), admins.split(","));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(data));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -93,6 +97,11 @@ public class MailServiceImpl implements MailService {
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
 					null, JsonUtil.mapToJSON(data));
+
+			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
+			data.put(FIELDS.TO.getAction(), admins.split(","));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(data));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}		
@@ -115,6 +124,11 @@ public class MailServiceImpl implements MailService {
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
 					null, JsonUtil.mapToJSON(data));
+
+			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
+			data.put(FIELDS.TO.getAction(), admins.split(","));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(data));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
