@@ -1,7 +1,9 @@
 package com.strandls.user.converter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.strandls.user.dto.UserDTO;
@@ -26,6 +28,14 @@ public class UserConverter {
 		ibp.setName(user.getName());
 		ibp.setProfilePic(user.getProfilePic());
 		return ibp;
+	}
+	
+	public static Set<UserIbp> convertToIbpSet(List<User> users) {
+		Set<UserIbp> ibpList = new HashSet<UserIbp>();
+		for (User user: users) {
+			ibpList.add(convertToIbp(user));
+		}
+		return ibpList;
 	}
 	
 	public static List<UserIbp> convertToIbpList(List<User> users) {

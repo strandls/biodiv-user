@@ -4,6 +4,7 @@
 package com.strandls.user.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -318,7 +319,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
 	public Response autocomplete(@QueryParam("name") String name) {
 		try {
-			List<UserIbp> users = UserConverter.convertToIbpList(userService.getNames(name));
+			Set<UserIbp> users = UserConverter.convertToIbpSet(userService.getNames(name));
 			return Response.ok().entity(users).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
