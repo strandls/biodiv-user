@@ -67,15 +67,9 @@ public class MailServiceImpl implements MailService {
 		MessageUtil messages = new MessageUtil();
 		Properties config = PropertyFileUtil.fetchProperty("config.properties");
 		model.put(WELCOME_MAIL.USERNAME.getAction(), AppUtil.capitalize(user.getUserName()));
-		String profileUrl = null;
-		try {
-			Map<String, String> linkParams = new HashMap<String, String>();
-			linkParams.put("id", String.valueOf(user.getId()));
-			profileUrl = AppUtil.buildURI(request, "/user/show", linkParams, false);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		model.put(WELCOME_MAIL.USER_PROFILE_URL.getAction(), profileUrl);
+		StringBuilder profileUrl = new StringBuilder();
+		profileUrl.append(config.getProperty("serverUrl")).append("/user/show/").append(String.valueOf(user.getId()));
+		model.put(WELCOME_MAIL.USER_PROFILE_URL.getAction(), profileUrl.toString());
 		model.put(WELCOME_MAIL.SERVER_URL.getAction(), config.getProperty("serverUrl"));
 		model.put(WELCOME_MAIL.SITENAME.getAction(), config.getProperty("siteName"));
 		model.put(WELCOME_MAIL.FACEBOOK_URL.getAction(), config.getProperty("facebookUrl"));
