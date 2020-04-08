@@ -223,6 +223,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 			user = userDao.save(user);
 			if (!isManual) {
+				user.setAccountLocked(false);
+				user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
+				user = userDao.update(user);
+				
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				response = this.buildTokens(profile, user, true);
 				response.put("status", true);
