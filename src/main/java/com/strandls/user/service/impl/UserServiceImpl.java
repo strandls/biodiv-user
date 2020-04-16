@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private UserGroupMemberRoleDao userGroupMemberDao;
-	
+
 	@Inject
 	private FirebaseDao firebaseDao;
 
@@ -148,7 +148,7 @@ public class UserServiceImpl implements UserService {
 			return true;
 		return false;
 	}
-	
+
 	@Override
 	public List<User> getNames(String name) {
 		return userDao.findNames(name);
@@ -159,16 +159,16 @@ public class UserServiceImpl implements UserService {
 		List<Follow> followers = followDao.findByObject(objectType, objectId);
 		List<User> recipients = new ArrayList<>();
 		if (followers != null) {
-			for (Follow follower: followers) {
+			for (Follow follower : followers) {
 				User user = userDao.findById(follower.getAuthorId());
-				if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getEmail().contains("@ibp.org")) {
-					recipients.add(user);				
+				if (user != null) {
+					recipients.add(user);
 				}
-			}			
+			}
 		}
 		return recipients;
 	}
-	
+
 	@Override
 	public FirebaseTokens saveToken(Long userId, String fcmToken) {
 		User user = fetchUser(userId);
