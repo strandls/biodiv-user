@@ -30,8 +30,10 @@ import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.pojo.Follow;
+import com.strandls.user.pojo.GroupAddMember;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
+import com.strandls.user.pojo.UserGroupMemberRole;
 import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
@@ -40,8 +42,10 @@ import com.strandls.user.util.AppUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import net.minidev.json.JSONArray;
 
 /**
  * @author Abhishek Rudra
@@ -371,14 +375,211 @@ public class UserController {
 	@GET
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.COUNT)
 	@Produces(MediaType.APPLICATION_JSON)
-	
-	@ApiOperation(value = "Calculate the userGroupId with member counts", notes = "Returns the userGroupId with member counts",response = UserGroupMembersCount.class,responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 400,message = "Unable to fetch the information",response = String.class)})
+
+	@ApiOperation(value = "Calculate the userGroupId with member counts", notes = "Returns the userGroupId with member counts", response = UserGroupMembersCount.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to fetch the information", response = String.class) })
 
 	public Response getMemberCounts() {
 		try {
 			List<UserGroupMembersCount> result = userService.getUserGroupMemberCount();
 			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.CHECK + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "checks the founder role", notes = "Returns boolean value", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to fetch the data", response = String.class) })
+
+	public Response checkFounderRole(@Context HttpServletRequest request,
+			@PathParam("userGroupId") String userGroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long ugId = Long.parseLong(userGroupId);
+			Boolean result = userService.checkFounderRole(userId, ugId);
+			if (result != null)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_FOUND).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.CHECK + ApiConstants.MODERATOR + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "checks the Moderator role", notes = "Returns boolean value", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to fetch the data", response = String.class) })
+
+	public Response checkModeratorRole(@Context HttpServletRequest request,
+			@PathParam("userGroupId") String userGroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long ugId = Long.parseLong(userGroupId);
+			Boolean result = userService.checkModeratorRole(userId, ugId);
+			return Response.status(Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER)
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+
+	@ApiOperation(value = "check if user is a member of the userGroup", notes = "Return Boolean if user is a member", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
+
+	public Response checkGroupMemberByUserId(@QueryParam("userGroupId") String userGroupId,
+			@QueryParam("userId") String userId) {
+		try {
+			Long user = Long.parseLong(userId);
+			Long ugId = Long.parseLong(userGroupId);
+			Boolean result = userService.checkUserGroupMember(user, ugId);
+			return Response.status(Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUP + ApiConstants.LEAVE + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Leave a group", notes = "User can leave a group", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to leave a group", response = String.class) })
+
+	public Response leaveGroup(@Context HttpServletRequest request, @PathParam("userGroupId") String userGroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long ugId = Long.parseLong(userGroupId);
+			Long userId = Long.parseLong(profile.getId());
+			Boolean result = userService.removeGroupMember(userId, ugId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.REMOVE)
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Remove a user from a group", notes = "Remove a user from a group", response = Boolean.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "unable to remove user from a group", response = String.class) })
+
+	public Response removeGroupMember(@Context HttpServletRequest request, @QueryParam("userId") String userId,
+			@QueryParam("userGroupId") String userGroupId) {
+		try {
+
+			Long user = Long.parseLong(userId);
+			Long ugId = Long.parseLong(userGroupId);
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long tokenUserId = Long.parseLong(profile.getId());
+			JSONArray roles = (JSONArray) profile.getAttribute("roles");
+			Boolean isfounder = userService.checkFounderRole(tokenUserId, ugId);
+			if (roles.contains("ROLE_ADMIN") || isfounder) {
+				Boolean result = userService.removeGroupMember(user, ugId);
+				return Response.status(Status.OK).entity(result).build();
+			}
+			return Response.status(Status.NOT_FOUND).entity("User dont have permission to perform the service").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.ADD + ApiConstants.GROUPMEMBER)
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "add new user to a usergroup", notes = "returns the usergroup role", response = UserGroupMemberRole.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to add a user", response = String.class) })
+
+	public Response addMemberRoleUG(@Context HttpServletRequest request, @QueryParam("usergroupId") String userGroupId,
+			@QueryParam("roleId") String roleId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long role = Long.parseLong(roleId);
+			Long ugId = Long.parseLong(userGroupId);
+			UserGroupMemberRole result = userService.addMemberUG(userId, role, ugId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.JOIN + ApiConstants.GROUP + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "User join a open group", notes = "Endpoint to join a openGroup", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to join the Group", response = String.class) })
+
+	public Response joinGroup(@Context HttpServletRequest request, @PathParam("userGroupId") String userGroupId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			Long ugId = Long.parseLong(userGroupId);
+			Boolean result = userService.joinGroup(userId, ugId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.ADD + ApiConstants.GROUPMEMBER + ApiConstants.DIRECT)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Adds the user directly to a Group", notes = "Adds the user directly to the group", response = Long.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to add the users", response = String.class) })
+
+	public Response addGroupMemberDirectly(@Context HttpServletRequest request,
+			@ApiParam(name = "GropAddMember") GroupAddMember groupAddMember) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			JSONArray roles = (JSONArray) profile.getAttribute("roles");
+			if (roles.contains("ROLE_ADMIN")) {
+				List<Long> result = userService.addMemberDirectly(groupAddMember);
+				return Response.status(Status.OK).entity(result).build();
+			}
+			return Response.status(Status.NOT_ACCEPTABLE).entity("User not allowed to perform the request").build();
+
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}

@@ -74,6 +74,41 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> fetchByUserGroupIdRole(Long userGroupId) {
+		try {
+			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+			Properties properties = new Properties();
+			try {
+				properties.load(in);
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+			String founder = properties.getProperty("userGroupFounder");
+			in.close();
+
+			String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId = :roleId";
+			List<UserGroupMemberRole> result = new ArrayList<UserGroupMemberRole>();
+			Session session = sessionFactory.openSession();
+			try {
+				Query<UserGroupMemberRole> query = session.createQuery(qry);
+				query.setParameter("ugId", userGroupId);
+				query.setParameter("roleId", founder);
+				result = query.getResultList();
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			} finally {
+				session.close();
+			}
+			return result;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
+
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<UserGroupMemberRole> getUserGroup(Long sUserId) {
 
 		String qry = "from UserGroupMemberRole where sUserId = :sUserId";
@@ -139,6 +174,45 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 			for (Object[] o : resultObject) {
 				result.add(new UserGroupMembersCount(Long.parseLong(o[0].toString()), Long.parseLong(o[1].toString())));
 			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Boolean checksGroupType(String userGroupId) {
+		String qry = "SELECT allow_users_to_join FROM public.user_group where id = " + userGroupId;
+		Session session = sessionFactory.openSession();
+		Boolean result = false;
+		try {
+			Query<Object[]> query = session.createNativeQuery(qry);
+			Object[] o = query.getSingleResult();
+			result = Boolean.parseBoolean(o[0].toString());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Boolean checkUserAlreadyMapped(Long userId, Long userGroupId, Long roleId) {
+		String qry = "from UserGroupMemberRole where sUserId = :userId and roleId = :roleId and userGroupId = :ugId";
+		Session session = sessionFactory.openSession();
+		UserGroupMemberRole ugMemberRole = null;
+		Boolean result = false;
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("userId", userId);
+			query.setParameter("roleId", roleId);
+			query.setParameter("ugId", userGroupId);
+			ugMemberRole = query.getSingleResult();
+			if (ugMemberRole != null)
+				result = true;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		} finally {

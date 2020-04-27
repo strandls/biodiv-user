@@ -42,5 +42,13 @@ public class ApiConstants {
 	public static final String RECIPIENTS = "/recipients";
 	public static final String SAVE_TOKEN = "/save-token";
 	public static final String COUNT = "/count";
+	public static final String ADD = "/add";
+	public static final String REMOVE = "/remove";
+	public static final String LEAVE = "/leave";
+	public static final String GROUP = "/group";
+	public static final String CHECK = "/check";
+	public static final String JOIN = "/join";
+	public static final String MODERATOR = "/moderator";
+	public static final String DIRECT = "/direct";
 
 }
