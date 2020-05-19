@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService {
 		if (followers != null) {
 			for (Follow follower : followers) {
 				User user = userDao.findById(follower.getAuthorId());
-				if (user.getEmail() != null && !user.getEmail().isEmpty() && !user.getEmail().contains("@ibp.org")) {
+				if (user != null) {
 					recipients.add(user);
 				}
 			}
