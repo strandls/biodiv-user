@@ -2,7 +2,8 @@ package com.strandls.user.service.impl;
 
 import java.util.Date;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.user.dao.UserVerificationDao;
 import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.UserVerificationService;

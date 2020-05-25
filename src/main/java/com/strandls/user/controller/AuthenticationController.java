@@ -23,7 +23,8 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
