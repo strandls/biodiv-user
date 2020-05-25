@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
@@ -31,15 +32,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.inject.servlet.ServletModule;
 import com.rabbitmq.client.Channel;
 import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
 import com.strandls.user.service.impl.UserServiceModule;
-import com.sun.jersey.guice.JerseyServletModule;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**
  * @author Abhishek Rudra
@@ -52,7 +53,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 	@Override
 	protected Injector getInjector() {
 
-		Injector injector = Guice.createInjector(new JerseyServletModule() {
+		Injector injector = Guice.createInjector(new ServletModule() {
 			@Override
 			protected void configureServlets() {
 
@@ -72,6 +73,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				Map<String, String> props = new HashMap<String, String>();
 				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jersey.config.server.provider.packages", "com");
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				RabbitMqConnection connection = new RabbitMqConnection();
@@ -91,8 +93,9 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				bind(JwtAuthenticator.class).toInstance(jwtAuthenticator);
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
+				bind(ServletContainer.class).in(Scopes.SINGLETON);
 
-				serve("/api/*").with(GuiceContainer.class, props);
+				serve("/api/*").with(ServletContainer.class, props);
 			}
 		}, new UserControllerModule(), new FilterModule(), new UserServiceModule(), new UserDaoModule());
 

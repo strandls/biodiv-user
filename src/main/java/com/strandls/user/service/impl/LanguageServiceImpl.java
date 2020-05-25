@@ -1,6 +1,7 @@
 package com.strandls.user.service.impl;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.user.dao.LanguageDao;
 import com.strandls.user.pojo.Language;
 import com.strandls.user.service.LanguageService;

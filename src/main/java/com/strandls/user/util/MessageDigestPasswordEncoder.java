@@ -7,7 +7,8 @@ import java.util.Base64;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 
 public class MessageDigestPasswordEncoder {
 	private final String algorithm;

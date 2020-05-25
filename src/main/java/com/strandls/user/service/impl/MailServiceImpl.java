@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.rabbitmq.client.Channel;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;

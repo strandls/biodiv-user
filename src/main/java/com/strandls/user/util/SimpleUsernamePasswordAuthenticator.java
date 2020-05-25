@@ -1,6 +1,7 @@
 package com.strandls.user.util;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.UserService;
-import com.sun.jersey.api.NotFoundException;
 
 public class SimpleUsernamePasswordAuthenticator implements Authenticator<UsernamePasswordCredentials> {
 

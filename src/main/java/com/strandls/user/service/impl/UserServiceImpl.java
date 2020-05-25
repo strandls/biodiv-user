@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
