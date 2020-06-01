@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -110,6 +111,15 @@ public class AppUtil {
 	
 	public static String capitalize(String name) {
 		return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+	}
+	
+	public static String getDomain(HttpServletRequest request) {
+		String domain = "";
+		String tmpDomain = request.getHeader(HttpHeaders.HOST);
+		if (tmpDomain != null && !tmpDomain.isEmpty() && tmpDomain.contains(".")) {
+			domain = tmpDomain.substring(tmpDomain.indexOf("."));
+		}
+		return domain;
 	}
 
 }
