@@ -3,7 +3,8 @@ package com.strandls.user.service.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
+
 import com.strandls.user.dao.RoleDao;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.service.RoleService;
