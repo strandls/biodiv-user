@@ -77,7 +77,7 @@ public class AuthenticationController {
 	@ApiOperation(value = "Authenticates User by Credentials", notes = "Returns Tokens", response = Map.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 403, message = "Could not authenticate user", response = String.class) })
-	public Response authenticate(@FormParam("username") String userEmail, @FormParam("password") String password,
+	public Response authenticate(@Context HttpServletRequest request, @FormParam("username") String userEmail, @FormParam("password") String password,
 			@FormParam("mode") String mode) {
 		try {
 			Map<String, Object> tokens = null;
@@ -105,9 +105,9 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
-			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", "", "",
+			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
 					10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", "", "",
+			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
 					10 * 24 * 60 * 60, false);
 			return Response.ok().entity(tokens).cookie(accessToken).cookie(refreshToken).build();
 		} catch (Exception ex) {
@@ -248,9 +248,9 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get("status").toString())) {
-			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", "", "",
+			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
 					10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", "", "",
+			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
 					10 * 24 * 60 * 60, false);
 			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}
