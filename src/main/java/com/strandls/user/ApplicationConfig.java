@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
+import com.strandls.authentication_utility.filter.InterceptorModule;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
@@ -67,7 +68,6 @@ public class ApplicationConfig extends Application {
 		beanConfig.setScan(new Boolean(properties.getProperty("scan")));
 	}
 
-	
 	@Override
 	public Set<Object> getSingletons() {
 
@@ -96,10 +96,11 @@ public class ApplicationConfig extends Application {
 
 			}
 		});
+		singletons.add(new InterceptorModule());
 
 		return singletons;
 	}
-	
+
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> resource = new HashSet<Class<?>>();
