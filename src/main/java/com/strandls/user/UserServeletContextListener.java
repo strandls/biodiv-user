@@ -36,7 +36,6 @@ import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.rabbitmq.client.Channel;
-import com.strandls.authentication_utility.filter.FilterModule;
 import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
@@ -97,7 +96,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				serve("/api/*").with(ServletContainer.class, props);
 			}
-		}, new UserControllerModule(), new FilterModule(), new UserServiceModule(), new UserDaoModule());
+		}, new UserControllerModule(), new UserServiceModule(), new UserDaoModule());
 
 		return injector;
 
