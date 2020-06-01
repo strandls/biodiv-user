@@ -11,6 +11,8 @@ import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.http.client.utils.URIBuilder;
 
+import com.google.common.net.InternetDomainName;
+
 public class AppUtil {
 	
 	public static enum VERIFICATION_TYPE {
@@ -117,7 +119,7 @@ public class AppUtil {
 		String domain = "";
 		String tmpDomain = request.getHeader(HttpHeaders.HOST);
 		if (tmpDomain != null && !tmpDomain.isEmpty() && tmpDomain.contains(".")) {
-			domain = tmpDomain.substring(tmpDomain.indexOf("."));
+			domain = InternetDomainName.from(tmpDomain).topDomainUnderRegistrySuffix().toString();
 		}
 		return domain;
 	}
