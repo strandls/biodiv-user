@@ -12,7 +12,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -239,8 +238,8 @@ public class UserController {
 
 	}
 
-	@PUT
-	@Path(ApiConstants.FOLLOW + "/{object}/{objectId}")
+	@POST
+	@Path(ApiConstants.FOLLOW)
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
@@ -248,8 +247,8 @@ public class UserController {
 	@ApiOperation(value = "Marks follow for a User", notes = "Returnt the follow details", response = Follow.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to mark follow", response = String.class) })
 
-	public Response updateFollow(@Context HttpServletRequest request, @PathParam("object") String object,
-			@PathParam("objectId") String objectId) {
+	public Response updateFollow(@Context HttpServletRequest request, @FormParam("object") String object,
+			@FormParam("objectId") String objectId) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
