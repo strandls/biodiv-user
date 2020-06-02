@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.strandls.user</groupId>
 	<artifactId>user</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
 	<name>Biodiv User API</name>
 	<properties>
@@ -275,7 +275,7 @@
 		<dependency>
 			<groupId>com.strandls.biodiv</groupId>
 			<artifactId>authentication-utility</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
@@ -287,7 +287,7 @@
 		<dependency>
 			<groupId>com.strandls.biodiv</groupId>
 			<artifactId>mail-utility</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 
 	</dependencies>
