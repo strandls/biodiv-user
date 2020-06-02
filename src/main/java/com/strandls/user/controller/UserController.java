@@ -6,6 +6,7 @@ package com.strandls.user.controller;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -21,8 +22,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.pac4j.core.profile.CommonProfile;
-
-import javax.inject.Inject;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -241,7 +240,7 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.FOLLOW + "/{object}/{objectId}")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 
@@ -372,9 +371,10 @@ public class UserController {
 	@GET
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.COUNT)
 	@Produces(MediaType.APPLICATION_JSON)
-	
-	@ApiOperation(value = "Calculate the userGroupId with member counts", notes = "Returns the userGroupId with member counts",response = UserGroupMembersCount.class,responseContainer = "List")
-	@ApiResponses(value = {@ApiResponse(code = 400,message = "Unable to fetch the information",response = String.class)})
+
+	@ApiOperation(value = "Calculate the userGroupId with member counts", notes = "Returns the userGroupId with member counts", response = UserGroupMembersCount.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to fetch the information", response = String.class) })
 
 	public Response getMemberCounts() {
 		try {
