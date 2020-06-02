@@ -238,7 +238,7 @@ public class UserController {
 
 	}
 
-	@POST
+	@GET
 	@Path(ApiConstants.FOLLOW + "/{object}/{objectId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
