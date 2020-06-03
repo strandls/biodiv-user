@@ -26,9 +26,9 @@ import org.pac4j.core.profile.CommonProfile;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
@@ -351,14 +351,14 @@ public class UserController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = String.class)
+	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = FirebaseTokens.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
 	public Response saveToken(@Context HttpServletRequest request, @FormParam("token") String token) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			userService.saveToken(userId, token);
-			return Response.ok().entity(AppUtil.generateResponse(true, SUCCESS_CONSTANTS.TOKEN_SAVED)).build();
+			FirebaseTokens savedToken = userService.saveToken(userId, token);
+			return Response.ok().entity(savedToken).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
