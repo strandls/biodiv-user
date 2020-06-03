@@ -2,6 +2,7 @@ package com.strandls.user.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,23 @@ public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 		FirebaseTokens entity = null;
 		try {
 			entity = session.get(FirebaseTokens.class, id);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return entity;
+	}
+	
+	public FirebaseTokens getToken(Long id, String firebaseToken) {
+		Session session = sessionFactory.openSession();
+		String sql = "from FirebaseTokens f where f.token = :token and f.user.id = :id";
+		FirebaseTokens entity = null;
+		try {
+			Query<FirebaseTokens> q = session.createQuery(sql);
+			q.setParameter(1, firebaseToken);
+			q.setParameter(2, id);
+			entity = q.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		} finally {

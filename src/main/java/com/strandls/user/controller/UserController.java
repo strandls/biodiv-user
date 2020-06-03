@@ -348,19 +348,15 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.SAVE_TOKEN)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
-	public Response saveToken(@Context HttpServletRequest request, @FormParam("userId") Long userId,
-			@FormParam("token") String token) {
+	public Response saveToken(@Context HttpServletRequest request, @FormParam("token") String token) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-			if (Long.parseLong(profile.getId()) != userId) {
-				return Response.status(Status.BAD_REQUEST)
-						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_ACTION)).build();
-			}
+			Long userId = Long.parseLong(profile.getId());
 			userService.saveToken(userId, token);
 			return Response.ok().entity(AppUtil.generateResponse(true, SUCCESS_CONSTANTS.TOKEN_SAVED)).build();
 		} catch (Exception ex) {
