@@ -40,8 +40,8 @@ public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 		FirebaseTokens entity = null;
 		try {
 			Query<FirebaseTokens> q = session.createQuery(sql);
-			q.setParameter(1, firebaseToken);
-			q.setParameter(2, id);
+			q.setParameter("token", firebaseToken);
+			q.setParameter("id", id);
 			entity = q.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
