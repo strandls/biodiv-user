@@ -174,7 +174,6 @@ public class UserServiceImpl implements UserService {
 	public FirebaseTokens saveToken(Long userId, String fcmToken) {
 		FirebaseTokens token = firebaseDao.getToken(userId, fcmToken);
 		try {
-			System.out.println("\n\n Exists? " + token + " *****\n\n");
 			if (token == null) {
 				User user = fetchUser(userId);
 				user.setSendPushNotification(true);
