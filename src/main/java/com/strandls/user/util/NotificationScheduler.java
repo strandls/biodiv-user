@@ -43,6 +43,7 @@ public class NotificationScheduler extends Thread {
 				}
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 

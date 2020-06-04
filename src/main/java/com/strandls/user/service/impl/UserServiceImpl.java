@@ -200,9 +200,13 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public void sendPushNotifications(String title, String body) {
-		List<FirebaseTokens> tokens = firebaseDao.findAll();
-		NotificationScheduler scheduler = new NotificationScheduler(channel, title, body, tokens);
-		scheduler.start();
+		try {
+			List<FirebaseTokens> tokens = firebaseDao.findAll();
+			NotificationScheduler scheduler = new NotificationScheduler(channel, title, body, tokens);
+			scheduler.start();			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }
