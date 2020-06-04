@@ -33,7 +33,7 @@ public class NotificationScheduler extends Thread {
 				RabbitMQProducer producer = new RabbitMQProducer(channel);
 				for (FirebaseTokens token : tokens) {
 					Map<String, Object> data = new HashMap<String, Object>();
-					data.put(NOTIFICATION_FIELDS.TO.getAction(), token);
+					data.put(NOTIFICATION_FIELDS.TO.getAction(), token.getToken());
 					Map<String, Object> notification = new HashMap<String, Object>();
 					notification.put(NOTIFICATION_DATA.TITLE.getAction(), title);
 					notification.put(NOTIFICATION_DATA.BODY.getAction(), body);
