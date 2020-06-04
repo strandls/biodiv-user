@@ -378,5 +378,17 @@ public class UserController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
+	
+	@POST
+	@Path(ApiConstants.SEND_NOTIFICATION)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
+	public Response sendGeneralNotification(@FormParam("title") String title, @FormParam("body") String body) {
+		try {
+			return Response.status(Status.OK).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}		
+	}
 
 }

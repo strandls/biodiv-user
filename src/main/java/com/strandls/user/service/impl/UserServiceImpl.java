@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.rabbitmq.client.Channel;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
@@ -25,6 +26,7 @@ import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.NotificationScheduler;
 
 /**
  * @author Abhishek Rudra
@@ -46,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private FollowDao followDao;
+	
+	@Inject
+	Channel channel;
 
 	@Override
 	public User fetchUser(Long userId) {
@@ -191,6 +196,13 @@ public class UserServiceImpl implements UserService {
 	public List<UserGroupMembersCount> getUserGroupMemberCount() {
 		List<UserGroupMembersCount> result = userGroupMemberDao.fetchMemberCountUserGroup();
 		return result;
+	}
+	
+	@Override
+	public void sendPushNotifications(String title, String body) {
+		List<FirebaseTokens> tokens = firebaseDao.findAll();
+		NotificationScheduler scheduler = new NotificationScheduler(channel, title, body, tokens);
+		scheduler.start();
 	}
 
 }

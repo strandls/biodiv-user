@@ -51,4 +51,6 @@ public interface UserService {
 	public FirebaseTokens saveToken(Long userId, String token);
 
 	public List<UserGroupMembersCount> getUserGroupMemberCount();
+	
+	public void sendPushNotifications(String title, String body);
 }

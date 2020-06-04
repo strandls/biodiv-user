@@ -42,5 +42,6 @@ public class ApiConstants {
 	public static final String RECIPIENTS = "/recipients";
 	public static final String SAVE_TOKEN = "/save-token";
 	public static final String COUNT = "/count";
+	public static final String SEND_NOTIFICATION = "/send-notification";
 
 }
