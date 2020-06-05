@@ -50,5 +50,6 @@ public class ApiConstants {
 	public static final String JOIN = "/join";
 	public static final String MODERATOR = "/moderator";
 	public static final String DIRECT = "/direct";
+	public static final String SEND_NOTIFICATION = "/send-notification";
 
 }
