@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
 			String founder = properties.getProperty("userGroupFounder");
 			in.close();
 			UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-			if (result.getRoleId().equals(Long.parseLong(founder)))
+			if (result != null && result.getRoleId().equals(Long.parseLong(founder)))
 				return true;
 			return false;
 
@@ -231,7 +231,7 @@ public class UserServiceImpl implements UserService {
 			String founder = properties.getProperty("userGroupExpert");
 			in.close();
 			UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-			if (result.getRoleId().equals(Long.parseLong(founder)))
+			if (result != null && result.getRoleId().equals(Long.parseLong(founder)))
 				return true;
 			return false;
 
