@@ -41,6 +41,7 @@ import com.strandls.user.util.ValidationUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -168,7 +169,7 @@ public class AuthenticationController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Create new user", notes = "Returns the created user", response = Map.class)
-	public Response signUp(@Context HttpServletRequest request, UserDTO userDTO) {
+	public Response signUp(@Context HttpServletRequest request, @ApiParam(name = "userDTO") UserDTO userDTO) {
 		try {
 			String username = userDTO.getUsername();
 			String password = userDTO.getPassword();
