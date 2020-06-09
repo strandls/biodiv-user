@@ -57,7 +57,7 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 		Session session = sessionFactory.openSession();
 		UserGroupMemberRole result = null;
 
-		String qry = "from UserGroupMemberRole where userGroupId = :ugId and sUserId = userId";
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and sUserId = :userId";
 		try {
 
 			Query<UserGroupMemberRole> query = session.createQuery(qry);
