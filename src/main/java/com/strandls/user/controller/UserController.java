@@ -483,6 +483,26 @@ public class UserController {
 	}
 
 	@GET
+	@Path(ApiConstants.GROUPMEMBER + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "find the userDetails for founder and moderator of the group", notes = "Return the list of user Details", response = User.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to fetch the list", response = String.class) })
+
+	public Response getFounderModeratorList(@PathParam("userGroupId") String groupId) {
+		try {
+			Long userGroupId = Long.parseLong(groupId);
+			List<User> result = userService.getFounderModerator(userGroupId);
+			if (result != null)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_FOUND).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.REMOVE)
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)

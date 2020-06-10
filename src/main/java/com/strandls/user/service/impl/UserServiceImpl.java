@@ -333,4 +333,14 @@ public class UserServiceImpl implements UserService {
 		return null;
 	}
 
+	@Override
+	public List<User> getFounderModerator(Long userGroupId) {
+		List<UserGroupMemberRole> ugMemberRoleList = userGroupMemberDao.findFounderModerator(userGroupId);
+		List<User> userList = new ArrayList<User>();
+		for(UserGroupMemberRole ugMemberRole:ugMemberRoleList) {
+			userList.add(userDao.findById(ugMemberRole.getsUserId()));
+		}
+		return null;
+	}
+
 }

@@ -222,4 +222,35 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> findFounderModerator(Long userGroupId) {
+
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+		Properties properties = new Properties();
+		try {
+			properties.load(in);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		String expert = properties.getProperty("userGroupExpert");
+		String founder = properties.getProperty("userGroupFounder");
+
+		List<UserGroupMemberRole> result = null;
+		Session session = sessionFactory.openSession();
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId in ( " + founder + " , " + expert
+				+ ")";
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("ugId", userGroupId);
+			result = query.getResultList();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+
+	}
+
 }

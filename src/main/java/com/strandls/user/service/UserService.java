@@ -65,4 +65,6 @@ public interface UserService {
 	public Boolean joinGroup(Long userId, Long userGroupId);
 
 	public List<Long> addMemberDirectly(GroupAddMember addMember);
+
+	public List<User> getFounderModerator(Long userGroupId);
 }
