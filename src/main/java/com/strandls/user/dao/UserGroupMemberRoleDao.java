@@ -189,9 +189,8 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 		Session session = sessionFactory.openSession();
 		Boolean result = false;
 		try {
-			Query<Object[]> query = session.createNativeQuery(qry);
-			Object[] o = query.getSingleResult();
-			result = Boolean.parseBoolean(o[0].toString());
+			Query<Boolean> query = session.createNativeQuery(qry);
+			result = query.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		} finally {
