@@ -614,7 +614,7 @@ public class UserController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
 
-	public Response getFounderList(@PathParam("userGroupdId") String groupId) {
+	public Response getFounderList(@PathParam("userGroupId") String groupId) {
 		try {
 			Long userGroupId = Long.parseLong(groupId);
 			List<UserIbp> result = userService.getFounderList(userGroupId);
@@ -636,7 +636,7 @@ public class UserController {
 			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
 
 
-	public Response getModeratorList(@PathParam("userGroupdId") String groupId) {
+	public Response getModeratorList(@PathParam("userGroupId") String groupId) {
 		try {
 			Long userGroupId = Long.parseLong(groupId);
 			List<UserIbp> result = userService.getModeratorList(userGroupId);
