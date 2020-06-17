@@ -50,5 +50,7 @@ public class ApiConstants {
 	public static final String JOIN = "/join";
 	public static final String MODERATOR = "/moderator";
 	public static final String DIRECT = "/direct";
+	public static final String FOUNDERLIST = "/founderList";
+	public static final String MODERATORLIST = "/moderatorList";
 
 }

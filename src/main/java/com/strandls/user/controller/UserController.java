@@ -605,4 +605,47 @@ public class UserController {
 		}
 	}
 
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.FOUNDERLIST + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "find founder list for a userGroup", notes = "return usser list for userGroupId", response = UserIbp.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
+
+	public Response getFounderList(@PathParam("userGroupdId") String groupId) {
+		try {
+			Long userGroupId = Long.parseLong(groupId);
+			List<UserIbp> result = userService.getFounderList(userGroupId);
+			if (result != null)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_FOUND).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.GROUPMEMBER + ApiConstants.MODERATORLIST + "/{userGroupId}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	
+	@ApiOperation(value = "find Moderator list for a userGroup", notes = "return usser list for userGroupId", response = UserIbp.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
+
+
+	public Response getModeratorList(@PathParam("userGroupdId") String groupId) {
+		try {
+			Long userGroupId = Long.parseLong(groupId);
+			List<UserIbp> result = userService.getModeratorList(userGroupId);
+			if (result != null)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_FOUND).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
 }

@@ -67,4 +67,8 @@ public interface UserService {
 	public List<Long> addMemberDirectly(GroupAddMember addMember);
 
 	public List<User> getFounderModerator(Long userGroupId);
+
+	public List<UserIbp> getFounderList(Long userGroupId);
+
+	public List<UserIbp> getModeratorList(Long userGroupId);
 }
