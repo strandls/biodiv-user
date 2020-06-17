@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.pojo.UserGroupMemberRole;
 import com.strandls.user.pojo.UserGroupMembersCount;
@@ -247,9 +247,35 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 			logger.error(e.getMessage());
 		} finally {
 			session.close();
+			try {
+				in.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
 		}
 		return result;
 
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> findMemberListByRoleId(Long userGroupId, Long roleId) {
+
+		List<UserGroupMemberRole> result = null;
+
+		Session session = sessionFactory.openSession();
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId = :roleId";
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("ugId", userGroupId);
+			query.setParameter("roleId", roleId);
+			result = query.getResultList();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+
+		return result;
 	}
 
 }

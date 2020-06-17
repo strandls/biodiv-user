@@ -3,6 +3,7 @@ package com.strandls.user.controller;
 import java.util.Date;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -23,8 +24,6 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
@@ -35,7 +34,6 @@ import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
 import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.AuthUtility;
-import com.strandls.user.util.GoogleRecaptchaCheck;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
 
@@ -181,7 +179,7 @@ public class AuthenticationController {
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
 			String mode = userDTO.getMode();
-			String recaptcha = userDTO.getRecaptcha();
+//			String recaptcha = userDTO.getRecaptcha();
 //			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
 //			if (check.isRobot(recaptcha)) {
 //				return Response.status(Status.BAD_REQUEST)

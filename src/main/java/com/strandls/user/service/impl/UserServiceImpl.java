@@ -361,9 +361,63 @@ public class UserServiceImpl implements UserService {
 	public List<User> getFounderModerator(Long userGroupId) {
 		List<UserGroupMemberRole> ugMemberRoleList = userGroupMemberDao.findFounderModerator(userGroupId);
 		List<User> userList = new ArrayList<User>();
-		for(UserGroupMemberRole ugMemberRole:ugMemberRoleList) {
+		for (UserGroupMemberRole ugMemberRole : ugMemberRoleList) {
 			userList.add(userDao.findById(ugMemberRole.getsUserId()));
 		}
+		return null;
+	}
+
+	@Override
+	public List<UserIbp> getFounderList(Long userGroupId) {
+		try {
+			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+			Properties properties = new Properties();
+			try {
+				properties.load(in);
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+			String founder = properties.getProperty("userGroupFounder");
+			in.close();
+			List<UserGroupMemberRole> ugMemberList = userGroupMemberDao.findMemberListByRoleId(userGroupId,
+					Long.parseLong(founder));
+
+			List<UserIbp> result = new ArrayList<UserIbp>();
+			for (UserGroupMemberRole ugMember : ugMemberList) {
+				result.add(fetchUserIbp(ugMember.getsUserId()));
+			}
+			return result;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
+		return null;
+	}
+
+	@Override
+	public List<UserIbp> getModeratorList(Long userGroupId) {
+		try {
+			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+			Properties properties = new Properties();
+			try {
+				properties.load(in);
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+			String expert = properties.getProperty("userGroupExpert");
+			in.close();
+			List<UserGroupMemberRole> ugMemberList = userGroupMemberDao.findMemberListByRoleId(userGroupId,
+					Long.parseLong(expert));
+
+			List<UserIbp> result = new ArrayList<UserIbp>();
+			for (UserGroupMemberRole ugMember : ugMemberList) {
+				result.add(fetchUserIbp(ugMember.getsUserId()));
+			}
+			return result;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
 		return null;
 	}
 

@@ -69,4 +69,8 @@ public interface UserService {
 	public void sendPushNotifications(String title, String body);
 
 	public List<User> getFounderModerator(Long userGroupId);
+
+	public List<UserIbp> getFounderList(Long userGroupId);
+
+	public List<UserIbp> getModeratorList(Long userGroupId);
 }

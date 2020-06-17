@@ -34,6 +34,7 @@ public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 		return entity;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public FirebaseTokens getToken(Long id, String firebaseToken) {
 		Session session = sessionFactory.openSession();
 		String sql = "from FirebaseTokens f where f.token = :token and f.user.id = :id";
