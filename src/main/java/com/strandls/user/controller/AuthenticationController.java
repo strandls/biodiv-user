@@ -16,6 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.json.JSONObject;
@@ -104,12 +105,17 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
-			System.out.println("\n\n***** Tokens: " + tokens + " *****\n\n");
-			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
-					10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
-					10 * 24 * 60 * 60, false);
-			return Response.ok().entity(tokens).cookie(accessToken).cookie(refreshToken).build();
+			boolean status = Boolean.parseBoolean(tokens.get("status").toString());
+			ResponseBuilder response = Response.ok().entity(tokens);
+			if (status) {
+				NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
+						10 * 24 * 60 * 60, false);
+				NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
+						10 * 24 * 60 * 60, false);
+				return response.cookie(accessToken).cookie(refreshToken).build();
+			} else {
+				return response.build();				
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			logger.error(ex.getMessage());
