@@ -106,6 +106,7 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
+			System.out.println("\n\n***** Tokens: " + tokens + " *****\n\n");
 			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
 					10 * 24 * 60 * 60, false);
 			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
