@@ -104,12 +104,14 @@ public class AuthenticationController {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
-			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/",
-					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/",
-					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+			System.out.println("\n\n***** Tokens: " + tokens + " *****\n\n");
+			NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
+					10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
+					10 * 24 * 60 * 60, false);
 			return Response.ok().entity(tokens).cookie(accessToken).cookie(refreshToken).build();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
