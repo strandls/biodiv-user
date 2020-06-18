@@ -110,6 +110,7 @@ public class AuthenticationController {
 					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 			return Response.ok().entity(tokens).cookie(accessToken).cookie(refreshToken).build();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
