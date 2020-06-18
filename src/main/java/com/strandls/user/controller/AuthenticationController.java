@@ -181,12 +181,12 @@ public class AuthenticationController {
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
 			String mode = userDTO.getMode();
-			String recaptcha = userDTO.getRecaptcha();
-			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
-			if (check.isRobot(recaptcha)) {
-				return Response.status(Status.BAD_REQUEST)
-						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_CAPTCHA)).build();
-			}
+//			String recaptcha = userDTO.getRecaptcha();
+//			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
+//			if (check.isRobot(recaptcha)) {
+//				return Response.status(Status.BAD_REQUEST)
+//						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_CAPTCHA)).build();
+//			}
 			if (username == null || username.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();
 			}
