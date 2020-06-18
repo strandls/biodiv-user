@@ -192,8 +192,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setEnabled(true);
 		user.setAccountExpired(false);
 		user.setSendDigest(true);
-		boolean isManual = userDTO.getMode().equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction());
-		user.setAccountLocked(isManual ? false : true);
+		user.setAccountLocked(true);
 		user.setPasswordExpired(false);
 		user.setTimezone(0F);
 		user.setSendPushNotification(false);
@@ -223,6 +222,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				return response;
 			}
 			user = userDao.save(user);
+			boolean isManual = userDTO.getMode().equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction());
 			if (!isManual) {
 				user.setAccountLocked(false);
 				user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
