@@ -8,6 +8,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @Entity
 @Table(name = "user_group_member_role")
+@IdClass(UserGroupMemberRoleCompositeKey.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserGroupMemberRole implements Serializable {
 
@@ -29,6 +31,25 @@ public class UserGroupMemberRole implements Serializable {
 	private Long roleId;
 	private Long sUserId;
 
+	/**
+	 * 
+	 */
+	public UserGroupMemberRole() {
+		super();
+	}
+
+	/**
+	 * @param userGroupId
+	 * @param roleId
+	 * @param sUserId
+	 */
+	public UserGroupMemberRole(Long userGroupId, Long roleId, Long sUserId) {
+		super();
+		this.userGroupId = userGroupId;
+		this.roleId = roleId;
+		this.sUserId = sUserId;
+	}
+
 	@Id
 	@Column(name = "user_group_id")
 	public Long getUserGroupId() {
@@ -39,6 +60,7 @@ public class UserGroupMemberRole implements Serializable {
 		this.userGroupId = userGroupId;
 	}
 
+	@Id
 	@Column(name = "role_id")
 	public Long getRoleId() {
 		return roleId;
@@ -48,6 +70,7 @@ public class UserGroupMemberRole implements Serializable {
 		this.roleId = roleId;
 	}
 
+	@Id
 	@Column(name = "s_user_id")
 	public Long getsUserId() {
 		return sUserId;

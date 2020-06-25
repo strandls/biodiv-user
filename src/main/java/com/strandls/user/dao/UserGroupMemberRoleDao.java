@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.pojo.UserGroupMemberRole;
 import com.strandls.user.pojo.UserGroupMembersCount;
@@ -57,7 +57,7 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 		Session session = sessionFactory.openSession();
 		UserGroupMemberRole result = null;
 
-		String qry = "from UserGroupMemberRole where userGroupId = :ugId and sUserId = userId";
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and sUserId = :userId";
 		try {
 
 			Query<UserGroupMemberRole> query = session.createQuery(qry);
@@ -71,6 +71,41 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 			session.close();
 		}
 		return result;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> fetchByUserGroupIdRole(Long userGroupId) {
+		try {
+			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+			Properties properties = new Properties();
+			try {
+				properties.load(in);
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+			String founder = properties.getProperty("userGroupFounder");
+			in.close();
+
+			String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId = :roleId";
+			List<UserGroupMemberRole> result = new ArrayList<UserGroupMemberRole>();
+			Session session = sessionFactory.openSession();
+			try {
+				Query<UserGroupMemberRole> query = session.createQuery(qry);
+				query.setParameter("ugId", userGroupId);
+				query.setParameter("roleId", founder);
+				result = query.getResultList();
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			} finally {
+				session.close();
+			}
+			return result;
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return null;
 
 	}
 
@@ -145,6 +180,101 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 		} finally {
 			session.close();
 		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Boolean checksGroupType(String userGroupId) {
+		String qry = "SELECT allow_users_to_join FROM public.user_group where id = " + userGroupId;
+		Session session = sessionFactory.openSession();
+		Boolean result = false;
+		try {
+			Query<Boolean> query = session.createNativeQuery(qry);
+			result = query.getSingleResult();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Boolean checkUserAlreadyMapped(Long userId, Long userGroupId, Long roleId) {
+		String qry = "from UserGroupMemberRole where sUserId = :userId and roleId = :roleId and userGroupId = :ugId";
+		Session session = sessionFactory.openSession();
+		UserGroupMemberRole ugMemberRole = null;
+		Boolean result = false;
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("userId", userId);
+			query.setParameter("roleId", roleId);
+			query.setParameter("ugId", userGroupId);
+			ugMemberRole = query.getSingleResult();
+			if (ugMemberRole != null)
+				result = true;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> findFounderModerator(Long userGroupId) {
+
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+		Properties properties = new Properties();
+		try {
+			properties.load(in);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		String expert = properties.getProperty("userGroupExpert");
+		String founder = properties.getProperty("userGroupFounder");
+
+		List<UserGroupMemberRole> result = null;
+		Session session = sessionFactory.openSession();
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId in ( " + founder + " , " + expert
+				+ ")";
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("ugId", userGroupId);
+			result = query.getResultList();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+			try {
+				in.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+		}
+		return result;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<UserGroupMemberRole> findMemberListByRoleId(Long userGroupId, Long roleId) {
+
+		List<UserGroupMemberRole> result = null;
+
+		Session session = sessionFactory.openSession();
+		String qry = "from UserGroupMemberRole where userGroupId = :ugId and roleId = :roleId";
+		try {
+			Query<UserGroupMemberRole> query = session.createQuery(qry);
+			query.setParameter("ugId", userGroupId);
+			query.setParameter("roleId", roleId);
+			result = query.getResultList();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+
 		return result;
 	}
 
