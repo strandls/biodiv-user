@@ -93,7 +93,7 @@ public class UserGroupMemberRoleDao extends AbstractDAO<UserGroupMemberRole, Lon
 			try {
 				Query<UserGroupMemberRole> query = session.createQuery(qry);
 				query.setParameter("ugId", userGroupId);
-				query.setParameter("roleId", founder);
+				query.setParameter("roleId", Long.parseLong(founder));
 				result = query.getResultList();
 			} catch (Exception e) {
 				logger.error(e.getMessage());
