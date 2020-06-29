@@ -120,8 +120,9 @@ public class AuthenticationController {
 				}
 			}
 			boolean status = Boolean.parseBoolean(tokens.get("status").toString());
+			boolean verification = Boolean.parseBoolean(tokens.get("verificationRequired").toString());
 			ResponseBuilder response = Response.ok().entity(tokens);
-			if (status) {
+			if (status && !verification) {
 				NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/",
 						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 				NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/",
