@@ -93,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			tokens.put("message", SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
 			tokens.put("verificationRequired", false);
 		} else {
-			tokens.put("status", false);
+			tokens.put("status", true);
 			tokens.put("message", ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
 			tokens.put("user", UserConverter.convertToDTO(user));
 			tokens.put("verificationRequired", true);
