@@ -79,9 +79,21 @@ public class AuthenticationController {
 	@ApiOperation(value = "Authenticates User by Credentials", notes = "Returns Tokens", response = Map.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 403, message = "Could not authenticate user", response = String.class) })
-	public Response authenticate(@Context HttpServletRequest request, @FormParam("username") String userEmail, @FormParam("password") String password,
-			@FormParam("mode") String mode) {
+	public Response authenticate(@Context HttpServletRequest request, @FormParam("username") String userEmail,
+			@FormParam("password") String password, @FormParam("mode") String mode) {
 		try {
+			if (userEmail == null || userEmail.isEmpty()) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.USERNAME_REQUIRED)).build();
+			}
+			if (password == null || password.isEmpty()) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.PASSWORD_REQUIRED)).build();
+			}
+			if (mode == null || mode.isEmpty()) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.VERIFICATION_MODE_REQUIRED)).build();	
+			}
 			Map<String, Object> tokens = null;
 			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
 				tokens = this.authenticationService.authenticateUser(userEmail, password);
@@ -110,13 +122,13 @@ public class AuthenticationController {
 			boolean status = Boolean.parseBoolean(tokens.get("status").toString());
 			ResponseBuilder response = Response.ok().entity(tokens);
 			if (status) {
-				NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
-						10 * 24 * 60 * 60, false);
-				NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
-						10 * 24 * 60 * 60, false);
+				NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/",
+						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+				NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/",
+						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 				return response.cookie(accessToken).cookie(refreshToken).build();
 			} else {
-				return response.build();				
+				return response.build();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -257,10 +269,10 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get("status").toString())) {
-			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/", AppUtil.getDomain(request), "",
-					10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/", AppUtil.getDomain(request), "",
-					10 * 24 * 60 * 60, false);
+			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/",
+					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/",
+					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}
 		return Response.status(Status.OK).entity(result).build();
