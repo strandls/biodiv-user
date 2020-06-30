@@ -27,6 +27,7 @@ import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.converter.UserConverter;
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.GroupAddMember;
@@ -351,15 +352,15 @@ public class UserController {
 	@POST
 	@Path(ApiConstants.SAVE_TOKEN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ValidateUser
 	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = FirebaseTokens.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
-	public Response saveToken(@Context HttpServletRequest request, @FormParam("token") String token) {
+	public Response saveToken(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			FirebaseTokens savedToken = userService.saveToken(userId, token);
+			FirebaseTokens savedToken = userService.saveToken(userId, firebaseDTO.getToken());
 			return Response.ok().entity(savedToken).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -386,10 +387,11 @@ public class UserController {
 	@POST
 	@Path(ApiConstants.SEND_NOTIFICATION)
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
-	public Response sendGeneralNotification(@FormParam("title") String title, @FormParam("body") String body) {
+	public Response sendGeneralNotification(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
 		try {
-			userService.sendPushNotifications(title, body);
+			userService.sendPushNotifications(firebaseDTO.getTitle(), firebaseDTO.getBody());
 			return Response.status(Status.OK).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
