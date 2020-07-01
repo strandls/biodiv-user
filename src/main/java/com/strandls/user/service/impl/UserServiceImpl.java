@@ -83,6 +83,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public List<UserIbp> fetchUserIbpBulk(List<Long> userIds) {
+		List<UserIbp> result = new ArrayList<UserIbp>();
+		for (Long userId : userIds) {
+			result.add(fetchUserIbp(userId));
+		}
+		return result;
+	}
+
+	@Override
 	public User getUserByEmail(String userEmail) {
 		return userDao.findByUserEmail(userEmail);
 	}
@@ -420,5 +429,4 @@ public class UserServiceImpl implements UserService {
 
 		return null;
 	}
-
 }
