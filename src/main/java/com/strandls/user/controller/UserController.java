@@ -3,6 +3,7 @@
  */
 package com.strandls.user.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -112,9 +113,12 @@ public class UserController {
 	@ApiOperation(value = "Find User by User ID in bulk for ibp", notes = "Returns User details", response = UserIbp.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 
-	public Response getUserIbbpBulk(@ApiParam(name = "userIds") List<Long> userIds) {
+	public Response getUserIbbpBulk(@QueryParam("userIds") String userIds) {
 		try {
-			List<UserIbp> result = userService.fetchUserIbpBulk(userIds);
+			List<Long> uIds = new ArrayList<Long>();
+			for (String uId : userIds.split(","))
+				uIds.add(Long.parseLong(uId));
+			List<UserIbp> result = userService.fetchUserIbpBulk(uIds);
 			return Response.status(Status.OK).entity(result).build();
 
 		} catch (Exception e) {
@@ -401,7 +405,7 @@ public class UserController {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
-	
+
 	@POST
 	@Path(ApiConstants.SEND_NOTIFICATION)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -413,7 +417,7 @@ public class UserController {
 			return Response.status(Status.OK).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-		}		
+		}
 	}
 
 	@GET
