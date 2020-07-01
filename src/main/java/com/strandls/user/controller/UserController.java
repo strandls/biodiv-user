@@ -106,6 +106,24 @@ public class UserController {
 	}
 
 	@GET
+	@Path(ApiConstants.BULK + ApiConstants.IBP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find User by User ID in bulk for ibp", notes = "Returns User details", response = UserIbp.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
+
+	public Response getUserIbbpBulk(@ApiParam(name = "userIds") List<Long> userIds) {
+		try {
+			List<UserIbp> result = userService.fetchUserIbpBulk(userIds);
+			return Response.status(Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+
+	@GET
 	@Path(ApiConstants.ME)
 	@Produces(MediaType.APPLICATION_JSON)
 
@@ -630,11 +648,10 @@ public class UserController {
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.MODERATORLIST + "/{userGroupId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ApiOperation(value = "find Moderator list for a userGroup", notes = "return usser list for userGroupId", response = UserIbp.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
-
 
 	public Response getModeratorList(@PathParam("userGroupId") String groupId) {
 		try {
