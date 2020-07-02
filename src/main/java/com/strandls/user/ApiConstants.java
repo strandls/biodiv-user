@@ -52,5 +52,6 @@ public class ApiConstants {
 	public static final String DIRECT = "/direct";
 	public static final String FOUNDERLIST = "/founderList";
 	public static final String MODERATORLIST = "/moderatorList";
+	public static final String BULK = "/bulk";
 
 }

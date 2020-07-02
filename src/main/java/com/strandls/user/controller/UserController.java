@@ -3,6 +3,7 @@
  */
 package com.strandls.user.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -100,6 +101,27 @@ public class UserController {
 			Long id = Long.parseLong(userId);
 			UserIbp ibp = userService.fetchUserIbp(id);
 			return Response.status(Status.OK).entity(ibp).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.BULK + ApiConstants.IBP)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "Find User by User ID in bulk for ibp", notes = "Returns User details", response = UserIbp.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
+
+	public Response getUserIbbpBulk(@QueryParam("userIds") String userIds) {
+		try {
+			List<Long> uIds = new ArrayList<Long>();
+			for (String uId : userIds.split(","))
+				uIds.add(Long.parseLong(uId));
+			List<UserIbp> result = userService.fetchUserIbpBulk(uIds);
+			return Response.status(Status.OK).entity(result).build();
+
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
@@ -630,11 +652,10 @@ public class UserController {
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.MODERATORLIST + "/{userGroupId}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	
+
 	@ApiOperation(value = "find Moderator list for a userGroup", notes = "return usser list for userGroupId", response = UserIbp.class, responseContainer = "List")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Unable to get the user list", response = String.class) })
-
 
 	public Response getModeratorList(@PathParam("userGroupId") String groupId) {
 		try {
