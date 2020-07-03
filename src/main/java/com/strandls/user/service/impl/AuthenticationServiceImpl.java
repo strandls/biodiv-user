@@ -87,16 +87,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		usernamePasswordAuthenticator.validate(credentials, null);
 		CommonProfile profile = credentials.getUserProfile();
 		user = this.userService.fetchUser(Long.parseLong(profile.getId()));
-		if (!user.getAccountLocked()) {
-			tokens = this.buildTokens(profile, user, true);
-			tokens.put("status", true);
-			tokens.put("message", SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
-			tokens.put("verificationRequired", false);
+		if (user.getEnabled()) {
+			if (!user.getAccountLocked()) {
+				tokens = this.buildTokens(profile, user, true);
+				tokens.put("status", true);
+				tokens.put("message", SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
+				tokens.put("verificationRequired", false);
+			} else {
+				tokens.put("status", true);
+				tokens.put("message", ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
+				tokens.put("user", UserConverter.convertToDTO(user));
+				tokens.put("verificationRequired", true);
+			}
 		} else {
-			tokens.put("status", true);
-			tokens.put("message", ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
-			tokens.put("user", UserConverter.convertToDTO(user));
-			tokens.put("verificationRequired", true);
+			tokens.put("status", false);
+			tokens.put("message", ERROR_CONSTANTS.ACCOUNT_DISABLED.toString());
 		}
 		return tokens;
 	}
@@ -227,7 +232,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				user.setAccountLocked(false);
 				user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
 				user = userDao.update(user);
-				
+
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				response = this.buildTokens(profile, user, true);
 				response.put("status", true);

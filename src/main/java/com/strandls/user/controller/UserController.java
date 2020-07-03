@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.pac4j.core.profile.CommonProfile;
 
+import com.strandls.authentication_utility.constants.Roles;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
@@ -408,6 +409,7 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.SEND_NOTIFICATION)
+	@ValidateUser
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
