@@ -12,6 +12,7 @@ public class Constants {
 	};
 	
 	public static enum ERROR_CONSTANTS {
+		ACCOUNT_DISABLED,
 		USERNAME_REQUIRED,
 		PASSWORD_REQUIRED,
 		VERIFICATION_MODE_REQUIRED,
