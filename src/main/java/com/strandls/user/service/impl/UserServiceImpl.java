@@ -373,7 +373,7 @@ public class UserServiceImpl implements UserService {
 		for (UserGroupMemberRole ugMemberRole : ugMemberRoleList) {
 			userList.add(userDao.findById(ugMemberRole.getsUserId()));
 		}
-		return null;
+		return userList;
 	}
 
 	@Override
