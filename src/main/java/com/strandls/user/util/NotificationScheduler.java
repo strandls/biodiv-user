@@ -38,7 +38,7 @@ public class NotificationScheduler extends Thread {
 				notification.put(NOTIFICATION_DATA.TITLE.getAction(), title);
 				notification.put(NOTIFICATION_DATA.BODY.getAction(), body);
 				if (!icon.isEmpty() ) {
-					notification.put(NOTIFICATION_DATA.ICON.getAction(), body);
+					notification.put(NOTIFICATION_DATA.ICON.getAction(), icon);
 				}
 				data.put(NOTIFICATION_FIELDS.NOTIFICATION.getAction(), JsonUtil.unflattenJSON(notification));
 				for (FirebaseTokens token : tokens) {
