@@ -67,8 +67,6 @@ public interface UserService {
 	public Boolean joinGroup(Long userId, Long userGroupId);
 
 	public List<Long> addMemberDirectly(GroupAddMember addMember);
-	
-	public void sendPushNotifications(String title, String body);
 
 	public List<User> getFounderModerator(Long userGroupId);
 
