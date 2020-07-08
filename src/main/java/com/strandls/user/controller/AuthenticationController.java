@@ -188,7 +188,7 @@ public class AuthenticationController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Create new user", notes = "Returns the created user", response = Map.class)
-	public Response signUp(@Context HttpServletRequest request, @ApiParam(name = "userDto") UserDTO userDTO) {
+	public Response signUp(@Context HttpServletRequest request, @ApiParam(name = "userDTO") UserDTO userDTO) {
 		try {
 			String username = userDTO.getUsername();
 			String password = userDTO.getPassword();
