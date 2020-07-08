@@ -66,5 +66,5 @@ public interface UserService {
 
 	public List<Long> addMemberDirectly(GroupAddMember addMember);
 	
-	public void sendPushNotifications(String title, String body);
+	public void sendPushNotifications(String title, String body, String icon);
 }

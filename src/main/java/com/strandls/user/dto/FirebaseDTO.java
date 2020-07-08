@@ -12,6 +12,7 @@ public class FirebaseDTO {
 	private String token;
 	private String title;
 	private String body;
+	private String icon;
 	
 	public String getToken() {
 		return token;
@@ -30,6 +31,12 @@ public class FirebaseDTO {
 	}
 	public void setBody(String body) {
 		this.body = body;
+	}
+	public String getIcon() {
+		return icon;
+	}
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 }
