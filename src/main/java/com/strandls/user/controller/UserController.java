@@ -27,7 +27,6 @@ import org.pac4j.core.profile.CommonProfile;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
@@ -40,7 +39,6 @@ import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
-import com.strandls.user.util.AppUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -378,8 +376,8 @@ public class UserController {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = String.class)
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = FirebaseTokens.class) })
+	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = FirebaseTokens.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
 	public Response saveToken(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
