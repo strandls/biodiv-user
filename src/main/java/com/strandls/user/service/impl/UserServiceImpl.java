@@ -61,6 +61,9 @@ public class UserServiceImpl implements UserService {
 	@Inject
 	Channel channel;
 
+	@Inject
+	Channel channel;
+
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
@@ -211,20 +214,20 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserGroupMembersCount> getUserGroupMemberCount() {
-		List<UserGroupMembersCount> result = userGroupMemberDao.fetchMemberCountUserGroup();
-		return result;
-	}
-	
-	@Override
 	public void sendPushNotifications(String title, String body, String icon) {
 		try {
 			List<FirebaseTokens> tokens = firebaseDao.findAll();
 			NotificationScheduler scheduler = new NotificationScheduler(channel, title, body, icon, tokens);
-			scheduler.start();			
+			scheduler.start();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	@Override
+	public List<UserGroupMembersCount> getUserGroupMemberCount() {
+		List<UserGroupMembersCount> result = userGroupMemberDao.fetchMemberCountUserGroup();
+		return result;
 	}
 
 	@Override

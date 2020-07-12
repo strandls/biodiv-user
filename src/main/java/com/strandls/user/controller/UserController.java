@@ -27,6 +27,7 @@ import org.pac4j.core.profile.CommonProfile;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
+import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
@@ -387,6 +388,21 @@ public class UserController {
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
+	}
+	
+	@POST
+	@Path(ApiConstants.SEND_NOTIFICATION)
+	@ValidateUser
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
+	public Response sendGeneralNotification(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
+		try {
+			userService.sendPushNotifications(firebaseDTO.getTitle(), firebaseDTO.getBody(), firebaseDTO.getIcon());
+			return Response.status(Status.OK).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}		
 	}
 
 	@GET
