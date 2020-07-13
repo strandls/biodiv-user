@@ -421,21 +421,6 @@ public class UserController {
 		}
 	}
 
-	@POST
-	@Path(ApiConstants.SEND_NOTIFICATION)
-	@ValidateUser
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
-	public Response sendGeneralNotification(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
-		try {
-			userService.sendPushNotifications(firebaseDTO.getTitle(), firebaseDTO.getBody(), firebaseDTO.getIcon());
-			return Response.status(Status.OK).build();
-		} catch (Exception e) {
-			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-		}
-	}
-
 	@GET
 	@Path(ApiConstants.GROUPMEMBER + ApiConstants.CHECK + "/{userGroupId}")
 	@Consumes(MediaType.TEXT_PLAIN)

@@ -61,9 +61,6 @@ public class UserServiceImpl implements UserService {
 	@Inject
 	Channel channel;
 
-	@Inject
-	Channel channel;
-
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
