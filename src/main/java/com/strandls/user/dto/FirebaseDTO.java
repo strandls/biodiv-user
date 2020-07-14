@@ -13,6 +13,7 @@ public class FirebaseDTO {
 	private String title;
 	private String body;
 	private String icon;
+	private String clickAction;
 
 	public String getToken() {
 		return token;
@@ -37,6 +38,12 @@ public class FirebaseDTO {
 	}
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+	public String getClickAction() {
+		return clickAction;
+	}
+	public void setClickAction(String clickAction) {
+		this.clickAction = clickAction;
 	}
 
 }

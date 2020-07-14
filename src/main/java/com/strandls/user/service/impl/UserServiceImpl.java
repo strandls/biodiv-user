@@ -22,6 +22,7 @@ import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dao.UserGroupMemberRoleDao;
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.GroupAddMember;
@@ -211,14 +212,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void sendPushNotifications(String title, String body, String icon) {
-		try {
-			List<FirebaseTokens> tokens = firebaseDao.findAll();
-			NotificationScheduler scheduler = new NotificationScheduler(channel, title, body, icon, tokens);
-			scheduler.start();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+	public void sendPushNotifications(FirebaseDTO firebaseDTO) {
+		List<FirebaseTokens> tokens = firebaseDao.findAll();
+		NotificationScheduler scheduler = new NotificationScheduler(channel, firebaseDTO, tokens);
+		scheduler.start();
 	}
 
 	@Override
