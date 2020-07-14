@@ -397,7 +397,7 @@ public class UserController {
 	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
 	public Response sendGeneralNotification(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
 		try {
-			userService.sendPushNotifications(firebaseDTO.getTitle(), firebaseDTO.getBody(), firebaseDTO.getIcon());
+			userService.sendPushNotifications(firebaseDTO);
 			return Response.status(Status.OK).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();

@@ -5,6 +5,7 @@ package com.strandls.user.service;
 
 import java.util.List;
 
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.GroupAddMember;
@@ -74,5 +75,5 @@ public interface UserService {
 
 	public List<UserIbp> getModeratorList(Long userGroupId);
 	
-	public void sendPushNotifications(String title, String body, String icon);
+	public void sendPushNotifications(FirebaseDTO firebaseDTO);
 }
