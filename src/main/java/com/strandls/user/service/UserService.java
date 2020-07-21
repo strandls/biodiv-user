@@ -7,12 +7,8 @@ import java.util.List;
 
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
-import com.strandls.user.pojo.GroupAddMember;
 import com.strandls.user.pojo.User;
-import com.strandls.user.pojo.UserGroupMemberRole;
-import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
-import com.strandls.user.pojo.UserPermissions;
 
 /**
  * @author Abhishek Rudra
@@ -34,8 +30,6 @@ public interface UserService {
 
 	public User updateUser(User user);
 
-	public UserPermissions getUserPermissions(Long userId, String type, Long objectId);
-
 	public Follow fetchByFollowId(Long id);
 
 	public List<User> fetchRecipients(String objectType, Long objectId);
@@ -48,29 +42,8 @@ public interface UserService {
 
 	public Follow unFollow(String type, Long objectId, Long userId);
 
-	public Boolean checkUserGroupMember(Long userId, Long userGroupId);
-
 	public List<User> getNames(String name);
 
 	public FirebaseTokens saveToken(Long userId, String token);
 
-	public List<UserGroupMembersCount> getUserGroupMemberCount();
-
-	public Boolean checkFounderRole(Long userId, Long userGroupId);
-
-	public Boolean checkModeratorRole(Long userId, Long userGroupId);
-
-	public UserGroupMemberRole addMemberUG(Long userId, Long roleId, Long userGroupId);
-
-	public Boolean removeGroupMember(Long userId, Long userGroupId);
-
-	public Boolean joinGroup(Long userId, Long userGroupId);
-
-	public List<Long> addMemberDirectly(GroupAddMember addMember);
-
-	public List<User> getFounderModerator(Long userGroupId);
-
-	public List<UserIbp> getFounderList(Long userGroupId);
-
-	public List<UserIbp> getModeratorList(Long userGroupId);
 }

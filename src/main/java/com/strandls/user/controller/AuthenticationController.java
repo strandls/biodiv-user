@@ -3,6 +3,7 @@ package com.strandls.user.controller;
 import java.util.Date;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -23,8 +24,6 @@ import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
