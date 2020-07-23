@@ -373,7 +373,7 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.SAVE_TOKEN)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
 	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = FirebaseTokens.class)
