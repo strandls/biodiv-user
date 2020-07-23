@@ -16,11 +16,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rabbitmq.client.Channel;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dao.UserGroupMemberRoleDao;
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.GroupAddMember;
@@ -32,6 +34,7 @@ import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.UserPermissions;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.NotificationScheduler;
 
 /**
  * @author Abhishek Rudra
@@ -55,6 +58,9 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private FollowDao followDao;
+
+	@Inject
+	Channel channel;
 
 	@Override
 	public User fetchUser(Long userId) {
@@ -190,11 +196,26 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public FirebaseTokens saveToken(Long userId, String fcmToken) {
-		User user = fetchUser(userId);
-		user.setSendPushNotification(true);
-		updateUser(user);
-		FirebaseTokens token = new FirebaseTokens(user, fcmToken);
-		return firebaseDao.save(token);
+		FirebaseTokens token = firebaseDao.getToken(userId, fcmToken);
+		try {
+			if (token == null) {
+				User user = fetchUser(userId);
+				user.setSendPushNotification(true);
+				updateUser(user);
+				FirebaseTokens savedToken = new FirebaseTokens(user, fcmToken);
+				token = firebaseDao.save(savedToken);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return token;
+	}
+
+	@Override
+	public void sendPushNotifications(FirebaseDTO firebaseDTO) {
+		List<FirebaseTokens> tokens = firebaseDao.findAll();
+		NotificationScheduler scheduler = new NotificationScheduler(channel, firebaseDTO, tokens);
+		scheduler.start();
 	}
 
 	@Override
