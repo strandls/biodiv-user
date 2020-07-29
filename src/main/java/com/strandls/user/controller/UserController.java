@@ -27,15 +27,14 @@ import org.pac4j.core.profile.CommonProfile;
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
-import com.strandls.user.Constants.ERROR_CONSTANTS;
-import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
+import com.strandls.user.dto.FirebaseDTO;
+import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.service.UserService;
-import com.strandls.user.util.AppUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -176,8 +175,7 @@ public class UserController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long objId = Long.parseLong(objectId);
 			Long authId = Long.parseLong(profile.getId());
-			if (objectType.equalsIgnoreCase("observation"))
-				objectType = "species.participation.Observation";
+
 			Follow follow = userService.fetchByFollowObject(objectType, objId, authId);
 			return Response.status(Status.OK).entity(follow).build();
 		} catch (Exception e) {
@@ -221,8 +219,6 @@ public class UserController {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
-			if (object.equalsIgnoreCase("observation"))
-				object = "species.participation.Observation";
 			Long objId = Long.parseLong(objectId);
 			Follow result = userService.updateFollow(object, objId, userId);
 
@@ -247,8 +243,6 @@ public class UserController {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 			Long userId = Long.parseLong(profile.getId());
 			Long objId = Long.parseLong(objectId);
-			if (type.equalsIgnoreCase("observation"))
-				type = "species.participation.Observation";
 			Follow result = userService.unFollow(type, objId, userId);
 
 			return Response.status(Status.OK).entity(result).build();
@@ -295,23 +289,34 @@ public class UserController {
 
 	@POST
 	@Path(ApiConstants.SAVE_TOKEN)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ValidateUser
-	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = String.class)
+	@ApiOperation(value = "Save Token", notes = "Associates token with a user", response = FirebaseTokens.class)
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to return the data", response = String.class) })
-	public Response saveToken(@Context HttpServletRequest request, @FormParam("userId") Long userId,
-			@FormParam("token") String token) {
+	public Response saveToken(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
 		try {
 			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-			if (Long.parseLong(profile.getId()) != userId) {
-				return Response.status(Status.BAD_REQUEST)
-						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_ACTION)).build();
-			}
-			userService.saveToken(userId, token);
-			return Response.ok().entity(AppUtil.generateResponse(true, SUCCESS_CONSTANTS.TOKEN_SAVED)).build();
+			Long userId = Long.parseLong(profile.getId());
+			FirebaseTokens savedToken = userService.saveToken(userId, firebaseDTO.getToken());
+			return Response.ok().entity(savedToken).build();
 		} catch (Exception ex) {
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path(ApiConstants.SEND_NOTIFICATION)
+	@ValidateUser
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Push Notifications", notes = "Send generalized push notifications to all users")
+	public Response sendGeneralNotification(@Context HttpServletRequest request, FirebaseDTO firebaseDTO) {
+		try {
+			userService.sendPushNotifications(firebaseDTO);
+			return Response.status(Status.OK).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
 		}
 	}
 

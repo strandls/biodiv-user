@@ -5,6 +5,7 @@ package com.strandls.user.service;
 
 import java.util.List;
 
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
@@ -46,4 +47,5 @@ public interface UserService {
 
 	public FirebaseTokens saveToken(Long userId, String token);
 
+	public void sendPushNotifications(FirebaseDTO firebaseDTO);
 }
