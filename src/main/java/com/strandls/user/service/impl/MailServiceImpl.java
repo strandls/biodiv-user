@@ -38,7 +38,7 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
-		data.put(FIELDS.SUBSCRIPTION.getAction(), Boolean.valueOf(true));
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put(USER_REGISTRATION.OTP.getAction(), otp);
 		model.put(USER_REGISTRATION.USERNAME.getAction(), user.getUserName());
@@ -61,7 +61,7 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
-		data.put(FIELDS.SUBSCRIPTION.getAction(), Boolean.valueOf(true));
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<>();		
 		MessageUtil messages = new MessageUtil();
 		Properties config = PropertyFileUtil.fetchProperty("config.properties");
@@ -100,7 +100,7 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
-		data.put(FIELDS.SUBSCRIPTION.getAction(), Boolean.valueOf(true));
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<>();
 		model.put(RESET_PASSWORD.USERNAME.getAction(), user.getUserName());
 		model.put(RESET_PASSWORD.OTP.getAction(), otp);
