@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
@@ -19,6 +20,7 @@ import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.AuthUtility;
 
 /**
  * @author Abhishek Rudra
@@ -38,6 +40,88 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
+		return user;
+	}
+
+	@Override
+	public User updateUser(Boolean isAdmin, User inputUser) {
+	
+		Long userId = inputUser.getId();
+
+		User user = fetchUser(userId);
+
+		if (isAdmin) {
+			user = updateEmailAndMobile(user, inputUser);
+			user = updateRolesAndPermission(user, inputUser);
+		}
+		user = updateOtherDetails(user, inputUser);
+
+		return updateUser(user);
+	}
+
+	private User updateOtherDetails(User user, User inputUser) {
+		if (inputUser.getUserName() != null && !user.getUserName().equals(inputUser.getUserName()))
+			user.setUserName(inputUser.getUserName());
+
+		if (inputUser.getSexType() != null && !user.getSexType().equals(inputUser.getSexType()))
+			user.setSexType(inputUser.getSexType());
+
+		if (inputUser.getOccupation() != null && !user.getOccupation().equals(inputUser.getOccupation()))
+			user.setOccupation(inputUser.getOccupation());
+
+		if (inputUser.getInstitution() != null && !user.getInstitution().equals(inputUser.getInstitution()))
+			user.setInstitution(inputUser.getInstitution());
+
+		if (inputUser.getLocation() != null && !user.getLocation().equals(inputUser.getLocation()))
+			user.setLocation(inputUser.getLocation());
+
+		if (inputUser.getLatitude() != null && !user.getLatitude().equals(inputUser.getLatitude()))
+			user.setLatitude(inputUser.getLatitude());
+
+		if (inputUser.getLongitude() != null && !user.getLongitude().equals(inputUser.getLongitude()))
+			user.setLongitude(inputUser.getLongitude());
+
+		if (inputUser.getAboutMe() != null && !user.getAboutMe().equals(inputUser.getAboutMe()))
+			user.setAboutMe(inputUser.getAboutMe());
+
+		 // TODO  : Species group and habitat id
+		
+		if (inputUser.getIdentificationMail() != null && !user.getIdentificationMail().equals(inputUser.getIdentificationMail()))
+			user.setIdentificationMail(inputUser.getIdentificationMail());
+		
+		if(inputUser.getWebsite() != null && user.getWebsite().equals(inputUser.getWebsite()))
+			user.setWebsite(inputUser.getWebsite());
+
+		if (inputUser.getSendNotification() != null
+				&& !user.getSendNotification().equals(inputUser.getSendNotification()))
+			user.setSendNotification(inputUser.getSendNotification());
+
+		if (inputUser.getHideEmial() != null && !user.getHideEmial().equals(inputUser.getHideEmial()))
+			user.setHideEmial(inputUser.getHideEmial());
+
+		if (inputUser.getSendDigest() != null && !user.getSendDigest().equals(inputUser.getSendDigest()))
+			user.setSendDigest(inputUser.getSendDigest());
+
+		return user;
+	}
+
+	private User updateRolesAndPermission(User user, User inputUser) {
+		if (inputUser.getRoles() == null)
+			return user;
+
+		if (!inputUser.getRoles().containsAll(user.getRoles()) || !user.getRoles().containsAll(inputUser.getRoles()))
+			user.setRoles(inputUser.getRoles());
+		return user;
+	}
+
+	private User updateEmailAndMobile(User user, User inputUser) {
+
+		if (inputUser.getEmail() != null && !user.getEmail().equals(inputUser.getEmail()))
+			user.setEmail(inputUser.getEmail());
+
+		if (inputUser.getMobileNumber() != null && !user.getMobileNumber().equals(inputUser.getMobileNumber()))
+			user.setMobileNumber(inputUser.getMobileNumber());
+
 		return user;
 	}
 

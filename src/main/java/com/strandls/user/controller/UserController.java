@@ -13,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,9 +37,11 @@ import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
+import com.strandls.user.util.AuthUtility;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -76,6 +79,39 @@ public class UserController {
 
 			Long uId = Long.parseLong(userId);
 			User user = userService.fetchUser(uId);
+			return Response.status(Status.OK).entity(user).build();
+		} catch (Exception e) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "update the user", notes = "Returns User details", response = User.class)
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
+
+	@ValidateUser
+	public Response updateUser(@Context HttpServletRequest request, @ApiParam(name = "user") User inputUser) {
+
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			Long userId = Long.parseLong(profile.getId());
+			// He is not admin and trying to update some other user
+			boolean isAdmin = AuthUtility.isAdmin(request);
+			
+			if(isAdmin) { // He is admin
+				if(inputUser.getId() == null) // Trying to change his own details 
+					inputUser.setId(userId);
+			} else { // He is not admin
+				if(inputUser.getId() == null) // Can change only his own details
+					inputUser.setId(userId);
+				else if(!inputUser.getId().equals(userId)) // Trying to change somebody else details.
+					return Response.status(Status.UNAUTHORIZED).build();
+			}
+			
+			User user = userService.updateUser(isAdmin, inputUser);
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
 			return Response.status(Status.NOT_FOUND).build();

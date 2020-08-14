@@ -5,6 +5,8 @@ package com.strandls.user.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
@@ -45,5 +47,7 @@ public interface UserService {
 	public List<User> getNames(String name);
 
 	public FirebaseTokens saveToken(Long userId, String token);
+
+	public User updateUser(Boolean isAdmin, User inputUser);
 
 }
