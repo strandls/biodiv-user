@@ -32,8 +32,6 @@
 		<property name="hibernate.jdbc.lob.non_contextual_creation">true</property>
 
 		<mapping class="com.strandls.user.pojo.User" />
-		<mapping class="com.strandls.user.pojo.SpeciesPermission" />
-		<mapping class="com.strandls.user.pojo.UserGroupMemberRole" />
 		<mapping class="com.strandls.user.pojo.Follow" />
 
 	</session-factory>

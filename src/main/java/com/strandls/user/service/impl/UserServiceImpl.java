@@ -9,18 +9,19 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
+import com.rabbitmq.client.Channel;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.UserDao;
+import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.service.UserService;
-import com.strandls.user.util.AuthUtility;
+import com.strandls.user.util.NotificationScheduler;
 
 /**
  * @author Abhishek Rudra
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private FollowDao followDao;
+
+	@Inject
+	Channel channel;
 
 	@Override
 	public User fetchUser(Long userId) {
@@ -177,6 +181,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow fetchByFollowObject(String objectType, Long objectId, Long authorId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
 		Follow follow = followDao.findByObject(objectType, objectId, authorId);
 		return follow;
 	}
@@ -189,6 +197,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow updateFollow(String objectType, Long objectId, Long userId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
 		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow == null) {
 			follow = new Follow(null, 0L, objectId, objectType, userId, new Date());
@@ -199,8 +211,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Follow unFollow(String type, Long objectId, Long userId) {
-		Follow follow = followDao.findByObject(type, objectId, userId);
+	public Follow unFollow(String objectType, Long objectId, Long userId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
+		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow != null) {
 			follow = followDao.delete(follow);
 		}
@@ -229,11 +245,26 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public FirebaseTokens saveToken(Long userId, String fcmToken) {
-		User user = fetchUser(userId);
-		user.setSendPushNotification(true);
-		updateUser(user);
-		FirebaseTokens token = new FirebaseTokens(user, fcmToken);
-		return firebaseDao.save(token);
+		FirebaseTokens token = firebaseDao.getToken(userId, fcmToken);
+		try {
+			if (token == null) {
+				User user = fetchUser(userId);
+				user.setSendPushNotification(true);
+				updateUser(user);
+				FirebaseTokens savedToken = new FirebaseTokens(user, fcmToken);
+				token = firebaseDao.save(savedToken);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return token;
+	}
+
+	@Override
+	public void sendPushNotifications(FirebaseDTO firebaseDTO) {
+		List<FirebaseTokens> tokens = firebaseDao.findAll();
+		NotificationScheduler scheduler = new NotificationScheduler(channel, firebaseDTO, tokens);
+		scheduler.start();
 	}
 
 }

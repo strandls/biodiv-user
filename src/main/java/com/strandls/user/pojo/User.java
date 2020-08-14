@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiModel;
 @ApiModel
 @Entity
 @Table(name = "suser")
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "password" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "password", "tokens" })
 public class User implements Serializable {
 
 	/**
