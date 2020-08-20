@@ -18,5 +18,6 @@ public interface AuthenticationService {
 	public Map<String, Object> regenerateOTP(HttpServletRequest request, Long id, int action);
 	public Map<String, Object> forgotPassword(HttpServletRequest request, String verificationId);
 	public Map<String, Object> resetPassword(HttpServletRequest request, Long id, String otp, String password);
+	public Map<String, Object> changePassword(HttpServletRequest request, Long id, String oldPassword, String password);
 	
 }

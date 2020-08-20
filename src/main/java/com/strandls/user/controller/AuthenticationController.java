@@ -326,4 +326,21 @@ public class AuthenticationController {
 		return Response.status(Status.OK).entity(data).build();
 	}
 
+	@POST
+	@Path(ApiConstants.CHANGE_PASSWORD)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Password Reset", notes = "Returns the status", response = Map.class)
+	public Response changePassword(@Context HttpServletRequest request, @FormParam("id") Long id,
+			@FormParam("oldPassword") String oldPassword, @FormParam("password") String password,
+			@FormParam("confirmPassword") String confirmPassword) {
+		if (password == null || password.isEmpty()) {
+			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();
+		}
+		if (!password.equals(confirmPassword)) {
+			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
+		}
+		Map<String, Object> data = authenticationService.changePassword(request, id, oldPassword, password);
+		return Response.status(Status.OK).entity(data).build();
+	}
 }

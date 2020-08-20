@@ -33,6 +33,7 @@ public class ApiConstants {
 	public static final String REGENERATE_OTP = "/regenerate-otp";
 	public static final String FORGOT_PASSWORD = "/forgot-password";
 	public static final String RESET_PASSWORD = "/reset-password";
+	public static final String CHANGE_PASSWORD = "/change-password";
 	public static final String FOLLOW = "/follow";
 	public static final String OBJECTFOLLOW = "/objectfollow";
 	public static final String USERFOLLOW = "/userfollow";
@@ -60,5 +61,6 @@ public class ApiConstants {
 	public static final String DETAILS = "/details";
 	public static final String EMAIL_PREFERENCES = "/emailPreferences";
 	public static final String ROLES = "/roles";
+
 
 }

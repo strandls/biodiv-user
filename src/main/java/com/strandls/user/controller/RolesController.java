@@ -40,8 +40,8 @@ public class RolesController {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "Get all roles", notes = "Returns User details", response = Role.class, responseContainer = "List")
-	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
+	@ApiOperation(value = "Get all roles", notes = "Returns all the roles available", response = Role.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 404, message = "Roles not found", response = String.class) })
 	public Response getAllRoles () {
 		List<Role> roles = roleService.getAllRoles();
 		return Response.status(Status.OK).entity(roles).build();

@@ -448,5 +448,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return data;
 	}
+	
+	@Override
+	public Map<String, Object> changePassword(HttpServletRequest request, Long id, String oldPassword,
+			String password) {
+		Map<String, Object> data = new HashMap<>();
+		User user = userService.fetchUser(id);
+		if (user == null) {
+			logger.debug("User not found");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
+			return data;
+		}
+		
+		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
+		String encodedPassword = passwordEncoder.encodePassword(oldPassword, null);
+
+		if(!encodedPassword.equals(user.getPassword())) {
+			logger.debug("Incorrect old password");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.INVALID_PASSWORD.toString());
+			return data;
+		}
+		
+		encodedPassword = passwordEncoder.encodePassword(password, null);
+		user.setPassword(encodedPassword);
+		userService.updateUser(user);
+		
+		data.put("status", true);
+		data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
+		
+		return data;
+	}
 
 }
