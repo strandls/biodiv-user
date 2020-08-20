@@ -329,7 +329,7 @@ public class AuthenticationController {
 
 	@POST
 	@Path(ApiConstants.CHANGE_PASSWORD)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Password Change", notes = "Returns the status", response = Map.class)
 	public Response changePassword(@Context HttpServletRequest request, @ApiParam(name = "user") UserPasswordChange inputUser) {
