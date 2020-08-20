@@ -30,6 +30,7 @@ import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.Language;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
+import com.strandls.user.pojo.requests.UserPasswordChange;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.LanguageService;
 import com.strandls.user.service.MailService;
@@ -231,7 +232,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				user.setAccountLocked(false);
 				user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
 				user = userDao.update(user);
-				
+
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				response = this.buildTokens(profile, user, true);
 				response.put("status", true);
@@ -448,36 +449,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		return data;
 	}
-	
+
 	@Override
-	public Map<String, Object> changePassword(HttpServletRequest request, Long id, String oldPassword,
-			String password) {
+	public Map<String, Object> changePassword(HttpServletRequest request, UserPasswordChange inputUser) {
 		Map<String, Object> data = new HashMap<>();
-		User user = userService.fetchUser(id);
+		if (inputUser.getId() == null) {
+			logger.debug("User id not found");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
+			return data;
+		}
+
+		User user = userService.fetchUser(inputUser.getId());
 		if (user == null) {
 			logger.debug("User not found");
 			data.put("status", false);
 			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
 		}
-		
-		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
-		String encodedPassword = passwordEncoder.encodePassword(oldPassword, null);
 
-		if(!encodedPassword.equals(user.getPassword())) {
+		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
+		String encodedPassword = passwordEncoder.encodePassword(inputUser.getOldPassword(), null);
+
+		if (!encodedPassword.equals(user.getPassword())) {
 			logger.debug("Incorrect old password");
 			data.put("status", false);
 			data.put("message", ERROR_CONSTANTS.INVALID_PASSWORD.toString());
 			return data;
 		}
-		
-		encodedPassword = passwordEncoder.encodePassword(password, null);
+
+		encodedPassword = passwordEncoder.encodePassword(inputUser.getPassword(), null);
 		user.setPassword(encodedPassword);
 		userService.updateUser(user);
-		
+
 		data.put("status", true);
 		data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
-		
+
 		return data;
 	}
 

@@ -39,6 +39,7 @@ import com.strandls.user.pojo.requests.UserDetails;
 import com.strandls.user.pojo.requests.UserEmailPreferences;
 import com.strandls.user.pojo.requests.UserRoles;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.UnAuthorizedUser;
 
 import io.swagger.annotations.Api;
@@ -152,6 +153,9 @@ public class UserController {
 	@ValidateUser
 	public Response updateUserRoles(@Context HttpServletRequest request, @ApiParam(name = "user") UserRoles inputUser)
 			throws UnAuthorizedUser {
+		if(AuthUtility.isAdmin(request)) {
+			Response.status(Status.UNAUTHORIZED).build();
+		}
 		User user = userService.updateRolesAndPermission(request, inputUser);
 		return Response.status(Status.OK).entity(user).build();
 	}

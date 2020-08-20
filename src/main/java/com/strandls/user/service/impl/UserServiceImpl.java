@@ -134,8 +134,13 @@ public class UserServiceImpl implements UserService {
 
 		if (inputUser.getRoles() == null)
 			return user;
-		
+
+		user.setEnabled(inputUser.getEnabled());
+		user.setAccountExpired(inputUser.getAccountExpired());
+		user.setAccountLocked(inputUser.getAccountLocked());
+		user.setPasswordExpired(inputUser.getPasswordExpired());
 		user.setRoles(inputUser.getRoles());
+		
 		user = userDao.update(user);
 		
 		return user;
