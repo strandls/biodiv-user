@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
+import org.pac4j.core.profile.CommonProfile;
 
 import com.rabbitmq.client.Channel;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.UserDao;
@@ -20,8 +24,15 @@ import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserIbp;
+import com.strandls.user.pojo.requests.UserDetails;
+import com.strandls.user.pojo.requests.UserEmailPreferences;
+import com.strandls.user.pojo.requests.UserRoles;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.NotificationScheduler;
+import com.strandls.user.util.UnAuthorizedUser;
+
+import net.minidev.json.JSONArray;
 
 /**
  * @author Abhishek Rudra
@@ -47,85 +58,86 @@ public class UserServiceImpl implements UserService {
 		return user;
 	}
 
-	@Override
-	public User updateUser(Boolean isAdmin, User inputUser) {
+	private Long validateUserForEdits(HttpServletRequest request, Long inputUserId) throws UnAuthorizedUser {
+		boolean isAdmin = false;
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+		if (roles.contains("ROLE_ADMIN"))
+			isAdmin = true;
+
+		Long profileId = Long.parseLong(profile.getId());
+
+		if (inputUserId == null)
+			return profileId;
+
+		if (!isAdmin && !inputUserId.equals(profileId))
+			throw new UnAuthorizedUser("Only admin can edit other users");
+
+		return inputUserId;
+	}
 	
-		Long userId = inputUser.getId();
-
-		User user = fetchUser(userId);
-
-		if (isAdmin) {
-			user = updateEmailAndMobile(user, inputUser);
-			user = updateRolesAndPermission(user, inputUser);
-		}
-		user = updateOtherDetails(user, inputUser);
-
-		return updateUser(user);
+	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser{
+		userId = validateUserForEdits(request, userId);
+		User user = userDao.findById(userId);
+		
+		user.setProfilePic(profilePic);
+		
+		user = userDao.update(user);
+		return user;
 	}
 
-	private User updateOtherDetails(User user, User inputUser) {
-		if (inputUser.getUserName() != null && !user.getUserName().equals(inputUser.getUserName()))
-			user.setUserName(inputUser.getUserName());
+	@Override
+	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUser {
 
-		if (inputUser.getSexType() != null && !user.getSexType().equals(inputUser.getSexType()))
-			user.setSexType(inputUser.getSexType());
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
 
-		if (inputUser.getOccupation() != null && !user.getOccupation().equals(inputUser.getOccupation()))
-			user.setOccupation(inputUser.getOccupation());
+		user.setUserName(inputUser.getUserName());
+		user.setSexType(inputUser.getSexType());
+		user.setOccupation(inputUser.getOccupation());
+		user.setInstitution(inputUser.getInstitution());
+		user.setLocation(inputUser.getLocation());
+		user.setLatitude(inputUser.getLatitude());
+		user.setLongitude(inputUser.getLongitude());
+		user.setAboutMe(inputUser.getAboutMe());
+		user.setWebsite(inputUser.getWebsite());
+		// TODO : Species group and habitat id
+		if (AuthUtility.isAdmin(request)) {
+			user.setEmail(inputUser.getEmail());
+			user.setMobileNumber(inputUser.getMobileNumber());
+		}
+		user = userDao.update(user);
+		return user;
+	}
 
-		if (inputUser.getInstitution() != null && !user.getInstitution().equals(inputUser.getInstitution()))
-			user.setInstitution(inputUser.getInstitution());
+	@Override
+	public User updateEmailPreferences(HttpServletRequest request, UserEmailPreferences inputUser)
+			throws UnAuthorizedUser {
 
-		if (inputUser.getLocation() != null && !user.getLocation().equals(inputUser.getLocation()))
-			user.setLocation(inputUser.getLocation());
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
 
-		if (inputUser.getLatitude() != null && !user.getLatitude().equals(inputUser.getLatitude()))
-			user.setLatitude(inputUser.getLatitude());
-
-		if (inputUser.getLongitude() != null && !user.getLongitude().equals(inputUser.getLongitude()))
-			user.setLongitude(inputUser.getLongitude());
-
-		if (inputUser.getAboutMe() != null && !user.getAboutMe().equals(inputUser.getAboutMe()))
-			user.setAboutMe(inputUser.getAboutMe());
-
-		 // TODO  : Species group and habitat id
-		
-		if (inputUser.getIdentificationMail() != null && !user.getIdentificationMail().equals(inputUser.getIdentificationMail()))
-			user.setIdentificationMail(inputUser.getIdentificationMail());
-		
-		if(inputUser.getWebsite() != null && user.getWebsite().equals(inputUser.getWebsite()))
-			user.setWebsite(inputUser.getWebsite());
-
-		if (inputUser.getSendNotification() != null
-				&& !user.getSendNotification().equals(inputUser.getSendNotification()))
-			user.setSendNotification(inputUser.getSendNotification());
-
-		if (inputUser.getHideEmial() != null && !user.getHideEmial().equals(inputUser.getHideEmial()))
-			user.setHideEmial(inputUser.getHideEmial());
-
-		if (inputUser.getSendDigest() != null && !user.getSendDigest().equals(inputUser.getSendDigest()))
-			user.setSendDigest(inputUser.getSendDigest());
+		user.setIdentificationMail(inputUser.getIdentificationMail());
+		user.setSendNotification(inputUser.getSendNotification());
+		user.setHideEmial(inputUser.getHideEmial());
+		user.setSendDigest(inputUser.getSendDigest());
+		user = userDao.update(user);
 
 		return user;
 	}
 
-	private User updateRolesAndPermission(User user, User inputUser) {
+	@Override
+	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUser {
+
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
+
 		if (inputUser.getRoles() == null)
 			return user;
-
-		if (!inputUser.getRoles().containsAll(user.getRoles()) || !user.getRoles().containsAll(inputUser.getRoles()))
-			user.setRoles(inputUser.getRoles());
-		return user;
-	}
-
-	private User updateEmailAndMobile(User user, User inputUser) {
-
-		if (inputUser.getEmail() != null && !user.getEmail().equals(inputUser.getEmail()))
-			user.setEmail(inputUser.getEmail());
-
-		if (inputUser.getMobileNumber() != null && !user.getMobileNumber().equals(inputUser.getMobileNumber()))
-			user.setMobileNumber(inputUser.getMobileNumber());
-
+		
+		user.setRoles(inputUser.getRoles());
+		user = userDao.update(user);
+		
 		return user;
 	}
 
