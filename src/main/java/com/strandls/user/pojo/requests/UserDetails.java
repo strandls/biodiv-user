@@ -4,6 +4,7 @@ public class UserDetails {
 
 	private Long id;
 	private String userName;
+	private String name;
 	private String aboutMe;
 	private String email;
 	private String sexType;
@@ -14,6 +15,29 @@ public class UserDetails {
 	private String institution;
 	private String location;
 	private String website;
+
+	public UserDetails() {
+		super();
+	}
+
+	public UserDetails(Long id, String userName, String name, String aboutMe, String email, String sexType,
+			Double latitude, Double longitude, String mobileNumber, String occupation, String institution,
+			String location, String website) {
+		super();
+		this.id = id;
+		this.userName = userName;
+		this.name = name;
+		this.aboutMe = aboutMe;
+		this.email = email;
+		this.sexType = sexType;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.mobileNumber = mobileNumber;
+		this.occupation = occupation;
+		this.institution = institution;
+		this.location = location;
+		this.website = website;
+	}
 
 	public Long getId() {
 		return id;
@@ -29,6 +53,14 @@ public class UserDetails {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getAboutMe() {
