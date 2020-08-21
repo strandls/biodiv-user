@@ -93,6 +93,7 @@ public class UserServiceImpl implements UserService {
 		User user = userDao.findById(inputUserId);
 
 		user.setUserName(inputUser.getUserName());
+		user.setName(inputUser.getName());
 		user.setSexType(inputUser.getSexType());
 		user.setOccupation(inputUser.getOccupation());
 		user.setInstitution(inputUser.getInstitution());
