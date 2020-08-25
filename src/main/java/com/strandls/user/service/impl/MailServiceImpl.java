@@ -1,5 +1,6 @@
 package com.strandls.user.service.impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 
 import com.rabbitmq.client.Channel;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
+import com.strandls.mail_utility.model.EnumModel.INFO_FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
 import com.strandls.mail_utility.model.EnumModel.RESET_PASSWORD;
 import com.strandls.mail_utility.model.EnumModel.USER_REGISTRATION;
@@ -36,24 +38,23 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void sendActivationMail(HttpServletRequest request, User user, String otp) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put(USER_REGISTRATION.OTP.getAction(), otp);
 		model.put(USER_REGISTRATION.USERNAME.getAction(), user.getUserName());
 		model.put(USER_REGISTRATION.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
-
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		
+		Map<String, Object> mailData = new HashMap<String, Object>();
+		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
+		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
 			producer.produceMail(
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(data));
-			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
-			data.put(FIELDS.TO.getAction(), admins.split(","));
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));
+					null, JsonUtil.mapToJSON(mailData));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -62,8 +63,8 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void sendWelcomeMail(HttpServletRequest request, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<>();		
 		MessageUtil messages = new MessageUtil();
 		Properties config = PropertyFileUtil.fetchProperty("config.properties");
@@ -86,17 +87,16 @@ public class MailServiceImpl implements MailService {
 		model.put(WELCOME_MAIL.WELCOME_EMAIL_DOCUMENTS.getAction(), messages.getMessage("activationEmail.documents"));
 
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		
+		Map<String, Object> mailData = new HashMap<String, Object>();
+		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
+		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
 			producer.produceMail(
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(data));
-
-			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
-			data.put(FIELDS.TO.getAction(), admins.split(","));
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));
+					null, JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}		
@@ -105,25 +105,23 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void sendForgotPasswordMail(HttpServletRequest request, User user, String otp) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(FIELDS.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
+		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
 		Map<String, Object> model = new HashMap<>();
 		model.put(RESET_PASSWORD.USERNAME.getAction(), user.getUserName());
 		model.put(RESET_PASSWORD.OTP.getAction(), otp);
 		model.put(RESET_PASSWORD.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
 
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
+		Map<String, Object> mailData = new HashMap<String, Object>();
+		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
+		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
 			producer.produceMail(
 					RabbitMqConnection.EXCHANGE,
 					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(data));
-
-			String admins = PropertyFileUtil.fetchProperty("config.properties", "mail_bcc");
-			data.put(FIELDS.TO.getAction(), admins.split(","));
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
-					JsonUtil.mapToJSON(data));
+					null, JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
