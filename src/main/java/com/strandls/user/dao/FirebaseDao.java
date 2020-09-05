@@ -14,7 +14,7 @@ import com.strandls.user.util.AbstractDAO;
 public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 
 	private final Logger logger = LoggerFactory.getLogger(FirebaseDao.class);
-	
+
 	@Inject
 	protected FirebaseDao(SessionFactory sessionFactory) {
 		super(sessionFactory);
@@ -33,7 +33,7 @@ public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 		}
 		return entity;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public FirebaseTokens getToken(Long id, String firebaseToken) {
 		Session session = sessionFactory.openSession();

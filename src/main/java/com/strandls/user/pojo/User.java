@@ -69,6 +69,7 @@ public class User implements Serializable {
 	private Boolean identificationMail;
 	private Boolean sendDigest;
 	private Boolean sendPushNotification;
+	private String website;
 	private Set<FirebaseTokens> tokens;
 
 	public User() {
@@ -368,6 +369,15 @@ public class User implements Serializable {
 	
 	public void setSendPushNotification(Boolean sendPushNotification) {
 		this.sendPushNotification = sendPushNotification;
+	}
+	
+	@Column(name = "website")
+	public String getWebsite() {
+		return website;
+	}
+	
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user")

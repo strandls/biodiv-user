@@ -3,38 +3,36 @@
  */
 package com.strandls.user.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.pac4j.core.profile.CommonProfile;
 
 import com.rabbitmq.client.Channel;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
-import com.strandls.user.dao.SpeciesPermissionDao;
 import com.strandls.user.dao.UserDao;
-import com.strandls.user.dao.UserGroupMemberRoleDao;
 import com.strandls.user.dto.FirebaseDTO;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
-import com.strandls.user.pojo.GroupAddMember;
 import com.strandls.user.pojo.Role;
-import com.strandls.user.pojo.SpeciesPermission;
 import com.strandls.user.pojo.User;
-import com.strandls.user.pojo.UserGroupMemberRole;
-import com.strandls.user.pojo.UserGroupMembersCount;
 import com.strandls.user.pojo.UserIbp;
-import com.strandls.user.pojo.UserPermissions;
+import com.strandls.user.pojo.requests.UserDetails;
+import com.strandls.user.pojo.requests.UserEmailPreferences;
+import com.strandls.user.pojo.requests.UserRoles;
 import com.strandls.user.service.UserService;
+import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.NotificationScheduler;
+import com.strandls.user.util.UnAuthorizedUser;
+
+import net.minidev.json.JSONArray;
 
 /**
  * @author Abhishek Rudra
@@ -42,16 +40,8 @@ import com.strandls.user.util.NotificationScheduler;
  */
 public class UserServiceImpl implements UserService {
 
-	private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
 	@Inject
 	private UserDao userDao;
-
-	@Inject
-	private SpeciesPermissionDao speciesPermissionDao;
-
-	@Inject
-	private UserGroupMemberRoleDao userGroupMemberDao;
 
 	@Inject
 	private FirebaseDao firebaseDao;
@@ -65,6 +55,95 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
+		return user;
+	}
+
+	private Long validateUserForEdits(HttpServletRequest request, Long inputUserId) throws UnAuthorizedUser {
+		boolean isAdmin = false;
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+		if (roles.contains("ROLE_ADMIN"))
+			isAdmin = true;
+
+		Long profileId = Long.parseLong(profile.getId());
+
+		if (inputUserId == null)
+			return profileId;
+
+		if (!isAdmin && !inputUserId.equals(profileId))
+			throw new UnAuthorizedUser("Only admin can edit other users");
+
+		return inputUserId;
+	}
+	
+	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser{
+		userId = validateUserForEdits(request, userId);
+		User user = userDao.findById(userId);
+		
+		user.setProfilePic(profilePic);
+		
+		user = userDao.update(user);
+		return user;
+	}
+
+	@Override
+	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUser {
+
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
+
+		user.setUserName(inputUser.getUserName());
+		user.setName(inputUser.getName());
+		user.setSexType(inputUser.getSexType());
+		user.setOccupation(inputUser.getOccupation());
+		user.setInstitution(inputUser.getInstitution());
+		user.setLocation(inputUser.getLocation());
+		user.setLatitude(inputUser.getLatitude());
+		user.setLongitude(inputUser.getLongitude());
+		user.setAboutMe(inputUser.getAboutMe());
+		user.setWebsite(inputUser.getWebsite());
+		// TODO : Species group and habitat id
+		if (AuthUtility.isAdmin(request)) {
+			user.setEmail(inputUser.getEmail());
+			user.setMobileNumber(inputUser.getMobileNumber());
+		}
+		user = userDao.update(user);
+		return user;
+	}
+
+	@Override
+	public User updateEmailPreferences(HttpServletRequest request, UserEmailPreferences inputUser)
+			throws UnAuthorizedUser {
+
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
+
+		user.setIdentificationMail(inputUser.getIdentificationMail());
+		user.setSendNotification(inputUser.getSendNotification());
+		user.setHideEmial(inputUser.getHideEmial());
+		user.setSendDigest(inputUser.getSendDigest());
+		user = userDao.update(user);
+
+		return user;
+	}
+
+	@Override
+	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUser {
+
+		Long inputUserId = validateUserForEdits(request, inputUser.getId());
+		User user = userDao.findById(inputUserId);
+
+		if (inputUser.getRoles() == null)
+			return user;
+
+		user.setEnabled(inputUser.getEnabled());
+		user.setAccountExpired(inputUser.getAccountExpired());
+		user.setAccountLocked(inputUser.getAccountLocked());
+		user.setPasswordExpired(inputUser.getPasswordExpired());
+		user.setRoles(inputUser.getRoles());
+		
+		user = userDao.update(user);
+		
 		return user;
 	}
 
@@ -103,22 +182,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserPermissions getUserPermissions(Long userId, String type, Long objectId) {
-		List<SpeciesPermission> allowedTaxonList = speciesPermissionDao.findByUserId(userId);
-		List<UserGroupMemberRole> userMemberRole = userGroupMemberDao.getUserGroup(userId);
-		List<UserGroupMemberRole> userFeatureRole = userGroupMemberDao.findUserGroupbyUserIdRole(userId);
-		Boolean following = null;
-		if (type != null || objectId != null) {
-			Follow follow = fetchByFollowObject(type, objectId, userId);
-			following = false;
-			if (follow != null)
-				following = true;
-		}
-		UserPermissions permissions = new UserPermissions(allowedTaxonList, userMemberRole, userFeatureRole, following);
-		return permissions;
-	}
-
-	@Override
 	public User updateUser(User user) {
 		return userDao.update(user);
 	}
@@ -136,6 +199,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow fetchByFollowObject(String objectType, Long objectId, Long authorId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
 		Follow follow = followDao.findByObject(objectType, objectId, authorId);
 		return follow;
 	}
@@ -148,6 +215,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow updateFollow(String objectType, Long objectId, Long userId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
 		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow == null) {
 			follow = new Follow(null, 0L, objectId, objectType, userId, new Date());
@@ -158,20 +229,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Follow unFollow(String type, Long objectId, Long userId) {
-		Follow follow = followDao.findByObject(type, objectId, userId);
+	public Follow unFollow(String objectType, Long objectId, Long userId) {
+		if (objectType.equalsIgnoreCase("observation"))
+			objectType = "species.participation.Observation";
+		else if (objectType.equalsIgnoreCase("document"))
+			objectType = "content.eml.Document";
+		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow != null) {
 			follow = followDao.delete(follow);
 		}
 		return follow;
-	}
-
-	@Override
-	public Boolean checkUserGroupMember(Long userId, Long userGroupId) {
-		UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-		if (result != null)
-			return true;
-		return false;
 	}
 
 	@Override
@@ -218,212 +285,4 @@ public class UserServiceImpl implements UserService {
 		scheduler.start();
 	}
 
-	@Override
-	public List<UserGroupMembersCount> getUserGroupMemberCount() {
-		List<UserGroupMembersCount> result = userGroupMemberDao.fetchMemberCountUserGroup();
-		return result;
-	}
-
-	@Override
-	public Boolean checkFounderRole(Long userId, Long userGroupId) {
-		try {
-			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-			Properties properties = new Properties();
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-			String founder = properties.getProperty("userGroupFounder");
-			in.close();
-			UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-			if (result != null && result.getRoleId().equals(Long.parseLong(founder)))
-				return true;
-			return false;
-
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		return null;
-	}
-
-	@Override
-	public Boolean checkModeratorRole(Long userId, Long userGroupId) {
-		try {
-			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-			Properties properties = new Properties();
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-			String founder = properties.getProperty("userGroupExpert");
-			in.close();
-			UserGroupMemberRole result = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-			if (result != null && result.getRoleId().equals(Long.parseLong(founder)))
-				return true;
-			return false;
-
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		return null;
-
-	}
-
-	@Override
-	public UserGroupMemberRole addMemberUG(Long userId, Long roleId, Long userGroupId) {
-		UserGroupMemberRole ugMemberRole = new UserGroupMemberRole(userGroupId, roleId, userId);
-		ugMemberRole = userGroupMemberDao.save(ugMemberRole);
-		return ugMemberRole;
-	}
-
-	@Override
-	public Boolean removeGroupMember(Long userId, Long userGroupId) {
-		try {
-			UserGroupMemberRole ugMember = userGroupMemberDao.findByUserGroupIdUserId(userGroupId, userId);
-			if (ugMember != null) {
-				userGroupMemberDao.delete(ugMember);
-				List<UserGroupMemberRole> members = userGroupMemberDao.fetchByUserGroupIdRole(userGroupId);
-				if (members == null || members.isEmpty()) {
-					InputStream in = Thread.currentThread().getContextClassLoader()
-							.getResourceAsStream("config.properties");
-					Properties properties = new Properties();
-					try {
-						properties.load(in);
-					} catch (IOException e) {
-						logger.error(e.getMessage());
-					}
-					Long founderId = Long.parseLong(properties.getProperty("userGroupFounder"));
-					Long portalAmdinId = Long.parseLong(properties.getProperty("portalAdminId"));
-					in.close();
-					ugMember = new UserGroupMemberRole(userGroupId, founderId, portalAmdinId);
-					userGroupMemberDao.save(ugMember);
-				}
-				return true;
-			}
-
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		return null;
-	}
-
-	@Override
-	public Boolean joinGroup(Long userId, Long userGroupId) {
-		try {
-			Boolean isOpenGroup = userGroupMemberDao.checksGroupType(userGroupId.toString());
-			if (isOpenGroup) {
-				InputStream in = Thread.currentThread().getContextClassLoader()
-						.getResourceAsStream("config.properties");
-				Properties properties = new Properties();
-				try {
-					properties.load(in);
-				} catch (IOException e) {
-					logger.error(e.getMessage());
-				}
-				Long memberId = Long.parseLong(properties.getProperty("userGroupMember"));
-				in.close();
-				Boolean alreadyMember = userGroupMemberDao.checkUserAlreadyMapped(userId, userGroupId, memberId);
-				if (!alreadyMember) {
-					UserGroupMemberRole ugMember = new UserGroupMemberRole(userGroupId, memberId, userId);
-					userGroupMemberDao.save(ugMember);
-					return true;
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		return false;
-	}
-
-	@Override
-	public List<Long> addMemberDirectly(GroupAddMember addMember) {
-		try {
-			Long roleId = addMember.getRoleId();
-			Long userGroupId = addMember.getRoleId();
-			List<Long> mappedUser = new ArrayList<Long>();
-			for (Long userId : addMember.getMemberList()) {
-				Boolean alreadyMember = userGroupMemberDao.checkUserAlreadyMapped(userId, userGroupId, roleId);
-				if (!alreadyMember) {
-					UserGroupMemberRole ugMemberRole = new UserGroupMemberRole(addMember.getUserGroupId(),
-							addMember.getRoleId(), userId);
-					userGroupMemberDao.save(ugMemberRole);
-					mappedUser.add(userId);
-				}
-
-			}
-			return mappedUser;
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-		return null;
-	}
-
-	@Override
-	public List<User> getFounderModerator(Long userGroupId) {
-		List<UserGroupMemberRole> ugMemberRoleList = userGroupMemberDao.findFounderModerator(userGroupId);
-		List<User> userList = new ArrayList<User>();
-		for (UserGroupMemberRole ugMemberRole : ugMemberRoleList) {
-			userList.add(userDao.findById(ugMemberRole.getsUserId()));
-		}
-		return userList;
-	}
-
-	@Override
-	public List<UserIbp> getFounderList(Long userGroupId) {
-		try {
-			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-			Properties properties = new Properties();
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-			String founder = properties.getProperty("userGroupFounder");
-			in.close();
-			List<UserGroupMemberRole> ugMemberList = userGroupMemberDao.findMemberListByRoleId(userGroupId,
-					Long.parseLong(founder));
-
-			List<UserIbp> result = new ArrayList<UserIbp>();
-			for (UserGroupMemberRole ugMember : ugMemberList) {
-				result.add(fetchUserIbp(ugMember.getsUserId()));
-			}
-			return result;
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		return null;
-	}
-
-	@Override
-	public List<UserIbp> getModeratorList(Long userGroupId) {
-		try {
-			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-			Properties properties = new Properties();
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-			String expert = properties.getProperty("userGroupExpert");
-			in.close();
-			List<UserGroupMemberRole> ugMemberList = userGroupMemberDao.findMemberListByRoleId(userGroupId,
-					Long.parseLong(expert));
-
-			List<UserIbp> result = new ArrayList<UserIbp>();
-			for (UserGroupMemberRole ugMember : ugMemberList) {
-				result.add(fetchUserIbp(ugMember.getsUserId()));
-			}
-			return result;
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		return null;
-	}
 }

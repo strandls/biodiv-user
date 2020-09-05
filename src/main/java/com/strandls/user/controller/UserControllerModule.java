@@ -20,5 +20,6 @@ public class UserControllerModule extends AbstractModule {
 		bind(AuthenticationController.class).in(Scopes.SINGLETON);
 		bind(GoogleResource.class).in(Scopes.SINGLETON);
 		bind(GoogleAuthorizationResource.class).in(Scopes.SINGLETON);
+		bind(RolesController.class).in(Scopes.SINGLETON);
 	}
 }

@@ -10,6 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.profile.CommonProfile;
@@ -19,9 +21,12 @@ import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.jwt.profile.JwtGenerator;
 
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.authentication_utility.util.PropertyFileUtil;
 import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
+
+import net.minidev.json.JSONArray;
 
 public class AuthUtility {
 
@@ -105,5 +110,13 @@ public class AuthUtility {
 	public static String[] getDefaultRoles() {
 		String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames").split(",");
 		return roleNames;
+	}
+	
+	public static boolean isAdmin(HttpServletRequest request) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+		if (roles.contains("ROLE_ADMIN"))
+			return true;
+		return false;
 	}
 }

@@ -29,6 +29,7 @@ import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.User;
+import com.strandls.user.pojo.requests.UserPasswordChange;
 import com.strandls.user.service.AuthenticationService;
 import com.strandls.user.service.RoleService;
 import com.strandls.user.service.UserService;
@@ -90,7 +91,7 @@ public class AuthenticationController {
 			}
 			if (mode == null || mode.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST)
-						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.VERIFICATION_MODE_REQUIRED)).build();	
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.VERIFICATION_MODE_REQUIRED)).build();
 			}
 			Map<String, Object> tokens = null;
 			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
@@ -326,4 +327,20 @@ public class AuthenticationController {
 		return Response.status(Status.OK).entity(data).build();
 	}
 
+	@POST
+	@Path(ApiConstants.CHANGE_PASSWORD)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Password Change", notes = "Returns the status", response = Map.class)
+	public Response changePassword(@Context HttpServletRequest request, @ApiParam(name = "user") UserPasswordChange inputUser) {
+		
+		if (inputUser.getPassword() == null || inputUser.getPassword().isEmpty()) {
+			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();
+		}
+		if (!inputUser.getPassword().equals(inputUser.getConfirmPassword())) {
+			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
+		}
+		Map<String, Object> data = authenticationService.changePassword(request, inputUser);
+		return Response.status(Status.OK).entity(data).build();
+	}
 }
