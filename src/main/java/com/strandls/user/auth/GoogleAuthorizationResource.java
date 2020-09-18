@@ -3,6 +3,7 @@ package com.strandls.user.auth;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,8 +28,6 @@ import org.apache.oltu.oauth2.jwt.io.JWTReader;
 import org.pac4j.core.profile.jwt.JwtClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.ApiConstants;
 import com.strandls.user.pojo.User;

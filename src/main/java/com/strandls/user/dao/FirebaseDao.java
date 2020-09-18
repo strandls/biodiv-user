@@ -1,12 +1,12 @@
 package com.strandls.user.dao;
 
+import javax.inject.Inject;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.util.AbstractDAO;
@@ -14,7 +14,7 @@ import com.strandls.user.util.AbstractDAO;
 public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 
 	private final Logger logger = LoggerFactory.getLogger(FirebaseDao.class);
-	
+
 	@Inject
 	protected FirebaseDao(SessionFactory sessionFactory) {
 		super(sessionFactory);
@@ -33,7 +33,8 @@ public class FirebaseDao extends AbstractDAO<FirebaseTokens, Long> {
 		}
 		return entity;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public FirebaseTokens getToken(Long id, String firebaseToken) {
 		Session session = sessionFactory.openSession();
 		String sql = "from FirebaseTokens f where f.token = :token and f.user.id = :id";
