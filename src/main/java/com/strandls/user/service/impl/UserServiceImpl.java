@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private FollowDao followDao;
-	
+
 	@Inject
 	Channel channel;
 
@@ -75,13 +75,13 @@ public class UserServiceImpl implements UserService {
 
 		return inputUserId;
 	}
-	
-	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser{
+
+	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser {
 		userId = validateUserForEdits(request, userId);
 		User user = userDao.findById(userId);
-		
+
 		user.setProfilePic(profilePic);
-		
+
 		user = userDao.update(user);
 		return user;
 	}
@@ -141,9 +141,9 @@ public class UserServiceImpl implements UserService {
 		user.setAccountLocked(inputUser.getAccountLocked());
 		user.setPasswordExpired(inputUser.getPasswordExpired());
 		user.setRoles(inputUser.getRoles());
-		
+
 		user = userDao.update(user);
-		
+
 		return user;
 	}
 
@@ -158,7 +158,8 @@ public class UserServiceImpl implements UserService {
 				break;
 			}
 		}
-		UserIbp ibp = new UserIbp(user.getId(), user.getName(), user.getProfilePic(), isAdmin);
+		UserIbp ibp = new UserIbp(user.getId(), user.getName(),
+				user.getProfilePic() != null ? user.getProfilePic() : user.getIcon(), isAdmin);
 		return ibp;
 	}
 
