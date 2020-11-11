@@ -33,6 +33,7 @@ public class ApiConstants {
 	public static final String REGENERATE_OTP = "/regenerate-otp";
 	public static final String FORGOT_PASSWORD = "/forgot-password";
 	public static final String RESET_PASSWORD = "/reset-password";
+	public static final String CHANGE_PASSWORD = "/change-password";
 	public static final String FOLLOW = "/follow";
 	public static final String OBJECTFOLLOW = "/objectfollow";
 	public static final String USERFOLLOW = "/userfollow";
@@ -54,5 +55,12 @@ public class ApiConstants {
 	public static final String MODERATORLIST = "/moderatorList";
 	public static final String BULK = "/bulk";
 	public static final String SEND_NOTIFICATION = "/send-notification";
+	
+	public static final String UPDATE = "/update";
+	public static final String IMAGE = "/image";
+	public static final String DETAILS = "/details";
+	public static final String EMAIL_PREFERENCES = "/emailPreferences";
+	public static final String ROLES = "/roles";
+
 
 }

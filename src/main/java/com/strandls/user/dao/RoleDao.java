@@ -1,11 +1,11 @@
 package com.strandls.user.dao;
 
+import javax.inject.Inject;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 import com.strandls.user.pojo.Role;
 import com.strandls.user.util.AbstractDAO;

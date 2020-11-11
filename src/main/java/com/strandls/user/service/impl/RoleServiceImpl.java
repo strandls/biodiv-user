@@ -1,6 +1,7 @@
 package com.strandls.user.service.impl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -28,4 +29,8 @@ public class RoleServiceImpl implements RoleService {
 		return roles;
 	}
 
+	@Override
+	public List<Role> getAllRoles() {
+		return roleDao.findAll();
+	}
 }
