@@ -8,6 +8,8 @@ package com.strandls.user;
  *
  */
 public class ApiConstants {
+	
+	private ApiConstants() {}
 
 	// ------------VERSIONING-------------
 	public static final String V1 = "/v1";

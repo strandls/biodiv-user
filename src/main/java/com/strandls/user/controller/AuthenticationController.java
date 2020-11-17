@@ -1,6 +1,7 @@
 package com.strandls.user.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.strandls.user.ApiConstants;
+import com.strandls.user.Constants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.dto.UserDTO;
 import com.strandls.user.pojo.User;
@@ -94,7 +96,7 @@ public class AuthenticationController {
 				return Response.status(Status.BAD_REQUEST)
 						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.VERIFICATION_MODE_REQUIRED)).build();
 			}
-			Map<String, Object> tokens = null;
+			Map<String, Object> tokens = new HashMap<>();
 			if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.MANUAL.getAction())) {
 				tokens = this.authenticationService.authenticateUser(userEmail, password);
 			} else if (mode.equalsIgnoreCase(AppUtil.AUTH_MODE.OAUTH_GOOGLE.getAction())) {
@@ -105,7 +107,7 @@ public class AuthenticationController {
 						return Response.status(Status.BAD_REQUEST)
 								.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.USER_NOT_FOUND)).build();
 					}
-					if (user.getAccountLocked()) {
+					if (user.getAccountLocked().booleanValue()) {
 						user.setRoles(roleService.setDefaultRoles(AuthUtility.getDefaultRoles()));
 						user.setAccountLocked(false);
 						user.setLastLoginDate(new Date());
@@ -113,19 +115,19 @@ public class AuthenticationController {
 					}
 					CommonProfile profile = AuthUtility.createUserProfile(user);
 					tokens = authenticationService.buildTokens(profile, user, true);
-					tokens.put("status", true);
+					tokens.put(Constants.STATUS, true);
 					tokens.put("verificationRequired", false);
 				} else {
 					return Response.status(Status.BAD_REQUEST).entity("Token expired").build();
 				}
 			}
-			boolean status = Boolean.parseBoolean(tokens.get("status").toString());
+			boolean status = Boolean.parseBoolean(tokens.get(Constants.STATUS).toString());
 			boolean verification = Boolean.parseBoolean(tokens.get("verificationRequired").toString());
 			ResponseBuilder response = Response.ok().entity(tokens);
 			if (status && !verification) {
-				NewCookie accessToken = new NewCookie("BAToken", tokens.get("access_token").toString(), "/",
+				NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString(), "/",
 						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
-				NewCookie refreshToken = new NewCookie("BRToken", tokens.get("refresh_token").toString(), "/",
+				NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, tokens.get(Constants.REFRESH_TOKEN).toString(), "/",
 						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 				return response.cookie(accessToken).cookie(refreshToken).build();
 			} else {
@@ -154,8 +156,8 @@ public class AuthenticationController {
 			// tokens
 			Map<String, Object> tokens = this.authenticationService.buildTokens(profile,
 					this.userService.fetchUser(Long.parseLong(profile.getId())), true);
-			return Response.status(Status.OK).cookie(new NewCookie("BAToken", tokens.get("access_token").toString()))
-					.cookie(new NewCookie("BRToken", tokens.get("refresh_token").toString())).entity(tokens).build();
+			return Response.status(Status.OK).cookie(new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString()))
+					.cookie(new NewCookie(Constants.BR_TOKEN, tokens.get(Constants.REFRESH_TOKEN).toString())).entity(tokens).build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -268,10 +270,10 @@ public class AuthenticationController {
 			return Response.status(Status.BAD_REQUEST).entity("OTP Cannot be empty").build();
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
-		if (Boolean.parseBoolean(result.get("status").toString())) {
-			NewCookie accessToken = new NewCookie("BAToken", result.get("access_token").toString(), "/",
+		if (Boolean.parseBoolean(result.get(Constants.STATUS).toString())) {
+			NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, result.get(Constants.ACCESS_TOKEN).toString(), "/",
 					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie("BRToken", result.get("refresh_token").toString(), "/",
+			NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, result.get(Constants.REFRESH_TOKEN).toString(), "/",
 					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}

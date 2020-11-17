@@ -22,17 +22,17 @@ public class MailUtil {
 	private String text;
 	private boolean isHtml;
 	
-	private final static String username;
-	private final static String password;
-	private final static String smtpHost;
-	private final static String smtpPort;
+	private final static String USERNAME;
+	private final static String PASSWORD;
+	private final static String SMTPHOST;
+	private final static String SMTPPORT;
 
 	static {
 		Properties prop = PropertyFileUtil.fetchProperty("config.properties");
-		username = prop.getProperty("mail_smtp_username");
-		password = prop.getProperty("mail_smtp_password");
-		smtpHost = prop.getProperty("mail_smtp_host");
-		smtpPort = prop.getProperty("mail_smtp_port");
+		USERNAME = prop.getProperty("mail_smtp_username");
+		PASSWORD = prop.getProperty("mail_smtp_password");
+		SMTPHOST = prop.getProperty("mail_smtp_host");
+		SMTPPORT = prop.getProperty("mail_smtp_port");
 	}
 	
 	public MailUtil() {}
@@ -47,15 +47,18 @@ public class MailUtil {
 
 	public void sendMail() throws MessagingException, AddressException {
 		Properties props = new Properties();
-		props.put("mail.smtp.host", smtpHost);
-		props.put("mail.smtp.socketFactory.port", smtpPort);
+		props.put("mail.smtp.host", SMTPHOST);
+		props.put("mail.smtp.socketFactory.port", SMTPPORT);
 		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", smtpPort);
+		props.put("mail.smtp.ssl.checkserveridentity", true);
+		props.put("mail.smtp.port", SMTPPORT);
 		
 		Session session = Session.getDefaultInstance(props, new Authenticator() {
+			
+			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
+				return new PasswordAuthentication(USERNAME, PASSWORD);
 			}
 		});
 

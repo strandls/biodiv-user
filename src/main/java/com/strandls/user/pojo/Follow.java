@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.strandls.user.pojo;
 
 import java.io.Serializable;

@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -19,6 +20,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletContextEvent;
 
@@ -113,7 +115,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 			for (Annotation annotation : annotations) {
 				if (annotation instanceof javax.persistence.Entity) {
-					System.out.println("Mapping entity :" + cls.getCanonicalName());
+					logger.debug("Mapping entity : {}", cls.getCanonicalName());
 					classes.add(cls);
 				}
 			}
@@ -131,15 +133,17 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 		URI uri = new URI(packageURL.toString());
 		File folder = new File(uri.getPath());
-
-		Files.find(Paths.get(folder.getAbsolutePath()), 999, (p, bfa) -> bfa.isRegularFile()).forEach(file -> {
-			String name = file.toFile().getAbsolutePath().replaceAll(folder.getAbsolutePath() + File.separatorChar, "")
-					.replace(File.separatorChar, '.');
-			if (name.indexOf('.') != -1) {
-				name = packageName + '.' + name.substring(0, name.lastIndexOf('.'));
-				names.add(name);
-			}
-		});
+		
+		try (Stream<Path> list = Files.find(Paths.get(folder.getAbsolutePath()), 999, (p, bfa) -> bfa.isRegularFile())) {
+			list.forEach(file -> {
+				String name = file.toFile().getAbsolutePath().replaceAll(folder.getAbsolutePath() + File.separatorChar, "")
+						.replace(File.separatorChar, '.');
+				if (name.indexOf('.') != -1) {
+					name = packageName + '.' + name.substring(0, name.lastIndexOf('.'));
+					names.add(name);
+				}
+			});			
+		}
 
 		return names;
 	}

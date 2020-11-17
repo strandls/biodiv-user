@@ -29,6 +29,10 @@ import com.strandls.user.pojo.User;
 import net.minidev.json.JSONArray;
 
 public class AuthUtility {
+	
+	private AuthUtility() {}
+	
+	private static final String CONFIG = "config.properties";
 
 	public static CommonProfile createUserProfile(User user) {
 		if (user == null)
@@ -74,7 +78,7 @@ public class AuthUtility {
 
 	public static String buildTokenWithProp(String key, String value) {
 		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
-				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
+				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty(CONFIG, "jwtSalt")));
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(key, value);
 		return generator.generate(claims);
@@ -83,7 +87,7 @@ public class AuthUtility {
 	public static String verifyTokenWithProp(String token) {
 		JwtAuthenticator authenticator = new JwtAuthenticator();
 		authenticator.addSignatureConfiguration(
-				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
+				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty(CONFIG, "jwtSalt")));
 		CommonProfile profile = authenticator.validateToken(token);
 		return profile.getAttribute(JwtClaims.SUBJECT).toString();
 	}
@@ -108,7 +112,7 @@ public class AuthUtility {
 	}
 
 	public static String[] getDefaultRoles() {
-		String[] roleNames = PropertyFileUtil.fetchProperty("config.properties", "user.defaultRoleNames").split(",");
+		String[] roleNames = PropertyFileUtil.fetchProperty(CONFIG, "user.defaultRoleNames").split(",");
 		return roleNames;
 	}
 	

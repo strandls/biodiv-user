@@ -47,13 +47,16 @@ public class RabbitMqConnection {
 		factory.setPort(PORT);
 		factory.setUsername(USERNAME);
 		factory.setPassword(PASSWORD);
-		Connection connection = factory.newConnection();
-		Channel channel = connection.createChannel();
-		channel.exchangeDeclare(EXCHANGE, "direct");
-		channel.queueDeclare(QUEUE, false, false, false, null);
-		channel.queueDeclare(NOTIFICATION_QUEUE, false, false, false, null);
-		channel.queueBind(QUEUE, EXCHANGE, ROUTING_KEY);
-		channel.queueBind(NOTIFICATION_QUEUE, EXCHANGE, NOTIFICATION_ROUTING_KEY);
-		return channel;
+		try (Connection connection = factory.newConnection()) {
+			try (Channel channel = connection.createChannel()) {
+				
+				channel.exchangeDeclare(EXCHANGE, "direct");
+				channel.queueDeclare(QUEUE, false, false, false, null);
+				channel.queueDeclare(NOTIFICATION_QUEUE, false, false, false, null);
+				channel.queueBind(QUEUE, EXCHANGE, ROUTING_KEY);
+				channel.queueBind(NOTIFICATION_QUEUE, EXCHANGE, NOTIFICATION_ROUTING_KEY);
+				return channel;				
+			}
+		}
 	}
 }
