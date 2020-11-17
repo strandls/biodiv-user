@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
@@ -57,9 +58,9 @@ public class UserDao extends AbstractDAO<User, Long> {
 		String hql = "from User u where u.email = :email";
 		User entity = null;
 		try {
-			Query<User> query = session.createQuery(hql); 
+			Query<User> query = session.createQuery(hql);
 			query.setParameter("email", email);
-			
+
 			entity = query.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -68,30 +69,16 @@ public class UserDao extends AbstractDAO<User, Long> {
 		}
 		return entity;
 	}
-	
-	public User findById(Long id, boolean activity) {
-		Session session = sessionFactory.openSession();
-		User entity = null;
-		try {
-			entity = session.get(User.class, id);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		} finally {
-			session.close();
-		}
 
-		return entity;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public User findByUserMobile(String mobileNumber) {
 		Session session = sessionFactory.openSession();
 		String hql = "from User u where u.mobileNumber = :mobileNumber";
 		User entity = null;
 		try {
-			Query<User> query = session.createQuery(hql); 
+			Query<User> query = session.createQuery(hql);
 			query.setParameter("mobileNumber", mobileNumber);
-			
+
 			entity = query.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -100,16 +87,16 @@ public class UserDao extends AbstractDAO<User, Long> {
 		}
 		return entity;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public User findByUserEmailOrMobile(String data) {
 		Session session = sessionFactory.openSession();
 		String hql = "from User u where u.email = :data or u.mobileNumber = :data";
 		User entity = null;
 		try {
-			Query<User> query = session.createQuery(hql); 
+			Query<User> query = session.createQuery(hql);
 			query.setParameter("data", data);
-			
+
 			entity = query.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -118,20 +105,22 @@ public class UserDao extends AbstractDAO<User, Long> {
 		}
 		return entity;
 	}
-	
+
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	public List<User> findNames(String phrase) {
 		Session session = sessionFactory.openSession();
-		List<User> entity = new ArrayList<User>();
+		List<User> entity = new ArrayList<>();
 		try {
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("accountLocked", false));
 			criteria.add(Restrictions.like("name", phrase, MatchMode.ANYWHERE).ignoreCase());
 			criteria.setMaxResults(10);
-			criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+			criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 			entity.addAll(criteria.list());
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
+		} finally {
+			session.close();
 		}
 		return entity;
 	}

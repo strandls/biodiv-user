@@ -24,6 +24,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -56,6 +58,7 @@ import io.swagger.annotations.ApiResponses;
 @Api("User Service")
 @Path(ApiConstants.V1 + ApiConstants.USER)
 public class UserController {
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Inject
 	private UserService userService;
@@ -64,7 +67,7 @@ public class UserController {
 	@Path(ApiConstants.PING)
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value = "Dummy API Ping", notes = "Checks validity of war file at deployment", response = String.class)
-	public Response ping() throws Exception {
+	public Response ping() {
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 
@@ -170,7 +173,7 @@ public class UserController {
 
 	public Response getUserIbbpBulk(@QueryParam("userIds") String userIds) {
 		try {
-			List<Long> uIds = new ArrayList<Long>();
+			List<Long> uIds = new ArrayList<>();
 			for (String uId : userIds.split(","))
 				uIds.add(Long.parseLong(uId));
 			List<UserIbp> result = userService.fetchUserIbpBulk(uIds);
@@ -338,9 +341,9 @@ public class UserController {
 		try {
 			List<Recipients> users = UserConverter
 					.convertToRecipientList(userService.fetchRecipients(objectType, objectId));
-			System.out.println("***** Total Recipients #: " + users.size() + " *****");
+			logger.debug("***** Total Recipients #: {} *****", users.size());
 			for (Recipients recipient : users) {
-				System.out.println("***** Recipient #: " + recipient.getId() + " *****");
+				logger.debug("***** Recipient #: {} *****", recipient.getId());
 			}
 			return Response.ok().entity(users).build();
 		} catch (Exception ex) {

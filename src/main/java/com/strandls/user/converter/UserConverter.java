@@ -14,6 +14,8 @@ import com.strandls.user.pojo.UserIbp;
 
 public class UserConverter {
 	
+	private UserConverter() {}
+	
 	public static UserDTO convertToDTO(User user) {
 		UserDTO dto = new UserDTO();
 		dto.setId(user.getId());

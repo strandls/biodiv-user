@@ -26,10 +26,10 @@ public class GoogleRecaptchaCheck {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-//	private static final String GOOGLE_SECRET_KEY = "googleRecaptchaSecret";
 	private static final String GOOGLE_API_ENDPOINT = "https://www.google.com/recaptcha/api/siteverify";
 
 	public GoogleRecaptchaCheck() {
+		// Constructor
 	}
 
 	public boolean isRobot(String userResponse) throws IOException {
@@ -38,7 +38,7 @@ public class GoogleRecaptchaCheck {
 		
 		HttpPost postRequest = new HttpPost(GOOGLE_API_ENDPOINT);
 		
-		List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
+		List<NameValuePair> postParameters = new ArrayList<>();
 		
 		postParameters.add(new BasicNameValuePair("secret", PropertyFileUtil.fetchProperty("config.properties", "recaptchaSecret")));
 		postParameters.add(new BasicNameValuePair("response", userResponse));
@@ -56,12 +56,8 @@ public class GoogleRecaptchaCheck {
 				
 				Map<String,Object> json = null;
 				json = mapper.readValue(body, new TypeReference<Map<String,Object>>(){});
-				
-				log.debug(json.toString());
-				if (json != null && ((Boolean) json.get("success")).booleanValue() == true) {
-					return false;
-				}
-				return true;
+
+				return ((Boolean) json.get("success")).booleanValue();
 			}
 			return true;
 		} finally {

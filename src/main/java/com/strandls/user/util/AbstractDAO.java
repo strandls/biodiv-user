@@ -11,6 +11,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.query.Query;
 
 public abstract class AbstractDAO<T, K extends Serializable> {
@@ -81,20 +82,33 @@ public abstract class AbstractDAO<T, K extends Serializable> {
 	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<T> findAll() {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(daoType);
-		List<T> entities = criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+		List<T> entities = new ArrayList<>();
+		try {
+			Criteria criteria = session.createCriteria(daoType);
+			entities = criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY).list();
+		} catch (Exception ex) {
+			throw new NoResultException(ex.getMessage());
+		} finally {
+			session.close();
+		}
 		return entities;
 	}
 
 	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<T> findAll(int limit, int offset) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(daoType).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-		List<T> entities = criteria.setFirstResult(offset).setMaxResults(limit).list();
+		List<T> entities = new ArrayList<>();
+		try {
+			Criteria criteria = session.createCriteria(daoType).setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+			entities = criteria.setFirstResult(offset).setMaxResults(limit).list();			
+		} catch (NoResultException ex) {
+			throw new NoResultException(ex.getMessage());
+		} finally {
+			session.close();
+		}
 		return entities;
 	}
 
-	// TODO:improve this to do dynamic finder on any property
 	@SuppressWarnings("unchecked")
 	public T findByPropertyWithCondition(String property, String value, String condition) {
 		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " " + condition
@@ -105,11 +119,12 @@ public abstract class AbstractDAO<T, K extends Serializable> {
 
 		T entity = null;
 		try {
-			entity = (T) query.getSingleResult();
-		} catch (NoResultException e) {
-			throw e;
+			entity = query.getSingleResult();
+		} catch (Exception e) {
+			throw new NoResultException(e.getMessage());
+		} finally {
+			session.close();
 		}
-		session.close();
 		return entity;
 
 	}
@@ -122,14 +137,14 @@ public abstract class AbstractDAO<T, K extends Serializable> {
 		Query<T> query = session.createQuery(queryStr);
 		query.setParameter("value", value);
 
-		List<T> resultList = new ArrayList<T>();
+		List<T> resultList = new ArrayList<>();
 		try {
 			if (limit > 0 && offset >= 0)
 				query = query.setFirstResult(offset).setMaxResults(limit);
 			resultList = query.getResultList();
 
 		} catch (NoResultException e) {
-			throw e;
+			throw new NoResultException(e.getMessage());
 		}
 		session.close();
 		return resultList;
