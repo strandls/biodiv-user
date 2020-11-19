@@ -70,6 +70,7 @@ public class User implements Serializable {
 	private Boolean sendDigest;
 	private Boolean sendPushNotification;
 	private String website;
+	private Boolean isDeleted;
 	private Set<FirebaseTokens> tokens;
 
 	public User() {
@@ -387,6 +388,15 @@ public class User implements Serializable {
 	
 	public void setTokens(Set<FirebaseTokens> tokens) {
 		this.tokens = tokens;
+	}
+
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 }

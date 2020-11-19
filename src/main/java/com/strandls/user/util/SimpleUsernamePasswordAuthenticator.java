@@ -53,6 +53,8 @@ public class SimpleUsernamePasswordAuthenticator implements Authenticator<Userna
 		}
 		if (user == null) {
 			throwsException("Not a valid user");
+		} else if (user.getIsDeleted().booleanValue()) {
+			throwsException("User deleted");
 		}
 		// TODO: using null salt and MD5 algorithm. Not safe. Upgrade to BCrypt
 		else if (!passwordEncoder.isPasswordValid(user.getPassword(), password, null)) {

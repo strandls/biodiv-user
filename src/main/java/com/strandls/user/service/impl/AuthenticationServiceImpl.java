@@ -377,6 +377,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				data.put("status", false);
 				data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 				return data;
+			} else if (user.getIsDeleted().booleanValue()) {
+				logger.error("User deleted");
+				data.put("status", false);
+				data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+				return data;				
 			}
 			String otp = AppUtil.generateOTP();
 			verification.setAction(VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
@@ -433,6 +438,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					data.put("status", false);
 					data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 					return data;
+				} else if (user.getIsDeleted().booleanValue()) {
+					logger.error("User deleted");
+					data.put("status", false);
+					data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+					return data;				
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 				user.setPassword(passwordEncoder.encodePassword(password, null));
@@ -466,6 +476,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			data.put("status", false);
 			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
+		} else if (user.getIsDeleted().booleanValue()) {
+			logger.error("User deleted");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+			return data;				
 		}
 
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
@@ -486,6 +501,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
 
 		return data;
+	}
+
+	@Override
+	public String deleteUser(HttpServletRequest request, Long userId) {
+		try {
+			User user = userService.fetchUser(userId);
+			user.setIsDeleted(Boolean.TRUE);
+			userService.updateUser(user);
+			return "deleted";
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		return null;
 	}
 
 }
