@@ -378,6 +378,7 @@ public class AuthenticationController {
 			}
 			return Response.status(Status.OK).entity("USER NOT ALLOWED TO PERFORM THE TASK").build();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
