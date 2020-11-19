@@ -50,9 +50,9 @@ public class SimpleUsernamePasswordAuthenticator implements Authenticator<Userna
 			log.error("No user with email {}", username);
 		}
 		if (user == null) {
-			throwsException("Not a valid user");
+			throw new CredentialsException("Not a valid user");
 		} else if (user.getIsDeleted().booleanValue()) {
-			throwsException("User deleted");
+			throw new CredentialsException("User deleted");
 		}
 		else if (!passwordEncoder.isPasswordValid(user.getPassword(), password, null)) {
 			throw new CredentialsException("Password is not valid");
