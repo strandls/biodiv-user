@@ -505,17 +505,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return data;
 	}
 
-	@Override
-	public String deleteUser(HttpServletRequest request, Long userId) {
-		try {
-			User user = userService.fetchUser(userId);
-			user.setIsDeleted(Boolean.TRUE);
-			userService.updateUser(user);
-			return "deleted";
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-		}
-		return null;
-	}
-
 }

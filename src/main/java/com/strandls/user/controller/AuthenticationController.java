@@ -7,12 +7,10 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -28,8 +26,6 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.strandls.authentication_utility.filter.ValidateUser;
-import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
@@ -46,13 +42,10 @@ import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.minidev.json.JSONArray;
 
 @Api("Authentication Service")
 @Path(ApiConstants.V1 + ApiConstants.AUTHENTICATE)
@@ -352,35 +345,5 @@ public class AuthenticationController {
 		}
 		Map<String, Object> data = authenticationService.changePassword(request, inputUser);
 		return Response.status(Status.OK).entity(data).build();
-	}
-
-	@DELETE
-	@Path(ApiConstants.DELETE + "/{userId}")
-	@ValidateUser
-	@ApiOperation(value = "Delete an existing user", notes = "Gets the user id and deletes the user", response = String.class)
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "authorization", paramType = "header")
-	})
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to delete the user", response = String.class) })
-
-	public Response deleteUser(@Context HttpServletRequest request, @PathParam("userId") String userId) {
-		try {
-			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-			JSONArray userRole = (JSONArray) profile.getAttribute("roles");
-
-			if (userRole.contains("ROLE_ADMIN")) {
-				Long user = Long.parseLong(userId);
-				if (!profile.getId().equalsIgnoreCase(userId)) {
-					String data = authenticationService.deleteUser(request, user);
-					return Response.status(Status.OK).entity(data).build();
-				}
-				return Response.status(Status.OK).entity("CANNOT DELETE SELF").build();
-			}
-			return Response.status(Status.OK).entity("USER NOT ALLOWED TO PERFORM THE TASK").build();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			logger.error(ex.getMessage());
-			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
-		}
 	}
 }
