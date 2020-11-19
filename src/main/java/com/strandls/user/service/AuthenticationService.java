@@ -21,5 +21,6 @@ public interface AuthenticationService {
 	public Map<String, Object> forgotPassword(HttpServletRequest request, String verificationId);
 	public Map<String, Object> resetPassword(HttpServletRequest request, Long id, String otp, String password);
 	public Map<String, Object> changePassword(HttpServletRequest request, UserPasswordChange inputUser);
+	public String deleteUser(HttpServletRequest request, Long userId);
 	
 }
