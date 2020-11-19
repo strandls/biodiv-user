@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,12 +25,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dto.FirebaseDTO;
+import com.strandls.user.exception.UserNotFoundException;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
@@ -43,10 +47,13 @@ import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.UnAuthorizedUser;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import net.minidev.json.JSONArray;
 
 /**
  * @author Abhishek Rudra
@@ -56,6 +63,8 @@ import io.swagger.annotations.ApiResponses;
 @Api("User Service")
 @Path(ApiConstants.V1 + ApiConstants.USER)
 public class UserController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Inject
 	private UserService userService;
@@ -82,6 +91,9 @@ public class UserController {
 
 			Long uId = Long.parseLong(userId);
 			User user = userService.fetchUser(uId);
+			if (!user.getIsDeleted().booleanValue()) {
+				throw new UserNotFoundException("User deleted");
+			}
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
 			return Response.status(Status.NOT_FOUND).build();
@@ -378,6 +390,35 @@ public class UserController {
 			return Response.status(Status.OK).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@DELETE
+	@Path(ApiConstants.DELETE + "/{userId}")
+	@ValidateUser
+	@ApiOperation(value = "Delete an existing user", notes = "Gets the user id and deletes the user", response = String.class)
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "authorization", paramType = "header")
+	})
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Unable to delete the user", response = String.class) })
+
+	public Response deleteUser(@Context HttpServletRequest request, @PathParam("userId") String userId) {
+		try {
+			CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+			JSONArray userRole = (JSONArray) profile.getAttribute("roles");
+
+			if (userRole.contains("ROLE_ADMIN")) {
+				Long user = Long.parseLong(userId);
+				if (!profile.getId().equalsIgnoreCase(userId)) {
+					String data = userService.deleteUser(request, user);
+					return Response.status(Status.OK).entity(data).build();
+				}
+				return Response.status(Status.OK).entity("CANNOT DELETE SELF").build();
+			}
+			return Response.status(Status.OK).entity("USER NOT ALLOWED TO PERFORM THE TASK").build();
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}
 	}
 

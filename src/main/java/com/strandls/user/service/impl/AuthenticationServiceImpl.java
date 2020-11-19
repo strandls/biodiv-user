@@ -50,7 +50,7 @@ import com.strandls.user.util.ValidationUtil;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
 	@Inject
 	private UserService userService;
@@ -501,19 +501,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
 
 		return data;
-	}
-
-	@Override
-	public String deleteUser(HttpServletRequest request, Long userId) {
-		try {
-			User user = userService.fetchUser(userId);
-			user.setIsDeleted(Boolean.TRUE);
-			userService.updateUser(user);
-			return "deleted";
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-		}
-		return null;
 	}
 
 }

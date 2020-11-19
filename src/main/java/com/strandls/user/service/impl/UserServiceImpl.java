@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.strandls.authentication_utility.util.AuthUtil;
@@ -39,6 +41,8 @@ import net.minidev.json.JSONArray;
  *
  */
 public class UserServiceImpl implements UserService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Inject
 	private UserDao userDao;
@@ -284,6 +288,19 @@ public class UserServiceImpl implements UserService {
 		List<FirebaseTokens> tokens = firebaseDao.findAll();
 		NotificationScheduler scheduler = new NotificationScheduler(channel, firebaseDTO, tokens);
 		scheduler.start();
+	}
+
+	@Override
+	public String deleteUser(HttpServletRequest request, Long userId) {
+		try {
+			User user = fetchUser(userId);
+			user.setIsDeleted(Boolean.TRUE);
+			updateUser(user);
+			return "deleted";
+		} catch (Exception ex) {
+			logger.error(ex.getMessage());
+		}
+		return null;
 	}
 
 }

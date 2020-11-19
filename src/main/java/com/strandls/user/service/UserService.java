@@ -62,4 +62,6 @@ public interface UserService {
 	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUser;
 
 	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser;
+	
+	public String deleteUser(HttpServletRequest request, Long userId);
 }
