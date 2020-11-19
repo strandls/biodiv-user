@@ -355,7 +355,7 @@ public class AuthenticationController {
 	}
 
 	@DELETE
-	@Path(ApiConstants.DELETE)
+	@Path(ApiConstants.DELETE + "/{userId}")
 	@ValidateUser
 	@ApiOperation(value = "Delete an existing user", notes = "Gets the user id and deletes the user", response = String.class)
 	@ApiImplicitParams({
