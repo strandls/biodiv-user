@@ -96,6 +96,7 @@ public class UserController {
 			}
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(Status.NOT_FOUND).build();
 		}
 	}
