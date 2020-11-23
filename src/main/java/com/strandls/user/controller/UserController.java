@@ -33,7 +33,6 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dto.FirebaseDTO;
-import com.strandls.user.exception.UserNotFoundException;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
@@ -92,7 +91,7 @@ public class UserController {
 			Long uId = Long.parseLong(userId);
 			User user = userService.fetchUser(uId);
 			if (!user.getIsDeleted().booleanValue()) {
-				throw new UserNotFoundException("User deleted");
+				return Response.status(Status.NOT_FOUND).entity("User deleted").build();
 			}
 			return Response.status(Status.OK).entity(user).build();
 		} catch (Exception e) {
