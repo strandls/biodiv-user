@@ -202,6 +202,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setTimezone(0F);
 		user.setSendPushNotification(false);
 		user.setIdentificationMail(true);
+		user.setIsDeleted(false);
 		try {
 			Locale locale = request.getLocale();
 			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
