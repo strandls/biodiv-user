@@ -90,7 +90,7 @@ public class UserController {
 
 			Long uId = Long.parseLong(userId);
 			User user = userService.fetchUser(uId);
-			if (!user.getIsDeleted().booleanValue()) {
+			if (user.getIsDeleted().booleanValue()) {
 				return Response.status(Status.NOT_FOUND).entity("User deleted").build();
 			}
 			return Response.status(Status.OK).entity(user).build();
