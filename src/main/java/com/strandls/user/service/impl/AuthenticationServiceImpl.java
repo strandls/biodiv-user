@@ -50,7 +50,7 @@ import com.strandls.user.util.ValidationUtil;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
 	@Inject
 	private UserService userService;
@@ -202,6 +202,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setTimezone(0F);
 		user.setSendPushNotification(false);
 		user.setIdentificationMail(true);
+		user.setIsDeleted(false);
 		try {
 			Locale locale = request.getLocale();
 			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
@@ -377,6 +378,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				data.put("status", false);
 				data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 				return data;
+			} else if (user.getIsDeleted().booleanValue()) {
+				logger.error("User deleted");
+				data.put("status", false);
+				data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+				return data;				
 			}
 			String otp = AppUtil.generateOTP();
 			verification.setAction(VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
@@ -433,6 +439,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					data.put("status", false);
 					data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 					return data;
+				} else if (user.getIsDeleted().booleanValue()) {
+					logger.error("User deleted");
+					data.put("status", false);
+					data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+					return data;				
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 				user.setPassword(passwordEncoder.encodePassword(password, null));
@@ -466,6 +477,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			data.put("status", false);
 			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
+		} else if (user.getIsDeleted().booleanValue()) {
+			logger.error("User deleted");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+			return data;				
 		}
 
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
