@@ -334,8 +334,9 @@ public class AuthenticationController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Password Change", notes = "Returns the status", response = Map.class)
-	public Response changePassword(@Context HttpServletRequest request, @ApiParam(name = "user") UserPasswordChange inputUser) {
-		
+	public Response changePassword(@Context HttpServletRequest request,
+			@ApiParam(name = "user") UserPasswordChange inputUser) {
+
 		if (inputUser.getPassword() == null || inputUser.getPassword().isEmpty()) {
 			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();
 		}

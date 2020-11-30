@@ -63,6 +63,8 @@ public class ApiConstants {
 	public static final String DETAILS = "/details";
 	public static final String EMAIL_PREFERENCES = "/emailPreferences";
 	public static final String ROLES = "/roles";
+	
+	public static final String DELETE = "/delete";
 
 
 }

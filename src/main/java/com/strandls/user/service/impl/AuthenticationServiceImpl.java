@@ -204,6 +204,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setTimezone(0F);
 		user.setSendPushNotification(false);
 		user.setIdentificationMail(true);
+		user.setIsDeleted(false);
 		try {
 			Locale locale = request.getLocale();
 			Language language = languageService.getLanguageByTwoLetterCode(locale.getLanguage());
@@ -378,6 +379,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				data.put(Constants.STATUS, false);
 				data.put(Constants.MESSAGE, ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 				return data;
+			} else if (user.getIsDeleted().booleanValue()) {
+				logger.error("User deleted");
+				data.put("status", false);
+				data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+				return data;				
 			}
 			String otp = AppUtil.generateOTP();
 			verification.setAction(VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
@@ -435,6 +441,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					data.put(Constants.STATUS, false);
 					data.put(Constants.MESSAGE, ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 					return data;
+				} else if (user.getIsDeleted().booleanValue()) {
+					logger.error("User deleted");
+					data.put("status", false);
+					data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+					return data;				
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 				user.setPassword(passwordEncoder.encodePassword(password, null));
@@ -468,6 +479,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			data.put(Constants.STATUS, false);
 			data.put(Constants.MESSAGE, ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
+		} else if (user.getIsDeleted().booleanValue()) {
+			logger.error("User deleted");
+			data.put("status", false);
+			data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
+			return data;				
 		}
 
 		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");

@@ -51,6 +51,8 @@ public class SimpleUsernamePasswordAuthenticator implements Authenticator<Userna
 		}
 		if (user == null) {
 			throw new CredentialsException("Not a valid user");
+		} else if (user.getIsDeleted().booleanValue()) {
+			throw new CredentialsException("User deleted");
 		}
 		else if (!passwordEncoder.isPasswordValid(user.getPassword(), password, null)) {
 			throw new CredentialsException("Password is not valid");
