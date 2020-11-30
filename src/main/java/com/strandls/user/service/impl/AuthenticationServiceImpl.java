@@ -22,11 +22,13 @@ import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.strandls.user.Constants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.Constants.SUCCESS_CONSTANTS;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.UserDTO;
+import com.strandls.user.exception.InvalidVerificationTypeException;
 import com.strandls.user.pojo.Language;
 import com.strandls.user.pojo.User;
 import com.strandls.user.pojo.UserVerification;
@@ -77,8 +79,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private UserVerificationService verificationService;
 
 	@Override
-	public Map<String, Object> authenticateUser(String userEmail, String password) throws Exception {
-		Map<String, Object> tokens = new HashMap<String, Object>();
+	public Map<String, Object> authenticateUser(String userEmail, String password) {
+		Map<String, Object> tokens = new HashMap<>();
 		User user = userService.getUserByEmailOrMobile(userEmail);
 		if (user == null) {
 			return AppUtil.generateResponse(false, ERROR_CONSTANTS.USER_NOT_FOUND);
@@ -87,21 +89,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		usernamePasswordAuthenticator.validate(credentials, null);
 		CommonProfile profile = credentials.getUserProfile();
 		user = this.userService.fetchUser(Long.parseLong(profile.getId()));
-		if (user.getEnabled()) {
-			if (!user.getAccountLocked()) {
+		if (user.getEnabled().booleanValue()) {
+			if (!user.getAccountLocked().booleanValue()) {
 				tokens = this.buildTokens(profile, user, true);
-				tokens.put("status", true);
-				tokens.put("message", SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
-				tokens.put("verificationRequired", false);
+				tokens.put(Constants.STATUS, true);
+				tokens.put(Constants.MESSAGE, SUCCESS_CONSTANTS.AUTHENTICATION_SUCCESSFUL.toString());
+				tokens.put(Constants.VERIFICATION_REQUIRED, false);
 			} else {
-				tokens.put("status", true);
-				tokens.put("message", ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
+				tokens.put(Constants.STATUS, true);
+				tokens.put(Constants.MESSAGE, ERROR_CONSTANTS.ACCOUNT_LOCKED.toString());
 				tokens.put("user", UserConverter.convertToDTO(user));
-				tokens.put("verificationRequired", true);
+				tokens.put(Constants.VERIFICATION_REQUIRED, true);
 			}
 		} else {
-			tokens.put("status", false);
-			tokens.put("message", ERROR_CONSTANTS.ACCOUNT_DISABLED.toString());
+			tokens.put(Constants.STATUS, false);
+			tokens.put(Constants.MESSAGE, ERROR_CONSTANTS.ACCOUNT_DISABLED.toString());
 		}
 		return tokens;
 	}
@@ -123,21 +125,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			user.setLastLoginDate(new Date());
 			userService.updateUser(user);
 		} catch (Exception ex) {
-			throw ex;
+			logger.error(ex.getMessage());
 		}
 		return response;
 	}
 
 	private String generateAccessToken(CommonProfile profile, User user) {
-		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
+		JwtGenerator<CommonProfile> generator = new JwtGenerator<>(
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
 
-		Set<String> roles = new HashSet<String>();
+		Set<String> roles = new HashSet<>();
 		if (user.getRoles() != null) {
 			user.getRoles().forEach(role -> roles.add(role.getAuthority()));
 		}
 
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
+		Map<String, Object> jwtClaims = new HashMap<>();
 		jwtClaims.put("id", profile.getId());
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
@@ -150,15 +152,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private String generateRefreshToken(CommonProfile profile, User user) {
-		JwtGenerator<CommonProfile> generator = new JwtGenerator<CommonProfile>(
+		JwtGenerator<CommonProfile> generator = new JwtGenerator<>(
 				new SecretSignatureConfiguration(PropertyFileUtil.fetchProperty("config.properties", "jwtSalt")));
 
-		Set<String> roles = new HashSet<String>();
+		Set<String> roles = new HashSet<>();
 		if (user.getRoles() != null) {
 			user.getRoles().forEach(role -> roles.add(role.getAuthority()));
 		}
 
-		Map<String, Object> jwtClaims = new HashMap<String, Object>();
+		Map<String, Object> jwtClaims = new HashMap<>();
 		jwtClaims.put("id", profile.getId());
 		jwtClaims.put(JwtClaims.SUBJECT, profile.getId() + "");
 		jwtClaims.put(Pac4jConstants.USERNAME, profile.getUsername());
@@ -171,8 +173,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public Map<String, Object> addUser(HttpServletRequest request, UserDTO userDTO, String type) throws Exception {
-		Map<String, Object> response = new HashMap<String, Object>();
+	public Map<String, Object> addUser(HttpServletRequest request, UserDTO userDTO, String type) {
+		Map<String, Object> response = new HashMap<>();
 		User user = new User();
 		user.setName(userDTO.getUsername());
 		user.setUserName(userDTO.getUsername());
@@ -220,11 +222,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				break;
 			default:
 				logger.debug("Invalid Verification Type");
-				throw new Exception("Invalid Verification Type");
+				throw new InvalidVerificationTypeException("Invalid Verification Type");
 			}
 			if (existingUser != null) {
-				response.put("status", false);
-				response.put("message", ERROR_CONSTANTS.EMAIL_MOBILE_ALREADY_EXISTS.toString());
+				response.put(Constants.STATUS, false);
+				response.put(Constants.MESSAGE, ERROR_CONSTANTS.EMAIL_MOBILE_ALREADY_EXISTS.toString());
 				return response;
 			}
 			user = userDao.save(user);
@@ -236,15 +238,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				response = this.buildTokens(profile, user, true);
-				response.put("status", true);
-				response.put("verificationRequired", false);
-				response.put("message", SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
+				response.put(Constants.STATUS, true);
+				response.put(Constants.VERIFICATION_REQUIRED, false);
+				response.put(Constants.MESSAGE, SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
 				mailService.sendWelcomeMail(request, user);
 				return response;
 			}
-			response.put("status", true);
-			response.put("verificationRequired", true);
-			response.put("message", "User created successfully");
+			response.put(Constants.STATUS, true);
+			response.put(Constants.VERIFICATION_REQUIRED, true);
+			response.put(Constants.MESSAGE, "User created successfully");
 			response.put("user", UserConverter.convertToDTO(user));
 			String otp = AppUtil.generateOTP();
 			if (verificationType.equalsIgnoreCase("EMAIL")) {
@@ -258,9 +260,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
-			user = null;
-			response.put("status", false);
-			response.put("message", ERROR_CONSTANTS.COULD_NOT_CREATE_USER);
+			response.put(Constants.STATUS, false);
+			response.put(Constants.MESSAGE, ERROR_CONSTANTS.COULD_NOT_CREATE_USER);
 		}
 		return response;
 	}
@@ -273,8 +274,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				VERIFICATION_ACTIONS.USER_REGISTRATION.toString());
 		if (verification == null) {
 			logger.debug("Account already verified or otp deleted");
-			result.put("status", false);
-			result.put("message", ERROR_CONSTANTS.VERIFIED_OR_OTP_DELETED.toString());
+			result.put(Constants.STATUS, false);
+			result.put(Constants.MESSAGE, ERROR_CONSTANTS.VERIFIED_OR_OTP_DELETED.toString());
 			return result;
 		}
 		try {
@@ -288,8 +289,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 				CommonProfile profile = AuthUtility.createUserProfile(user);
 				result = this.buildTokens(profile, user, true);
-				result.put("status", true);
-				result.put("message", SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
+				result.put(Constants.STATUS, true);
+				result.put(Constants.MESSAGE, SUCCESS_CONSTANTS.USER_VERIFICATION_SUCCESSFUL.toString());
 				if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 					mailService.sendWelcomeMail(request, user);
 				} else {
@@ -298,8 +299,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verificationService.deleteOtp(verification.getId());
 			} else {
 				// Invalid OTP
-				result.put("status", false);
-				result.put("message", ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP.toString());
+				result.put(Constants.STATUS, false);
+				result.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP.toString());
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -313,16 +314,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		try {
 			String act = AppUtil.getVerificationAction(action);
 			if (act == null) {
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.INVALID_ACTION);
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_ACTION);
 				return data;
 			}
 			UserVerification verification = verificationService.getUserVerificationDetails(id, act);
 			Integer attempts = verification.getNoOfAttempts();
 			if (++attempts > 2 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
 					.isLessThan(Hours.hours(24))) {
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
 				return data;
 			}
 			String otp = AppUtil.generateOTP();
@@ -334,8 +335,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			verificationService.updateOtp(verification);
 			User user = userService.fetchUser(id);
-			data.put("status", true);
-			data.put("message", SUCCESS_CONSTANTS.OTP_REGENERATED.toString());
+			data.put(Constants.STATUS, true);
+			data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.OTP_REGENERATED.toString());
 
 			if (VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verificationType)) {
 				if (VERIFICATION_ACTIONS.USER_REGISTRATION.toString().equals(act)) {
@@ -347,8 +348,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				smsService.sendSMS(verificationId, otp);
 			}
 		} catch (Exception ex) {
-			data.put("status", false);
-			data.put("message", ERROR_CONSTANTS.COULD_NOT_GENERATE_OTP.toString());
+			data.put(Constants.STATUS, false);
+			data.put(Constants.MESSAGE, ERROR_CONSTANTS.COULD_NOT_GENERATE_OTP.toString());
 			logger.error(ex.getMessage());
 		}
 		return data;
@@ -368,15 +369,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			Integer attempts = verification.getNoOfAttempts() != null ? verification.getNoOfAttempts() : 0;
 			if (++attempts > 3 && Hours.hoursBetween(new DateTime(verification.getDate()), new DateTime(new Date()))
 					.isLessThan(Hours.hours(24))) {
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.OTP_ATTEMPTS_EXCEEDED.toString());
 				return data;
 			}
 			User user = userService.getUserByEmailOrMobile(verificationId);
 			if (user == null) {
 				logger.error("User does not exist");
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 				return data;
 			} else if (user.getIsDeleted().booleanValue()) {
 				logger.error("User deleted");
@@ -403,8 +404,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verification.setNoOfAttempts(attempts > 3 ? 0 : attempts);
 				verificationService.updateOtp(verification);
 			}
-			data.put("status", true);
-			data.put("message", SUCCESS_CONSTANTS.EMAIL_SMS_SENT.toString());
+			data.put(Constants.STATUS, true);
+			data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.EMAIL_SMS_SENT.toString());
 			data.put("user", UserConverter.convertToDTO(user));
 			if (AppUtil.VERIFICATION_TYPE.EMAIL.toString().equalsIgnoreCase(verification.getVerificationType())) {
 				mailService.sendForgotPasswordMail(request, user, otp);
@@ -413,8 +414,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
-			data.put("status", false);
-			data.put("message", ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
+			data.put(Constants.STATUS, false);
+			data.put(Constants.MESSAGE, ERROR_CONSTANTS.COULD_NOT_SEND_MAIL_SMS.toString());
 		}
 		return data;
 	}
@@ -427,8 +428,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			if (verification == null) {
 				logger.error("OTP deleted");
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.OTP_DELETED.toString());
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.OTP_DELETED.toString());
+				return data;
 			}
 			long time = verification.getDate().getTime() + verification.getTimeout().longValue();
 			boolean validOTP = new Date(time).compareTo(new Date()) > 0;
@@ -436,8 +438,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				User user = userService.fetchUser(id);
 				if (user == null) {
 					logger.debug("User not found");
-					data.put("status", false);
-					data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
+					data.put(Constants.STATUS, false);
+					data.put(Constants.MESSAGE, ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 					return data;
 				} else if (user.getIsDeleted().booleanValue()) {
 					logger.error("User deleted");
@@ -449,11 +451,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				user.setPassword(passwordEncoder.encodePassword(password, null));
 				userService.updateUser(user);
 				verificationService.deleteOtp(verification.getId());
-				data.put("status", true);
-				data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
+				data.put(Constants.STATUS, true);
+				data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
 			} else {
-				data.put("status", false);
-				data.put("message", ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP);
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_OR_EXPIRED_OTP);
 			}
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -466,16 +468,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		Map<String, Object> data = new HashMap<>();
 		if (inputUser.getId() == null) {
 			logger.debug("User id not found");
-			data.put("status", false);
-			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
+			data.put(Constants.STATUS, false);
+			data.put(Constants.MESSAGE, ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
 		}
 
 		User user = userService.fetchUser(inputUser.getId());
 		if (user == null) {
 			logger.debug("User not found");
-			data.put("status", false);
-			data.put("message", ERROR_CONSTANTS.USER_NOT_FOUND.toString());
+			data.put(Constants.STATUS, false);
+			data.put(Constants.MESSAGE, ERROR_CONSTANTS.USER_NOT_FOUND.toString());
 			return data;
 		} else if (user.getIsDeleted().booleanValue()) {
 			logger.error("User deleted");
@@ -489,8 +491,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 		if (!encodedPassword.equals(user.getPassword())) {
 			logger.debug("Incorrect old password");
-			data.put("status", false);
-			data.put("message", ERROR_CONSTANTS.INVALID_PASSWORD.toString());
+			data.put(Constants.STATUS, false);
+			data.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_PASSWORD.toString());
 			return data;
 		}
 
@@ -498,8 +500,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setPassword(encodedPassword);
 		userService.updateUser(user);
 
-		data.put("status", true);
-		data.put("message", SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
+		data.put(Constants.STATUS, true);
+		data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.PASSWORD_UPDATED.toString());
 
 		return data;
 	}

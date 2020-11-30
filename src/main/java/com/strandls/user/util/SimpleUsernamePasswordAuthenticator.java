@@ -7,7 +7,6 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
-import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.util.CommonHelper;
 import org.slf4j.Logger;
@@ -25,53 +24,43 @@ public class SimpleUsernamePasswordAuthenticator implements Authenticator<Userna
 
 	@Inject
 	private MessageDigestPasswordEncoder passwordEncoder; 
-	//MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 
 	@Override
 	public void validate(final UsernamePasswordCredentials credentials, final WebContext context)
-			throws HttpAction, CredentialsException {
+			 {
 		if (credentials == null) {
-			throwsException("No credential");
+			throw new CredentialsException("No credential");
 		}
 		String username = credentials.getUsername().toLowerCase();
 		String password = credentials.getPassword();
 
 		if (CommonHelper.isBlank(username)) {
-			throwsException("Username cannot be blank");
+			throw new CredentialsException("Username cannot be blank");
 		}
 		if (CommonHelper.isBlank(password)) {
-			throwsException("Password cannot be blank");
+			throw new CredentialsException("Password cannot be blank");
 		}
 
-		log.debug("Validating credentials : " + credentials);
+		log.debug("Validating credentials : {}", credentials);
 
 		User user = null;
 		try {
-			user = (User) userService.getUserByEmailOrMobile(username);
+			user = userService.getUserByEmailOrMobile(username);
 		} catch(NotFoundException e ) {
 			log.error("No user with email {}", username);
 		}
 		if (user == null) {
-			throwsException("Not a valid user");
+			throw new CredentialsException("Not a valid user");
 		} else if (user.getIsDeleted().booleanValue()) {
-			throwsException("User deleted");
+			throw new CredentialsException("User deleted");
 		}
-		// TODO: using null salt and MD5 algorithm. Not safe. Upgrade to BCrypt
 		else if (!passwordEncoder.isPasswordValid(user.getPassword(), password, null)) {
-			throwsException("Password is not valid");
-		} /*
-			 * else if(user.isAccountLocked() == true) {
-			 * throwsException("Account is locked. Please complete the account validation by clicking the link sent in activation email sent to your email account."
-			 * ); }
-			 */ 
+			throw new CredentialsException("Password is not valid");
+		} 
 		else {
 			CommonProfile profile = AuthUtility.createUserProfile(user);
-			log.debug("Setting profile in the context: " + profile);
+			log.debug("Setting profile in the context: {}", profile);
 			credentials.setUserProfile(profile);
 		}
-	}
-
-	protected void throwsException(final String message) throws CredentialsException {
-		throw new CredentialsException(message);
 	}
 }

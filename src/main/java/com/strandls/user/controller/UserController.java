@@ -72,7 +72,7 @@ public class UserController {
 	@Path(ApiConstants.PING)
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value = "Dummy API Ping", notes = "Checks validity of war file at deployment", response = String.class)
-	public Response ping() throws Exception {
+	public Response ping() {
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 
@@ -181,7 +181,7 @@ public class UserController {
 
 	public Response getUserIbbpBulk(@QueryParam("userIds") String userIds) {
 		try {
-			List<Long> uIds = new ArrayList<Long>();
+			List<Long> uIds = new ArrayList<>();
 			for (String uId : userIds.split(","))
 				uIds.add(Long.parseLong(uId));
 			List<UserIbp> result = userService.fetchUserIbpBulk(uIds);
@@ -349,9 +349,9 @@ public class UserController {
 		try {
 			List<Recipients> users = UserConverter
 					.convertToRecipientList(userService.fetchRecipients(objectType, objectId));
-			System.out.println("***** Total Recipients #: " + users.size() + " *****");
+			logger.debug("***** Total Recipients #: {} *****", users.size());
 			for (Recipients recipient : users) {
-				System.out.println("***** Recipient #: " + recipient.getId() + " *****");
+				logger.debug("***** Recipient #: {} *****", recipient.getId());
 			}
 			return Response.ok().entity(users).build();
 		} catch (Exception ex) {

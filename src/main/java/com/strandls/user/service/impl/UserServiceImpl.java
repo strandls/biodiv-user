@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rabbitmq.client.Channel;
 import com.strandls.authentication_utility.util.AuthUtil;
+import com.strandls.user.Constants;
 import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.UserDao;
@@ -204,10 +205,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow fetchByFollowObject(String objectType, Long objectId, Long authorId) {
-		if (objectType.equalsIgnoreCase("observation"))
-			objectType = "species.participation.Observation";
-		else if (objectType.equalsIgnoreCase("document"))
-			objectType = "content.eml.Document";
+		if (objectType.equalsIgnoreCase(Constants.OBSERVATION))
+			objectType = Constants.SPECIES_PARTICIPATION_OBSERVATION;
+		else if (objectType.equalsIgnoreCase(Constants.DOCUMENT))
+			objectType = Constants.CONTENT_EML_DOCUMENT;
 		Follow follow = followDao.findByObject(objectType, objectId, authorId);
 		return follow;
 	}
@@ -220,10 +221,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow updateFollow(String objectType, Long objectId, Long userId) {
-		if (objectType.equalsIgnoreCase("observation"))
-			objectType = "species.participation.Observation";
-		else if (objectType.equalsIgnoreCase("document"))
-			objectType = "content.eml.Document";
+		if (objectType.equalsIgnoreCase(Constants.OBSERVATION))
+			objectType = Constants.SPECIES_PARTICIPATION_OBSERVATION;
+		else if (objectType.equalsIgnoreCase(Constants.DOCUMENT))
+			objectType = Constants.CONTENT_EML_DOCUMENT;
 		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow == null) {
 			follow = new Follow(null, 0L, objectId, objectType, userId, new Date());
@@ -235,10 +236,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Follow unFollow(String objectType, Long objectId, Long userId) {
-		if (objectType.equalsIgnoreCase("observation"))
-			objectType = "species.participation.Observation";
-		else if (objectType.equalsIgnoreCase("document"))
-			objectType = "content.eml.Document";
+		if (objectType.equalsIgnoreCase(Constants.OBSERVATION))
+			objectType = Constants.SPECIES_PARTICIPATION_OBSERVATION;
+		else if (objectType.equalsIgnoreCase(Constants.DOCUMENT))
+			objectType = Constants.CONTENT_EML_DOCUMENT;
 		Follow follow = followDao.findByObject(objectType, objectId, userId);
 		if (follow != null) {
 			follow = followDao.delete(follow);

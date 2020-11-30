@@ -31,7 +31,7 @@ public class RolesController {
 	@Path(ApiConstants.PING)
 	@Produces(MediaType.TEXT_PLAIN)
 	@ApiOperation(value = "Dummy API Ping", notes = "Checks validity of war file at deployment", response = String.class)
-	public Response ping() throws Exception {
+	public Response pingRoles() {
 		return Response.status(Status.OK).entity("PONG").build();
 	}
 	

@@ -1,6 +1,8 @@
 package com.strandls.user.util;
 
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,10 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.net.InternetDomainName;
 
 public class AppUtil {
+	
+	private AppUtil() {}
+	
+	private final static Logger log = LoggerFactory.getLogger(AppUtil.class);
 	
 	public static enum VERIFICATION_TYPE {
 		EMAIL,
@@ -84,8 +92,14 @@ public class AppUtil {
 	}
 	
 	public static String generateOTP() {
-		Random random = new Random();
-		return String.format("%06d", random.nextInt(1000000));
+		Random random = null;
+		try {
+			random = SecureRandom.getInstanceStrong();
+			return String.format("%06d", random.nextInt(1000000));
+		} catch (NoSuchAlgorithmException e) {
+			log.error(e.getMessage());
+		}
+		return null;
 	}
 
 	public static String buildURI(HttpServletRequest request, String path, Map<String, String> params, boolean includeCtxPath) throws URISyntaxException {
