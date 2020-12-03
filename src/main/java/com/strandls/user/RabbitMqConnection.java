@@ -46,9 +46,10 @@ public class RabbitMqConnection {
 		factory.setHost(HOST);
 		factory.setPort(PORT);
 		factory.setUsername(USERNAME);
-		factory.setPassword(PASSWORD);
+		factory.setPassword(PASSWORD);	
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
+				
 		channel.exchangeDeclare(EXCHANGE, "direct");
 		channel.queueDeclare(QUEUE, false, false, false, null);
 		channel.queueDeclare(NOTIFICATION_QUEUE, false, false, false, null);
