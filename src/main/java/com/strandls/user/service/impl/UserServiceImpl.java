@@ -42,7 +42,7 @@ import net.minidev.json.JSONArray;
  *
  */
 public class UserServiceImpl implements UserService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Inject
@@ -60,6 +60,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User fetchUser(Long userId) {
 		User user = userDao.findById(userId);
+		if (user.getProfilePic() == null || user.getProfilePic().isEmpty())
+			user.setProfilePic(user.getIcon());
 		return user;
 	}
 
