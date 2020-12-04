@@ -54,10 +54,12 @@ public class GoogleRecaptchaCheck {
 				InputStream body = response.getEntity().getContent();
 				ObjectMapper mapper = new ObjectMapper();
 				
-				Map<String,Object> json = null;
+				Map<String,Object> json;
 				json = mapper.readValue(body, new TypeReference<Map<String,Object>>(){});
-
-				return ((Boolean) json.get("success")).booleanValue();
+				if (json != null && (Boolean) json.get("success")) {
+					return false;
+				}
+				return true;
 			}
 			return true;
 		} finally {
