@@ -56,8 +56,10 @@ public class GoogleRecaptchaCheck {
 				
 				Map<String,Object> json = null;
 				json = mapper.readValue(body, new TypeReference<Map<String,Object>>(){});
-
-				return ((Boolean) json.get("success")).booleanValue();
+if (json != null && (Boolean) json.get("success")) {
+					return false;
+				}
+				return true;
 			}
 			return true;
 		} finally {
