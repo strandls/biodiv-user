@@ -148,6 +148,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getAccessTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
 		jwtClaims.put("roles", roles);
+		jwtClaims.put("name", user.getName());
+		jwtClaims.put("profile_pic", user.getProfilePic());
 		return generator.generate(jwtClaims);
 	}
 
@@ -169,6 +171,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		jwtClaims.put(JwtClaims.EXPIRATION_TIME, JWTUtil.getRefreshTokenExpiryDate());
 		jwtClaims.put(JwtClaims.ISSUED_AT, new Date());
 		jwtClaims.put("roles", roles);
+		jwtClaims.put("name", user.getName());
+		jwtClaims.put("profile_pic", user.getProfilePic());
 		return generator.generate(jwtClaims);
 	}
 
