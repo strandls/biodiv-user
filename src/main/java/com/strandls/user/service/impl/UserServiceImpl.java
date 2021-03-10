@@ -62,6 +62,9 @@ public class UserServiceImpl implements UserService {
 		User user = userDao.findById(userId);
 		if (user.getProfilePic() == null || user.getProfilePic().isEmpty())
 			user.setProfilePic(user.getIcon());
+		else if (user.getIcon() == null || user.getIcon().isEmpty())
+			user.setIcon(user.getProfilePic());
+
 		return user;
 	}
 

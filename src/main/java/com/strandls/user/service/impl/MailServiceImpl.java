@@ -24,7 +24,6 @@ import com.strandls.user.RabbitMqConnection;
 import com.strandls.user.pojo.User;
 import com.strandls.user.service.MailService;
 import com.strandls.user.util.AppUtil;
-import com.strandls.user.util.MessageUtil;
 import com.strandls.user.util.PropertyFileUtil;
 
 public class MailServiceImpl implements MailService {
@@ -44,16 +43,14 @@ public class MailServiceImpl implements MailService {
 		model.put(USER_REGISTRATION.USERNAME.getAction(), user.getUserName());
 		model.put(USER_REGISTRATION.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
-		
+
 		Map<String, Object> mailData = new HashMap<String, Object>();
 		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(
-					RabbitMqConnection.EXCHANGE,
-					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(mailData));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(mailData));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -64,12 +61,11 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(FIELDS.TO.getAction(), new String[] { user.getEmail() });
 		data.put(FIELDS.SUBSCRIPTION.getAction(), true);
-		Map<String, Object> model = new HashMap<>();		
-		MessageUtil messages = new MessageUtil();
+		Map<String, Object> model = new HashMap<>();
 		Properties config = PropertyFileUtil.fetchProperty("config.properties");
 		model.put(WELCOME_MAIL.USERNAME.getAction(), AppUtil.capitalize(user.getUserName()));
 		StringBuilder profileUrl = new StringBuilder();
-		profileUrl.append(config.getProperty("serverUrl")).append("/user/show/").append(String.valueOf(user.getId()));
+		profileUrl.append("/user/show/").append(String.valueOf(user.getId()));
 		model.put(WELCOME_MAIL.USER_PROFILE_URL.getAction(), profileUrl.toString());
 		model.put(WELCOME_MAIL.SERVER_URL.getAction(), config.getProperty("serverUrl"));
 		model.put(WELCOME_MAIL.SITENAME.getAction(), config.getProperty("siteName"));
@@ -77,28 +73,19 @@ public class MailServiceImpl implements MailService {
 		model.put(WELCOME_MAIL.TWITTER_URL.getAction(), config.getProperty("twitterUrl"));
 		model.put(WELCOME_MAIL.FEEDBACKFORM_URL.getAction(), config.getProperty("feedbackFormUrl"));
 		model.put(WELCOME_MAIL.MAIL_DEFAULT_FROM.getAction(), config.getProperty("mail_sender_email"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_INTRO.getAction(), messages.getMessage("activationEmail.intro"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_OBSERVATION.getAction(), messages.getMessage("activationEmail.observation"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_MAP.getAction(), messages.getMessage("activationEmail.map"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_CHECKLIST.getAction(), messages.getMessage("activationEmail.checklist"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_SPECIES.getAction(), messages.getMessage("activationEmail.species"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_GROUPS.getAction(), messages.getMessage("activationEmail.groups"));
-		model.put(WELCOME_MAIL.WELCOME_EMAIL_DOCUMENTS.getAction(), messages.getMessage("activationEmail.documents"));
 
 		data.put(FIELDS.DATA.getAction(), JsonUtil.unflattenJSON(model));
-		
+
 		Map<String, Object> mailData = new HashMap<String, Object>();
 		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(
-					RabbitMqConnection.EXCHANGE,
-					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(mailData));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
-		}		
+		}
 	}
 
 	@Override
@@ -117,10 +104,8 @@ public class MailServiceImpl implements MailService {
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
 		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(
-					RabbitMqConnection.EXCHANGE,
-					RabbitMqConnection.ROUTING_KEY,
-					null, JsonUtil.mapToJSON(mailData));
+			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 		}
