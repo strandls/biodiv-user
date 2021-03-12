@@ -26,6 +26,7 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.Constants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
@@ -124,10 +125,11 @@ public class AuthenticationController {
 			boolean verification = Boolean.parseBoolean(tokens.get("verificationRequired").toString());
 			ResponseBuilder response = Response.ok().entity(tokens);
 			if (status && !verification) {
-				NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString(), "/",
-						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
-				NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, tokens.get(Constants.REFRESH_TOKEN).toString(), "/",
-						AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+				NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString(),
+						"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+				NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN,
+						tokens.get(Constants.REFRESH_TOKEN).toString(), "/", AppUtil.getDomain(request), "",
+						10 * 24 * 60 * 60, false);
 				return response.cookie(accessToken).cookie(refreshToken).build();
 			} else {
 				return response.build();
@@ -156,8 +158,10 @@ public class AuthenticationController {
 			// tokens
 			Map<String, Object> tokens = this.authenticationService.buildTokens(profile,
 					this.userService.fetchUser(Long.parseLong(profile.getId())), true);
-			return Response.status(Status.OK).cookie(new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString()))
-					.cookie(new NewCookie(Constants.BR_TOKEN, tokens.get(Constants.REFRESH_TOKEN).toString())).entity(tokens).build();
+			return Response.status(Status.OK)
+					.cookie(new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString()))
+					.cookie(new NewCookie(Constants.BR_TOKEN, tokens.get(Constants.REFRESH_TOKEN).toString()))
+					.entity(tokens).build();
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
@@ -271,10 +275,10 @@ public class AuthenticationController {
 		}
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get(Constants.STATUS).toString())) {
-			NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, result.get(Constants.ACCESS_TOKEN).toString(), "/",
-					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
-			NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, result.get(Constants.REFRESH_TOKEN).toString(), "/",
-					AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+			NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, result.get(Constants.ACCESS_TOKEN).toString(),
+					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
+			NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, result.get(Constants.REFRESH_TOKEN).toString(),
+					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);
 			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}
 		return Response.status(Status.OK).entity(result).build();
@@ -333,16 +337,23 @@ public class AuthenticationController {
 	@Path(ApiConstants.CHANGE_PASSWORD)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
 	@ApiOperation(value = "Password Change", notes = "Returns the status", response = Map.class)
 	public Response changePassword(@Context HttpServletRequest request,
 			@ApiParam(name = "user") UserPasswordChange inputUser) {
 
-		if (inputUser.getPassword() == null || inputUser.getPassword().isEmpty()) {
+		if (inputUser.getNewPassword() == null || inputUser.getNewPassword().isEmpty()
+				|| inputUser.getConfirmNewPassword() == null) {
 			return Response.status(Status.BAD_REQUEST).entity("Password cannot be empty").build();
 		}
-		if (!inputUser.getPassword().equals(inputUser.getConfirmPassword())) {
-			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
+		if (inputUser.getConfirmNewPassword() != null && !inputUser.getConfirmNewPassword().isEmpty()) {
+			if (!inputUser.getNewPassword().equals(inputUser.getConfirmNewPassword())) {
+				return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
+			}
 		}
+
 		Map<String, Object> data = authenticationService.changePassword(request, inputUser);
 		return Response.status(Status.OK).entity(data).build();
 	}
