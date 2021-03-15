@@ -330,7 +330,11 @@ public class AuthenticationController {
 			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
 		}
 		Map<String, Object> data = authenticationService.resetPassword(request, id, otp, password);
-		return Response.status(Status.OK).entity(data).build();
+
+		boolean status = Boolean.parseBoolean(data.get("status").toString());
+		if (status)
+			return Response.status(Status.OK).entity(data).build();
+		return Response.status(Status.FORBIDDEN).build();
 	}
 
 	@POST
