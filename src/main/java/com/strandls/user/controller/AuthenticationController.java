@@ -312,7 +312,9 @@ public class AuthenticationController {
 	public Response forgotPassword(@Context HttpServletRequest request,
 			@FormParam("verificationId") String verificationId) {
 		Map<String, Object> data = authenticationService.forgotPassword(request, verificationId);
-		return Response.status(Status.OK).entity(data).build();
+		if (data != null)
+			return Response.status(Status.OK).entity(data).build();
+		return Response.status(Status.FORBIDDEN).build();
 	}
 
 	@POST
@@ -330,7 +332,6 @@ public class AuthenticationController {
 			return Response.status(Status.BAD_REQUEST).entity("Passwords do not match").build();
 		}
 		Map<String, Object> data = authenticationService.resetPassword(request, id, otp, password);
-
 		boolean status = Boolean.parseBoolean(data.get("status").toString());
 		if (status)
 			return Response.status(Status.OK).entity(data).build();

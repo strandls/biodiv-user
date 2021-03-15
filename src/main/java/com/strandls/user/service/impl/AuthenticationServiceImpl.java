@@ -410,12 +410,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verification.setVerificationType(VERIFICATION_TYPE.MOBILE.toString());
 			}
 			if (verification.getId() == null) {
-				verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(), verificationId,
-						VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
+				verification = verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(),
+						verificationId, VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			} else {
 				verification.setNoOfAttempts(attempts > 3 ? 0 : attempts);
-				verificationService.updateOtp(verification);
+				verification = verificationService.updateOtp(verification);
 			}
+			if (verification == null)
+				return null;
 			data.put(Constants.STATUS, true);
 			data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.EMAIL_SMS_SENT.toString());
 			data.put("user", UserConverter.convertToDTO(user));

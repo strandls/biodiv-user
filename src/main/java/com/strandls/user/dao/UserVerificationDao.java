@@ -1,5 +1,7 @@
 package com.strandls.user.dao;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.hibernate.Session;
@@ -12,7 +14,7 @@ import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.util.AbstractDAO;
 
 public class UserVerificationDao extends AbstractDAO<UserVerification, Long> {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
 	/**
@@ -22,7 +24,7 @@ public class UserVerificationDao extends AbstractDAO<UserVerification, Long> {
 	protected UserVerificationDao(SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
-	
+
 	@Override
 	public UserVerification findById(Long id) {
 		Session session = sessionFactory.openSession();
@@ -58,6 +60,33 @@ public class UserVerificationDao extends AbstractDAO<UserVerification, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<UserVerification> findMultipleCase(Long userId, String verificationId, String action) {
+		Session session = sessionFactory.openSession();
+		String hql = "from UserVerification u where u.action = :action ";
+		if (userId != null)
+			hql = hql + " and u.userId = :userId";
+		else if (verificationId != null)
+			hql = hql + " and u.verificationId = :verificationId";
+
+		List<UserVerification> entity = null;
+		try {
+			Query<UserVerification> query = session.createQuery(hql);
+			if (userId != null)
+				query.setParameter("userId", userId);
+			else if (verificationId != null)
+				query.setParameter("verificationId", verificationId);
+			query.setParameter("action", action);
+			entity = query.getResultList();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+
+		return entity;
+	}
+
+	@SuppressWarnings("unchecked")
 	public UserVerification findByVerificationId(String verificationId, String action) {
 		Session session = sessionFactory.openSession();
 		String hql = "from UserVerification u where u.verificationId = :id and u.action = :action";
@@ -69,13 +98,14 @@ public class UserVerificationDao extends AbstractDAO<UserVerification, Long> {
 			entity = query.getSingleResult();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
+
 		} finally {
 			session.close();
 		}
 
 		return entity;
 	}
-	
+
 	public boolean saveOrUpdateVerification(UserVerification verification) {
 		boolean updated = false;
 		Session session = sessionFactory.openSession();
