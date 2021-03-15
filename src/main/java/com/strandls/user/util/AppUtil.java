@@ -94,7 +94,9 @@ public class AppUtil {
 		try {
 			random = SecureRandom.getInstanceStrong();
 			System.out.println("==============random generated=============");
-			return String.format("%06d", random.nextInt(1000000));
+			String rand = String.format("%06d", random.nextInt(1000000));
+			System.out.println("===============random number decoded=========");
+			return rand;
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
 		}
