@@ -392,7 +392,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
 				return data;
 			}
-			
+
 			System.out.println("--------before otp generation----------");
 			System.out.println();
 			String otp = AppUtil.generateOTP();

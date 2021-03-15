@@ -93,6 +93,7 @@ public class AppUtil {
 		Random random = null;
 		try {
 			random = SecureRandom.getInstanceStrong();
+			System.out.println("==============random generated=============");
 			return String.format("%06d", random.nextInt(1000000));
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
