@@ -22,6 +22,7 @@ import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.Constants;
 import com.strandls.user.Constants.ERROR_CONSTANTS;
 import com.strandls.user.Constants.SUCCESS_CONSTANTS;
@@ -49,6 +50,8 @@ import com.strandls.user.util.MessageDigestPasswordEncoder;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.SimpleUsernamePasswordAuthenticator;
 import com.strandls.user.util.ValidationUtil;
+
+import net.minidev.json.JSONArray;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -387,7 +390,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				logger.error("User deleted");
 				data.put("status", false);
 				data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
-				return data;				
+				return data;
 			}
 			String otp = AppUtil.generateOTP();
 			verification.setAction(VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
@@ -402,12 +405,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				verification.setVerificationType(VERIFICATION_TYPE.MOBILE.toString());
 			}
 			if (verification.getId() == null) {
-				verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(), verificationId,
-						VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
+				verification = verificationService.saveOtp(user.getId(), otp, verification.getVerificationType(),
+						verificationId, VERIFICATION_ACTIONS.FORGOT_PASSWORD.toString());
 			} else {
 				verification.setNoOfAttempts(attempts > 3 ? 0 : attempts);
-				verificationService.updateOtp(verification);
+				verification = verificationService.updateOtp(verification);
 			}
+			if (verification == null)
+				return null;
 			data.put(Constants.STATUS, true);
 			data.put(Constants.MESSAGE, SUCCESS_CONSTANTS.EMAIL_SMS_SENT.toString());
 			data.put("user", UserConverter.convertToDTO(user));
@@ -449,7 +454,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					logger.error("User deleted");
 					data.put("status", false);
 					data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
-					return data;				
+					return data;
 				}
 				MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
 				user.setPassword(passwordEncoder.encodePassword(password, null));
@@ -469,6 +474,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public Map<String, Object> changePassword(HttpServletRequest request, UserPasswordChange inputUser) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		Long userId = Long.parseLong(profile.getId());
+		JSONArray userRoles = (JSONArray) profile.getAttribute("roles");
+		if (!userRoles.contains("ROLE_ADMIN")) {
+			inputUser.setId(userId);
+		}
+
 		Map<String, Object> data = new HashMap<>();
 		if (inputUser.getId() == null) {
 			logger.debug("User id not found");
@@ -487,20 +499,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			logger.error("User deleted");
 			data.put("status", false);
 			data.put("message", ERROR_CONSTANTS.USER_DELETED.toString());
-			return data;				
-		}
-
-		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
-		String encodedPassword = passwordEncoder.encodePassword(inputUser.getOldPassword(), null);
-
-		if (!encodedPassword.equals(user.getPassword())) {
-			logger.debug("Incorrect old password");
-			data.put(Constants.STATUS, false);
-			data.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_PASSWORD.toString());
 			return data;
 		}
 
-		encodedPassword = passwordEncoder.encodePassword(inputUser.getPassword(), null);
+		MessageDigestPasswordEncoder passwordEncoder = new MessageDigestPasswordEncoder("MD5");
+		String encodedPassword = null;
+		if (!userRoles.contains("ROLE_ADMIN")) {
+			encodedPassword = passwordEncoder.encodePassword(inputUser.getOldPassword(), null);
+			if (!encodedPassword.equals(user.getPassword())) {
+				logger.debug("Incorrect old password");
+				data.put(Constants.STATUS, false);
+				data.put(Constants.MESSAGE, ERROR_CONSTANTS.INVALID_PASSWORD.toString());
+				return data;
+			}
+		}
+
+		encodedPassword = passwordEncoder.encodePassword(inputUser.getNewPassword(), null);
 		user.setPassword(encodedPassword);
 		userService.updateUser(user);
 

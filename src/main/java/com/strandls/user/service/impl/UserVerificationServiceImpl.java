@@ -1,6 +1,7 @@
 package com.strandls.user.service.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -9,20 +10,29 @@ import com.strandls.user.pojo.UserVerification;
 import com.strandls.user.service.UserVerificationService;
 
 public class UserVerificationServiceImpl implements UserVerificationService {
-	
+
 	@Inject
 	private UserVerificationDao userVerificationDao;
-	
+
 	@Override
 	public UserVerification getUserVerificationDetails(Long userId, String action) {
-		return userVerificationDao.findByUserId(userId, action);
+		UserVerification userVerification = userVerificationDao.findByUserId(userId, action);
+		if (userVerification == null) {
+			List<UserVerification> multipleUV = userVerificationDao.findMultipleCase(userId, null, action);
+			if (multipleUV != null && !multipleUV.isEmpty()) {
+				for (UserVerification uv : multipleUV) {
+					userVerificationDao.delete(uv);
+				}
+			}
+		}
+		return userVerification;
 	}
-	
+
 	@Override
 	public void deleteOtp(Long id) {
 		userVerificationDao.delete(new UserVerification(id));
 	}
-	
+
 	@Override
 	public UserVerification updateOtp(UserVerification verification) {
 		return userVerificationDao.update(verification);
@@ -45,7 +55,16 @@ public class UserVerificationServiceImpl implements UserVerificationService {
 
 	@Override
 	public UserVerification getDetailsByVerificationId(String verificationId, String action) {
-		return userVerificationDao.findByVerificationId(verificationId, action);
+		UserVerification userVerification = userVerificationDao.findByVerificationId(verificationId, action);
+		if (userVerification == null) {
+			List<UserVerification> multipleUV = userVerificationDao.findMultipleCase(null, verificationId, action);
+			if (multipleUV != null && !multipleUV.isEmpty()) {
+				for (UserVerification uv : multipleUV) {
+					userVerificationDao.delete(uv);
+				}
+			}
+		}
+		return userVerification;
 	}
 
 	@Override
