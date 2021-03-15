@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import javax.servlet.ServletContextEvent;
@@ -32,16 +33,21 @@ import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.sns.AmazonSNSClient;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.rabbitmq.client.Channel;
-import com.strandls.authentication_utility.util.PropertyFileUtil;
+import com.strandls.mail_utility.producer.RabbitMQProducer;
 import com.strandls.user.controller.UserControllerModule;
 import com.strandls.user.dao.UserDaoModule;
 import com.strandls.user.service.impl.UserServiceModule;
+import com.strandls.user.util.PropertyFileUtil;
+import com.strandls.user.util.SNSUtil;
 
 /**
  * @author Abhishek Rudra
@@ -55,6 +61,7 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 	protected Injector getInjector() {
 
 		Injector injector = Guice.createInjector(new ServletModule() {
+			@SuppressWarnings("deprecation")
 			@Override
 			protected void configureServlets() {
 
@@ -87,6 +94,21 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 				bind(Channel.class).toInstance(channel);
 
+//				mail producer binded
+				RabbitMQProducer mailProducer = new RabbitMQProducer(channel);
+				bind(RabbitMQProducer.class).toInstance(mailProducer);
+
+//				SNS CLIENT
+				Properties prop = PropertyFileUtil.fetchProperty("config.properties");
+				String ACCESS_ID = prop.getProperty("sns_access_id");
+				String SECRET_ACCESS_KEY = prop.getProperty("sns_secret_access_key");
+
+				AWSCredentials credentials = new BasicAWSCredentials(ACCESS_ID, SECRET_ACCESS_KEY);
+				AmazonSNSClient snsClient = new AmazonSNSClient(credentials);
+
+				bind(AmazonSNSClient.class).toInstance(snsClient);
+				bind(SNSUtil.class).in(Scopes.SINGLETON);
+
 				String JWT_SALT = PropertyFileUtil.fetchProperty("config.properties", "jwtSalt");
 				JwtAuthenticator jwtAuthenticator = new JwtAuthenticator();
 				jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(JWT_SALT));
@@ -94,8 +116,8 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 				bind(JwtAuthenticator.class).toInstance(jwtAuthenticator);
 
 				bind(SessionFactory.class).toInstance(sessionFactory);
-				bind(ServletContainer.class).in(Scopes.SINGLETON);
 
+				bind(ServletContainer.class).in(Scopes.SINGLETON);
 				serve("/api/*").with(ServletContainer.class, props);
 			}
 		}, new UserControllerModule(), new UserServiceModule(), new UserDaoModule());
@@ -133,16 +155,17 @@ public class UserServeletContextListener extends GuiceServletContextListener {
 
 		URI uri = new URI(packageURL.toString());
 		File folder = new File(uri.getPath());
-		
-		try (Stream<Path> list = Files.find(Paths.get(folder.getAbsolutePath()), 999, (p, bfa) -> bfa.isRegularFile())) {
+
+		try (Stream<Path> list = Files.find(Paths.get(folder.getAbsolutePath()), 999,
+				(p, bfa) -> bfa.isRegularFile())) {
 			list.forEach(file -> {
-				String name = file.toFile().getAbsolutePath().replaceAll(folder.getAbsolutePath() + File.separatorChar, "")
-						.replace(File.separatorChar, '.');
+				String name = file.toFile().getAbsolutePath()
+						.replaceAll(folder.getAbsolutePath() + File.separatorChar, "").replace(File.separatorChar, '.');
 				if (name.indexOf('.') != -1) {
 					name = packageName + '.' + name.substring(0, name.lastIndexOf('.'));
 					names.add(name);
 				}
-			});			
+			});
 		}
 
 		return names;

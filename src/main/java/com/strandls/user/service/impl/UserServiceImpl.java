@@ -22,6 +22,7 @@ import com.strandls.user.dao.FirebaseDao;
 import com.strandls.user.dao.FollowDao;
 import com.strandls.user.dao.UserDao;
 import com.strandls.user.dto.FirebaseDTO;
+import com.strandls.user.exception.UnAuthorizedUserException;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Role;
@@ -33,7 +34,6 @@ import com.strandls.user.pojo.requests.UserRoles;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AuthUtility;
 import com.strandls.user.util.NotificationScheduler;
-import com.strandls.user.util.UnAuthorizedUser;
 
 import net.minidev.json.JSONArray;
 
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 		return user;
 	}
 
-	private Long validateUserForEdits(HttpServletRequest request, Long inputUserId) throws UnAuthorizedUser {
+	private Long validateUserForEdits(HttpServletRequest request, Long inputUserId) throws UnAuthorizedUserException {
 		boolean isAdmin = false;
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 		JSONArray roles = (JSONArray) profile.getAttribute("roles");
@@ -81,12 +81,12 @@ public class UserServiceImpl implements UserService {
 			return profileId;
 
 		if (!isAdmin && !inputUserId.equals(profileId))
-			throw new UnAuthorizedUser("Only admin can edit other users");
+			throw new UnAuthorizedUserException("Only admin can edit other users");
 
 		return inputUserId;
 	}
 
-	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser {
+	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUserException {
 		userId = validateUserForEdits(request, userId);
 		User user = userDao.findById(userId);
 
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUser {
+	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUserException {
 
 		Long inputUserId = validateUserForEdits(request, inputUser.getId());
 		User user = userDao.findById(inputUserId);
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User updateEmailPreferences(HttpServletRequest request, UserEmailPreferences inputUser)
-			throws UnAuthorizedUser {
+			throws UnAuthorizedUserException {
 
 		Long inputUserId = validateUserForEdits(request, inputUser.getId());
 		User user = userDao.findById(inputUserId);
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUser {
+	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUserException {
 
 		Long inputUserId = validateUserForEdits(request, inputUser.getId());
 		User user = userDao.findById(inputUserId);

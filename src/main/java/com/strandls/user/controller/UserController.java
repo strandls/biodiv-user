@@ -33,6 +33,7 @@ import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.user.ApiConstants;
 import com.strandls.user.converter.UserConverter;
 import com.strandls.user.dto.FirebaseDTO;
+import com.strandls.user.exception.UnAuthorizedUserException;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.Recipients;
@@ -43,7 +44,6 @@ import com.strandls.user.pojo.requests.UserEmailPreferences;
 import com.strandls.user.pojo.requests.UserRoles;
 import com.strandls.user.service.UserService;
 import com.strandls.user.util.AuthUtility;
-import com.strandls.user.util.UnAuthorizedUser;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -124,7 +124,7 @@ public class UserController {
 	@ApiOperation(value = "update the user", notes = "Returns User details", response = User.class)
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 	@ValidateUser
-	public Response updateUserImage(@Context HttpServletRequest request, @QueryParam("id") Long userId, @QueryParam("profilePic") String profilePic) throws UnAuthorizedUser {
+	public Response updateUserImage(@Context HttpServletRequest request, @QueryParam("id") Long userId, @QueryParam("profilePic") String profilePic) throws UnAuthorizedUserException {
 		User user = userService.updateProfilePic(request, userId, profilePic);
 		return Response.status(Status.OK).entity(user).build();
 	}
@@ -137,7 +137,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 	@ValidateUser
 	public Response updateUserDetails(@Context HttpServletRequest request,
-			@ApiParam(name = "user") UserDetails inputUser) throws UnAuthorizedUser {
+			@ApiParam(name = "user") UserDetails inputUser) throws UnAuthorizedUserException {
 		User user = userService.updateUserDetails(request, inputUser);
 		return Response.status(Status.OK).entity(user).build();
 	}
@@ -150,7 +150,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 	@ValidateUser
 	public Response updateUserEmailPreferences(@Context HttpServletRequest request,
-			@ApiParam(name = "user") UserEmailPreferences inputUser) throws UnAuthorizedUser {
+			@ApiParam(name = "user") UserEmailPreferences inputUser) throws UnAuthorizedUserException {
 		User user = userService.updateEmailPreferences(request, inputUser);
 		return Response.status(Status.OK).entity(user).build();
 	}
@@ -163,7 +163,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 404, message = "User not found", response = String.class) })
 	@ValidateUser
 	public Response updateUserRoles(@Context HttpServletRequest request, @ApiParam(name = "user") UserRoles inputUser)
-			throws UnAuthorizedUser {
+			throws UnAuthorizedUserException {
 		if(AuthUtility.isAdmin(request)) {
 			Response.status(Status.UNAUTHORIZED).build();
 		}

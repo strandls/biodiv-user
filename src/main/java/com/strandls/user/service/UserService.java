@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.strandls.user.dto.FirebaseDTO;
+import com.strandls.user.exception.UnAuthorizedUserException;
 import com.strandls.user.pojo.FirebaseTokens;
 import com.strandls.user.pojo.Follow;
 import com.strandls.user.pojo.User;
@@ -15,7 +16,6 @@ import com.strandls.user.pojo.UserIbp;
 import com.strandls.user.pojo.requests.UserDetails;
 import com.strandls.user.pojo.requests.UserEmailPreferences;
 import com.strandls.user.pojo.requests.UserRoles;
-import com.strandls.user.util.UnAuthorizedUser;
 
 /**
  * @author Abhishek Rudra
@@ -55,13 +55,13 @@ public interface UserService {
 
 	public void sendPushNotifications(FirebaseDTO firebaseDTO);
 
-	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUser;
+	public User updateUserDetails(HttpServletRequest request, UserDetails inputUser) throws UnAuthorizedUserException;
 
-	public User updateEmailPreferences(HttpServletRequest request, UserEmailPreferences inputUser) throws UnAuthorizedUser;
+	public User updateEmailPreferences(HttpServletRequest request, UserEmailPreferences inputUser) throws UnAuthorizedUserException;
 
-	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUser;
+	public User updateRolesAndPermission(HttpServletRequest request, UserRoles inputUser) throws UnAuthorizedUserException;
 
-	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUser;
+	public User updateProfilePic(HttpServletRequest request, Long userId, String profilePic) throws UnAuthorizedUserException;
 	
 	public String deleteUser(HttpServletRequest request, Long userId);
 }
