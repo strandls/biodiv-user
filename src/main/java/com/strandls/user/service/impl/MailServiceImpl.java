@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rabbitmq.client.Channel;
 import com.strandls.mail_utility.model.EnumModel.FIELDS;
 import com.strandls.mail_utility.model.EnumModel.INFO_FIELDS;
 import com.strandls.mail_utility.model.EnumModel.MAIL_TYPE;
@@ -31,7 +30,7 @@ public class MailServiceImpl implements MailService {
 	private static final Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
 
 	@Inject
-	private Channel channel;
+	private RabbitMQProducer mailProducer;
 
 	@Override
 	public void sendActivationMail(HttpServletRequest request, User user, String otp) {
@@ -47,9 +46,8 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> mailData = new HashMap<String, Object>();
 		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.USER_REGISTRATION.getAction());
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
-		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+			mailProducer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 					JsonUtil.mapToJSON(mailData));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -79,9 +77,8 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> mailData = new HashMap<String, Object>();
 		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.WELCOME_MAIL.getAction());
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
-		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+			mailProducer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());
@@ -102,9 +99,8 @@ public class MailServiceImpl implements MailService {
 		Map<String, Object> mailData = new HashMap<String, Object>();
 		mailData.put(INFO_FIELDS.TYPE.getAction(), MAIL_TYPE.RESET_PASSWORD.getAction());
 		mailData.put(INFO_FIELDS.RECIPIENTS.getAction(), Arrays.asList(data));
-		RabbitMQProducer producer = new RabbitMQProducer(channel);
 		try {
-			producer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
+			mailProducer.produceMail(RabbitMqConnection.EXCHANGE, RabbitMqConnection.ROUTING_KEY, null,
 					JsonUtil.mapToJSON(mailData));
 		} catch (Exception ex) {
 			logger.error(ex.getMessage());

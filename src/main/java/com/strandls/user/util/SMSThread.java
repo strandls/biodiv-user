@@ -1,14 +1,20 @@
 package com.strandls.user.util;
 
-public class SMSThread extends SNSUtil implements Runnable {
-	
-	public SMSThread(String phoneNumber, String message) {
-		super(phoneNumber, message);
+public class SMSThread implements Runnable {
+
+	private SNSUtil snsUtil;
+	private String phoneNumber;
+	private String message;
+
+	public SMSThread(SNSUtil snsUtil, String phoneNumber, String message) {
+		this.snsUtil = snsUtil;
+		this.phoneNumber = phoneNumber;
+		this.message = message;
 	}
-	
+
 	@Override
 	public void run() {
-		sendSMS();
+		snsUtil.sendSMS(message, phoneNumber);
 	}
 
 }
