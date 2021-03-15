@@ -1,16 +1,14 @@
 package com.strandls.user.util;
 
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +88,10 @@ public class AppUtil {
 	}
 
 	public static String generateOTP() {
-		Random random = null;
 		try {
-			random = SecureRandom.getInstanceStrong();
-			return String.format("%06d", random.nextInt(1000000));
-		} catch (NoSuchAlgorithmException e) {
+			String random = RandomStringUtils.randomNumeric(6);
+			return random;
+		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 		return null;
