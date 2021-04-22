@@ -125,4 +125,21 @@ public class UserDao extends AbstractDAO<User, Long> {
 		return entity;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<User> findRoleAdmin() {
+		Session session = sessionFactory.openSession();
+		String qry = "from User u join u.roles r where r.authority = 'ROLE_ADMIN' ";
+		List<User> result = null;
+		try {
+			Query<User> query = session.createQuery(qry);
+			result = query.getResultList();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return result;
+	}
+
 }
