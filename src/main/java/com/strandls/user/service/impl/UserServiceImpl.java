@@ -313,7 +313,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> getAllAdmins() {
-		List<User> result = userDao.findRoleAdmin();
+		List<Long> adminIdList = userDao.findRoleAdmin();
+		List<User> result = new ArrayList<User>();
+		for(Long adminId:adminIdList) {
+			result.add(fetchUser(adminId));
+		}
 		return result;
 	}
 
