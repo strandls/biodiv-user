@@ -8,7 +8,7 @@
 	<artifactId>user</artifactId>
 	<version>1.0.0</version>
 	<packaging>war</packaging>
-	<name>Biodiv User API</name>
+	<name>biodiv-user</name>
 	<properties>
 		<!-- Plugins property -->
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
