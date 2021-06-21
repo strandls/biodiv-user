@@ -30,6 +30,11 @@
 		<srcDir>src/main/webapp</srcDir>
 		<base-path>/user-api/api</base-path>
 		<location>com.strandls.user</location>
+
+		<!-- Sonar Cloud -->
+		<sonar.projectKey>strandls_biodiv-user</sonar.projectKey>
+		<sonar.organization>strandls</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<distributionManagement>
