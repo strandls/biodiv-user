@@ -109,5 +109,40 @@ public abstract class AbstractDAO<T, K extends Serializable> {
 		return entities;
 	}
 
-
+	@SuppressWarnings("unchecked")
+	public T findByPropertyWithCondition(String property, String value, String condition) {
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " " + condition
+				+ " :value";
+		Session session = sessionFactory.openSession();
+		Query<T> query = session.createQuery(queryStr);
+		query.setParameter("value", value);
+		T entity = null;
+		try {
+			entity = query.getSingleResult();
+		} catch (Exception e) {
+			throw new NoResultException(e.getMessage());
+		} finally {
+			session.close();
+		}
+		return entity;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<T> getByPropertyWithCondtion(String property, Object value, String condition, int limit, int offset) {
+		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + "where t." + property + " " + condition
+				+ " :value" + " order by id";
+		Session session = sessionFactory.openSession();
+		Query<T> query = session.createQuery(queryStr);
+		query.setParameter("value", value);
+		List<T> resultList = new ArrayList<>();
+		try {
+			if (limit > 0 && offset >= 0)
+				query = query.setFirstResult(offset).setMaxResults(limit);
+			resultList = query.getResultList();
+		} catch (NoResultException e) {
+			throw new NoResultException(e.getMessage());
+		}
+		session.close();
+		return resultList;
+	}
 }
