@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -89,8 +90,8 @@ public class AppUtil {
 
 	public static String generateOTP() {
 		try {
-			String random = RandomStringUtils.randomNumeric(6);
-			return random;
+			Random random = new Random(); 
+			return String.valueOf(random.nextInt(6));
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
