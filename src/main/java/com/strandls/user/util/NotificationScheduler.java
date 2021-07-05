@@ -15,6 +15,9 @@ import com.strandls.user.pojo.FirebaseTokens;
 
 public class NotificationScheduler extends Thread {
 
+	private static final Logger logger = LoggerFactory.getLogger(NotificationScheduler.class);
+
+
 	Channel channel;
 	FirebaseDTO firebaseDTO;
 	List<FirebaseTokens> tokens;
@@ -49,7 +52,7 @@ public class NotificationScheduler extends Thread {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 	}
 

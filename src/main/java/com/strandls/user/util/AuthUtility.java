@@ -30,6 +30,8 @@ import net.minidev.json.JSONArray;
 
 public class AuthUtility {
 	
+	private static final Logger logger = LoggerFactory.getLogger(AuthUtility.class);
+
 	private AuthUtility() {}
 	
 	private static final String CONFIG = "config.properties";
@@ -106,7 +108,7 @@ public class AuthUtility {
 			in.close();
 			obj = new JSONObject(response.toString());
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 		return obj;
 	}

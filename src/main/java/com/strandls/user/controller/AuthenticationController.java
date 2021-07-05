@@ -135,7 +135,6 @@ public class AuthenticationController {
 				return response.build();
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			return Response.status(Status.BAD_REQUEST).entity(ex.getMessage()).build();
 		}

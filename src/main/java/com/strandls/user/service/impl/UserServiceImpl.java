@@ -284,7 +284,7 @@ public class UserServiceImpl implements UserService {
 				token = firebaseDao.save(savedToken);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error(ex.getMessage());
 		}
 		return token;
 	}
