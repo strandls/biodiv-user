@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.rabbitmq.client.Channel;
 import com.strandls.mail_utility.model.EnumModel.NOTIFICATION_DATA;
 import com.strandls.mail_utility.model.EnumModel.NOTIFICATION_FIELDS;

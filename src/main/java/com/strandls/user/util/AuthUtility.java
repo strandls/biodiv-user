@@ -20,6 +20,8 @@ import org.pac4j.core.profile.jwt.JwtClaims;
 import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.jwt.profile.JwtGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.authentication_utility.util.PropertyFileUtil;
