@@ -39,6 +39,7 @@ import com.strandls.user.service.UserService;
 import com.strandls.user.util.AppUtil;
 import com.strandls.user.util.AppUtil.VERIFICATION_TYPE;
 import com.strandls.user.util.AuthUtility;
+import com.strandls.user.util.GoogleRecaptchaCheck;
 import com.strandls.user.util.PropertyFileUtil;
 import com.strandls.user.util.ValidationUtil;
 
@@ -126,10 +127,10 @@ public class AuthenticationController {
 			ResponseBuilder response = Response.ok().entity(tokens);
 			if (status && !verification) {
 				NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, tokens.get(Constants.ACCESS_TOKEN).toString(),
-						"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, true,true);
+						"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60,false);//NOSONAR
 				NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN,
 						tokens.get(Constants.REFRESH_TOKEN).toString(), "/", AppUtil.getDomain(request), "",
-						10 * 24 * 60 * 60, true,true);
+						10 * 24 * 60 * 60, false);//NOSONAR
 				return response.cookie(accessToken).cookie(refreshToken).build();
 			} else {
 				return response.build();
@@ -206,12 +207,12 @@ public class AuthenticationController {
 			String mobileNumber = userDTO.getMobileNumber();
 			String verificationType = AppUtil.getVerificationType(userDTO.getVerificationType());
 			String mode = userDTO.getMode();
-//			String recaptcha = userDTO.getRecaptcha();
-//			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
-//			if (check.isRobot(recaptcha)) {
-//				return Response.status(Status.BAD_REQUEST)
-//						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_CAPTCHA)).build();
-//			}
+			String recaptcha = userDTO.getRecaptcha();
+			GoogleRecaptchaCheck check = new GoogleRecaptchaCheck();
+			if (check.isRobot(recaptcha)) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity(AppUtil.generateResponse(false, ERROR_CONSTANTS.INVALID_CAPTCHA)).build();
+			}
 			if (username == null || username.isEmpty()) {
 				return Response.status(Status.BAD_REQUEST).entity("Username cannot be empty").build();
 			}
@@ -275,9 +276,9 @@ public class AuthenticationController {
 		Map<String, Object> result = authenticationService.validateUser(request, id, otp);
 		if (Boolean.parseBoolean(result.get(Constants.STATUS).toString())) {
 			NewCookie accessToken = new NewCookie(Constants.BA_TOKEN, result.get(Constants.ACCESS_TOKEN).toString(),
-					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60,  true,true);
+					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);//NOSONAR
 			NewCookie refreshToken = new NewCookie(Constants.BR_TOKEN, result.get(Constants.REFRESH_TOKEN).toString(),
-					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60,  true,true);
+					"/", AppUtil.getDomain(request), "", 10 * 24 * 60 * 60, false);//NOSONAR
 			return Response.ok().entity(result).cookie(accessToken).cookie(refreshToken).build();
 		}
 		return Response.status(Status.OK).entity(result).build();
