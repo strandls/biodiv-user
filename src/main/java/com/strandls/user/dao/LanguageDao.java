@@ -68,21 +68,23 @@ public class LanguageDao extends AbstractDAO<Language, Long> {
 
 	@SuppressWarnings("unchecked")
 	public Language findLangByProperty(String property, String value) {
-		String qry = "from Language where :property = :value";
+		String qry = "from Language where property = :value";
+		qry = qry.replace("property", property);
 		Session session = sessionFactory.openSession();
 		List<Language> resultList = new ArrayList<Language>();
 		try {
 			Query<Language> query = session.createQuery(qry);
-			query.setParameter("property", property);
 			query.setParameter("value", value);
 			query.setMaxResults(1);
 			resultList = query.getResultList();
+			if (!resultList.isEmpty())
+				return resultList.get(0);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		} finally {
 			session.close();
 		}
-		return resultList.get(0);
+		return null;
 	}
 
 }
