@@ -90,8 +90,8 @@ public class AppUtil {
 
 	public static String generateOTP() {
 		try {
-			Random random = SecureRandom.getInstanceStrong();
-			return String.valueOf(random.nextInt(6));
+			Random random = SecureRandom.getInstance("SHA1PRNG");
+			return String.valueOf(random.nextInt(900000) + 100000);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}

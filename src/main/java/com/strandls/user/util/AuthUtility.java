@@ -31,11 +31,12 @@ import com.strandls.user.pojo.User;
 import net.minidev.json.JSONArray;
 
 public class AuthUtility {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AuthUtility.class);
 
-	private AuthUtility() {}
-	
+	private AuthUtility() {
+	}
+
 	private static final String CONFIG = "config.properties";
 
 	public static CommonProfile createUserProfile(User user) {
@@ -119,7 +120,7 @@ public class AuthUtility {
 		String[] roleNames = PropertyFileUtil.fetchProperty(CONFIG, "user.defaultRoleNames").split(",");
 		return roleNames;
 	}
-	
+
 	public static boolean isAdmin(HttpServletRequest request) {
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
 		JSONArray roles = (JSONArray) profile.getAttribute("roles");
